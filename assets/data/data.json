@@ -1,0 +1,418 @@
+{
+  "Applications métiers": {
+    "items": [
+      {
+        "title": "Gitlab",
+        "link": "https://gitlab-bcul.unil.ch",
+        "description": "Le Gitlab de la BCUL",
+        "documentation": "https://docs.gitlab.com/"
+      },
+      {
+        "link": "https://appm-bookstack.prduks-bcul-ci4881-limited.uks.unil.ch/",
+        "title": "Bookstack",
+        "description": "Bookstack - Le Wiki de la BCUL",
+        "documentation": "https://www.bookstackapp.com/docs/"
+      },
+      {
+        "link": "https://itop-bcul.unil.ch/itop",
+        "title": "Itop",
+        "description": "iTop - Application d'inventaire",
+        "documentation": "https://www.itophub.io/wiki/page"
+      },
+      {
+        "link": "https://apps-ocsinventory.prduks-bcul-ci4881-limited.uks.unil.ch/ocsreports/",
+        "title": "OCS Inventory",
+        "description": "Application d'inventaire des laptops",
+        "documentation": "https://wiki.ocsinventory-ng.org/"
+      },
+      {
+        "link": "https://portal.uks.unil.ch/dashboard/auth/login?timed-out",
+        "title": "UKS Portal",
+        "description": "Portail de gestion des pods Kubernetes",
+        "documentation": "https://rancher.com/docs/"
+      },
+      {
+        "link": "https://apps-passbolt.prduks-bcul-ci4881-limited.uks.unil.ch/app/passwords",
+        "title": "Passbolt",
+        "description": "Gestionnaire de mots de passe BCUL",
+        "documentation": "https://www.passbolt.com/docs/"
+      },
+      {
+        "link": "https://helpdesk.unil.ch/otobo",
+        "title": "Otobo",
+        "description": "Interface de gestion des tickets",
+        "documentation": "https://doc.otobo.org/"
+      },
+      {
+        "link": "https://discord.gg/6VwfW3j6r4",
+        "title": "Discord",
+        "description": "Lien vers le serveur Discord du service.",
+        "documentation": "https://discord.com/developers/docs/intro"
+      },
+      {
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/RESSOURCE-INF/itop-inventory/index.php",
+        "title": "Application Inventaire",
+        "description": "Application de scan d'inventaire connectée à iTop",
+        "documentation": ""
+      },
+      {
+        "link": "https://ephoto-bcul.unil.ch",
+        "title": "E-photo",
+        "description": "Application e-photo de stockage de photos",
+        "documentation": ""
+      },
+      {
+        "link": "https://printunil-uniflow.unil.ch/pwbudget/",
+        "title": "Uniflow",
+        "description": "Application de gestion des crédits d'impression printunil sur les campus card",
+        "documentation": ""
+      }
+    ]
+  },
+  "Monitoring": {
+    "items": [
+      {
+        "link": "https://apps-grafana.prduks-bcul-ci4881-limited.uks.unil.ch/login",
+        "title": "Grafana BCUL",
+        "description": "Monitoring Grafana de la BCUL",
+        "documentation": "https://grafana.com/docs/"
+      },
+      {
+        "link": "https://status-bcul.unil.ch/",
+        "title": "Cachet - Application de statuts des serveurs BCUL",
+        "description": "Application permettant la vérification des status serveur.",
+        "documentation": ""
+      },
+      {
+        "link": "https://tenable-sc.unil.ch/",
+        "title": "Tenable - Surveillance des vulnérabilités (SOC)",
+        "description": "SOC de surveillance des vulnérabilités des serveurs.",
+        "documentation": "https://docs.tenable.com/"
+      }
+    ]
+  },
+  "Serveurs Web": {
+    "items": [
+      {
+        "link": "https://webext-apache.prduks-bcul-ci4881.uks.unil.ch/",
+        "title": "Externe",
+        "description": "Serveur Web Externe",
+        "documentation": ""
+      },
+      {
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/",
+        "title": "Interne",
+        "description": "Serveur Web Interne",
+        "documentation": ""
+      },
+      {
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/index-it.html",
+        "title": "IT",
+        "description": "Serveur Web Interne du service IT",
+        "documentation": ""
+      },
+      {
+        "link": "https://webtest-apache.prduks-bcul-ci4881-limited.uks.unil.ch/",
+        "title": "Test",
+        "description": "Serveur Web Test",
+        "documentation": ""
+      }
+    ]
+  },
+  "Virtualisation - BCUL": {
+    "items": [
+      {
+        "link": "https://vcsa-vdi-bcul.unil.ch/",
+        "title": "VCSA VDI",
+        "description": "VCSA VDI",
+        "documentation": "https://docs.vmware.com/en/VMware-vSphere/index.html"
+      },
+      {
+        "link": "https://vcsa-prd-bcul.unil.ch/",
+        "title": "VCSA PRD",
+        "description": "VCSA PRD",
+        "documentation": "https://docs.vmware.com/en/VMware-vSphere/index.html"
+      },
+      {
+        "link": "https://vco-bcul.unil.ch/admin/",
+        "title": "VCO BCUL",
+        "description": "VCO BCUL",
+        "documentation": "https://docs.vmware.com/fr/VMware-SD-WAN/index.html"
+      },
+      {
+        "link": "https://av-bcul.unil.ch/login",
+        "title": "App Volumes",
+        "description": "App Volumes",
+        "documentation": "https://docs.vmware.com/en/VMware-App-Volumes/index.html"
+      }
+    ]
+  },
+  "Formulaires BCUL": {
+    "items": [
+      {
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-pret.html",
+        "title": "BCUL - Formulaire de prêt",
+        "description": "Formulaire de prêt de matériel",
+        "documentation": ""
+      },
+      {
+        "title": "Manuscrits - Demande de consultation",
+        "link": "https://webext-apache.prduks-bcul-ci4881.uks.unil.ch/FORMS/manuscrits/Formulaire-manuscrit.html",
+        "description": "Formulaire de demande de consultation de manuscrits",
+        "documentation": ""
+      },
+      {
+        "title": "RH - Entrée d'un collaborateur",
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-entree.html",
+        "description": "Formulaire d'entrée d'un collaborateur",
+        "documentation": ""
+      },
+      {
+        "title": "RH - Sortie d'un collaborateur",
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-sortie.html",
+        "description": "Formulaire de sortie d'un collaborateur",
+        "documentation": ""
+      },
+      {
+        "title": "RH - Prolongation d'un collaborateur",
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-prolongation.html",
+        "description": "Formulaire de prolongation d'un collaborateur",
+        "documentation": ""
+      },
+      {
+        "title": "RH - Déclaration d'accident",
+        "link": "https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/rh/Formulaire-accident.html",
+        "description": "Formulaire de déclaration d'accident",
+        "documentation": ""
+      }
+    ]
+  },
+  "Formulaires UNIL": {
+    "items": [
+      {
+        "link": "https://www2.unil.ch/dbcm-adm/SiteFormulaires/cde_materiel_UNIL2018.pdf",
+        "title": "Formulaire achats UNIL",
+        "description": "Formulaire à remplir pour les demandes d'achats à l'UNIL",
+        "documentation": ""
+      },
+      {
+        "link": "https://www2.unil.ch/dbcm-adm/SiteFormulaires/cde_materiel_UNIL2018.pdf",
+        "title": "Formulaire achats UNIL",
+        "description": "Formulaire à remplir pour les demandes d'achats à l'UNIL",
+        "documentation": ""
+      },
+      {
+        "link": "https://unil.ch/ci/id",
+        "title": "Compte informatique UNIL",
+        "description": "Toutes les opérations concernant les comptes informatiques",
+        "documentation": ""
+      },
+      {
+        "link": "https://www2.unil.ch/ci/forms_otrs/comptes/acces_intranet/acces_intranet.php",
+        "title": "Accès intranet UNIL",
+        "description": "Formulaire de demande d'accès à l'Intranet UNIL",
+        "documentation": ""
+      },
+      {
+        "link": "https://www2.unil.ch/ci/forms_otrs/reseau/request.php",
+        "title": "Formulaire de demande de réseau de l'UNIL",
+        "description": "Formulaire de demande de réseau de l'UNIL",
+        "documentation": ""
+      },
+      {
+        "title": "Activation téléphonie Teams",
+        "link": "https://www.unil.ch/ci/voip",
+        "description": "Permet d'activer la téléphonie sur Teams",
+        "documentation": ""
+      }
+    ]
+  },
+  "Administration": {
+    "items": [
+      {
+        "link": "http://jbm6-bcul.ad.unil.ch/workflow/default.aspx?tick=988",
+        "title": "JBM Workflow",
+        "description": "Application JBM Workflow permettant de noter les heures effectuées",
+        "documentation": ""
+      },
+      {
+        "link": "https://applications.unil.ch/intra/auth/php/Sy/SyMenu.php",
+        "title": "Intranet UNIL",
+        "description": "Accès à Sylvia - l'Intranet de l'UNIL",
+        "documentation": ""
+      }
+    ]
+  },
+  "Lorawan": {
+    "items": [
+      {
+        "link": "http://lorawan01.unil.ch:3000/login",
+        "title": "Dashboard Grafana Lorawan",
+        "description": "Dashboard de monitoring des sondes Lorawan",
+        "documentation": "https://grafana.com/docs/"
+      },
+      {
+        "link": "http://lorawan01.unil.ch:8086/signin",
+        "title": "Base de données influxDB",
+        "description": "Base de données des sondes Lorawan",
+        "documentation": "https://docs.influxdata.com/influxdb/v2/"
+      },
+      {
+        "link": "http://lorawan01.unil.ch:8080/#/login",
+        "title": "Gateway des antennes Lorawan",
+        "description": "Gateway de gestion des sondes Lorawan",
+        "documentation": "https://www.chirpstack.io/docs/"
+      }
+    ]
+  },
+  "Virtualisation - UNIL": {
+    "items": [
+      {
+        "link": "https://xaas-di.vra.unil.ch/",
+        "title": "Gestion des VM Ci UNIL (XaaS)",
+        "description": "L'application Aria permet de simplifier et d'automatiser la gestion du cycle de vie des machines virtuelles (VM). Notamment sur le provisionnement et sur les opérations de gestion.",
+        "documentation": "https://wiki.unil.ch/ci/books/hebergement-de-machines-virtuelles-vm-hors-recherche/chapter/doc-publique"
+      },
+      {
+        "link": "https://vcsa.unil.ch",
+        "title": "Gestion des VM Ci UNIL (VCSA)",
+        "description": "VSCA UNIL",
+        "documentation": "https://docs.vmware.com/en/VMware-vSphere/index.html"
+      },
+      {
+        "link": "https://prdvdiu-vcsa02.unil.ch/",
+        "title": "vSphere VDI UNIL",
+        "description": "vSphere VDI UNIL",
+        "documentation": "https://docs.vmware.com/fr/VMware-vSphere/index.html"
+      },
+      {
+        "link": "https://vdiu-srvco-max.unil.ch/admin/#/login",
+        "title": "VMWare Horizon UNIL",
+        "description": "VMWare Horizon UNIL",
+        "documentation": ""
+      },
+      {
+        "link": "https://cohesity01.unil.ch/",
+        "title": "Cohesity",
+        "description": "Restauration de fichiers et de VM UNIL",
+        "documentation": "https://docs.cohesity.com/ui/"
+      }
+    ]
+  },
+  "Mail": {
+    "items": [
+      {
+        "link": "https://sympa.unil.ch/sympa/home",
+        "title": "Listes de diffusion",
+        "description": "Listes de diffusion de l'UNIL",
+        "documentation": ""
+      }
+    ]
+  },
+  "Réseau": {
+    "items": [
+      {
+        "link": "https://web-auth.unil.ch/",
+        "title": "Authentification Firewall UNIL",
+        "description": "Permet de s'authentifier sur le firewall de l'UNIL et de se connecter sur leur différents services",
+        "documentation": ""
+      },
+      {
+        "link": "https://www.unil.ch/ci/home/menuinst/catalogue-de-services/reseau-et-telephonie/firewall-as-a-service/acceder-au-service.html",
+        "title": "Règles Firewall (FaaS)",
+        "description": "Ajout, suppression et modification de règles pour le Firewall de l'UNIL",
+        "documentation": ""
+      },
+      {
+        "link": "https://www.unil.ch/ci/fr/home/menuinst/catalogue-de-services/reseau-et-telephonie/demande-d-ip-fixe.html",
+        "title": "Demande d'IP fixe et DNS",
+        "description": "Pour effectuer une demande d'IP fixe et/ou de DNS pour un serveur/PC/VM",
+        "documentation": ""
+      },
+      {
+        "link": "https://www2.unil.ch/ci/reseau/hosts_unil.arp",
+        "title": "Adresses IP UNIL (ARP)",
+        "description": "Table ARP regroupant toutes les adresses IP de l'UNIL (et les réseaux).",
+        "documentation": "https://en.wikipedia.org/wiki/Address_Resolution_Protocol"
+      },
+      {
+        "link": "https://apps-unificheck.prduks-bcul-ci4881-limited.uks.unil.ch/",
+        "title": "Portail Unifi",
+        "description": "Portail Unifi vers les devices unifi des différents sites BCUL",
+        "documentation": "https://help.ui.com/hc/en-us/categories/6583256751383-UniFi"
+      }
+    ]
+  },
+  "Téléphonie": {
+    "items": [
+      {
+        "link": "https://www.unil.ch/ci/fr/home/menuinst/catalogue-de-services/reseau-et-telephonie.html",
+        "title": "Formulaires UNIL de téléphonie",
+        "description": "Formulaires diverses concernant la téléphonie à l'UNIL",
+        "documentation": ""
+      },
+      {
+        "link": "https://annuaire.unil.ch/",
+        "title": "Annuaire UNIL",
+        "description": "Annuaire de l'UNIL",
+        "documentation": ""
+      }
+    ]
+  },
+  "Formations": {
+    "items": [
+      {
+        "link": "https://www.eni-training.com/instant-Connection/Default.aspx?WSLogin=TmRu6E1WYa1IEiTDUTLXrg%3D%3D&WSPwd=m3OjUZGox9AfMGCblpkA6g%3D%3D&IdDomain=239&IdGroup=168078",
+        "title": "eni-training",
+        "description": "Plateforme de formation Eni-training",
+        "documentation": ""
+      },
+      {
+        "link": "https://www.pressreader.com/",
+        "title": "Pressreader",
+        "description": "Plateforme de catalogue de journaux Pressreader",
+        "documentation": ""
+      },
+      {
+        "link": "https://www.elephorm.com/",
+        "title": "Elephorm",
+        "description": "Plateforme de formation Elephorm",
+        "documentation": ""
+      },
+      {
+        "link": "https://www.alphorm.com/",
+        "title": "Alphorm",
+        "description": "Plateforme de formation Alphorm",
+        "documentation": ""
+      },
+      {
+        "link": "https://www.packtpub.com/",
+        "title": "Packtpub",
+        "description": "Plateforme de formation Packtpub",
+        "documentation": ""
+      }
+    ]
+  },
+  "Utilitaires": {
+    "items": [
+      {
+        "link": "https://m3.material.io/",
+        "title": "Material - Web design",
+        "description": "Système de Web Design créé par Google.",
+        "documentation": ""
+      },
+      {
+        "link": "https://store.rg-adguard.net/",
+        "title": "Microsoft Store bypass",
+        "description": "Lien permettant de télécharger des applications du Microsoft Store sans passer par celui-ci",
+        "documentation": ""
+      },
+      {
+        "link": "https://planete.unil.ch/",
+        "title": "Planete UNIL",
+        "description": "Plans de l'UNIL",
+        "documentation": ""
+      }
+    ]
+  }
+}
