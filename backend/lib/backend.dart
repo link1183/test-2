@@ -8,13 +8,13 @@ void main() async {
 
   final app = Router();
 
-  app.get('/links', (Request req) async {
-    final links = db.db.select('SELECT * FROM link;');
+  app.get('/api/links', (Request req) async {
+    final links = db.db.select('SELECT * FROM keyword;');
     return Response.ok(links.toString());
   });
 
   final handler = Pipeline().addMiddleware(logRequests()).addHandler(app);
 
-  final server = await io.serve(handler, 'localhost', 8080);
+  final server = await io.serve(handler, '0.0.0.0', 8080);
   print('Server running on http://${server.address.host}:${server.port}');
 }

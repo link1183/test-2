@@ -1,0 +1,13 @@
+FROM dart:stable AS build
+WORKDIR /app
+COPY pubspec.* ./
+RUN dart pub get
+COPY . .
+RUN dart pub get   # Run again after copying source
+RUN dart compile exe bin/server.dart -o server
+
+FROM ubuntu:latest
+RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev
+COPY --from=build /app/server /app/server
+WORKDIR /app
+CMD ["./server"]
