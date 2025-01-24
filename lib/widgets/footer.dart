@@ -7,13 +7,13 @@ class Footer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF212529),
-      padding: const EdgeInsets.all(32.0),
+      padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
           Image(
             image: AssetImage('assets/img/logoVD-blanc-2014_small.png'),
-            height: 115,
-            filterQuality: FilterQuality.none,
+            width: 40,
+            filterQuality: FilterQuality.high,
           ),
           SizedBox(width: 32),
           const Flexible(
@@ -21,7 +21,7 @@ class Footer extends StatelessWidget {
               '© 2025 Bibliothèque Cantonale et Universitaire de Lausanne',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 12,
               ),
             ),
           ),

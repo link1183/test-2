@@ -7,12 +7,13 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF212529),
-      padding: const EdgeInsets.fromLTRB(0, 16, 32, 16),
+      padding: const EdgeInsets.fromLTRB(0, 18, 32, 8),
       child: Row(
         children: [
           Image(
             image: AssetImage('assets/img/bcul_logo_RVB_small.png'),
-            height: 115,
+            width: 115,
+            filterQuality: FilterQuality.high,
           ),
           const Text(
             'Portail IT BCUL',
