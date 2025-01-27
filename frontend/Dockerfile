@@ -1,5 +1,4 @@
-# frontend/Dockerfile
-FROM ubuntu:latest AS build
+FROM debian:12.9 AS build
 
 # Install Flutter dependencies
 RUN apt-get update && apt-get install -y \
@@ -20,6 +19,8 @@ RUN flutter config --enable-web
 # Copy app files
 WORKDIR /app
 COPY . .
+
+RUN flutter pub get
 
 # Build web app
 RUN flutter build web

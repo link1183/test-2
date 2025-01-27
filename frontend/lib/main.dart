@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test/widgets/footer.dart';
 import 'package:test/widgets/header.dart';
+import 'package:test/widgets/main.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
   runApp(const App());
@@ -24,6 +26,28 @@ class App extends StatelessWidget {
 class Home extends StatelessWidget {
   const Home({super.key});
 
+  Future<void> _insertMockData() async {
+    try {
+      final response = await http.get(Uri.parse('/api/mock_insert'));
+      if (response.statusCode == 200) {
+        print('Mock data received: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> _getMockData() async {
+    try {
+      final response = await http.get(Uri.parse('/api/mock'));
+      if (response.statusCode == 200) {
+        print('Mock data received: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,34 +55,13 @@ class Home extends StatelessWidget {
         child: Column(
           children: [
             const Header(),
-            ...List.generate(
-              10,
-              (index) => Container(
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      spreadRadius: 2,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const SelectableText(
-                  "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-                  style: TextStyle(
-                    fontSize: 16,
-                    height: 1.6,
-                    color: Color(0xFF2C3E50),
-                  ),
-                ),
-              ),
-            ),
+            const Main(),
+            ElevatedButton.icon(
+                onPressed: _insertMockData,
+                label: const Text('Insert Mock data')),
+            SizedBox(height: 16),
+            ElevatedButton.icon(
+                onPressed: _getMockData, label: const Text('Get mock data')),
             const Footer(),
           ],
         ),
