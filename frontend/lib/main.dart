@@ -3,6 +3,7 @@ import 'package:test/widgets/footer.dart';
 import 'package:test/widgets/header.dart';
 import 'package:test/widgets/main.dart';
 import 'package:http/http.dart' as http;
+import 'dart:developer';
 
 void main() async {
   runApp(const App());
@@ -26,25 +27,14 @@ class App extends StatelessWidget {
 class Home extends StatelessWidget {
   const Home({super.key});
 
-  Future<void> _insertMockData() async {
+  Future<void> _getCategories() async {
     try {
-      final response = await http.get(Uri.parse('/api/mock_insert'));
+      final response = await http.get(Uri.parse('/api/categories'));
       if (response.statusCode == 200) {
-        print('Mock data received: ${response.body}');
+        log(response.body);
       }
     } catch (e) {
-      print('Error fetching data: $e');
-    }
-  }
-
-  Future<void> _getMockData() async {
-    try {
-      final response = await http.get(Uri.parse('/api/mock'));
-      if (response.statusCode == 200) {
-        print('Mock data received: ${response.body}');
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
+      log('Error fetching data: $e');
     }
   }
 
@@ -56,12 +46,10 @@ class Home extends StatelessWidget {
           children: [
             const Header(),
             const Main(),
-            ElevatedButton.icon(
-                onPressed: _insertMockData,
-                label: const Text('Insert Mock data')),
             SizedBox(height: 16),
             ElevatedButton.icon(
-                onPressed: _getMockData, label: const Text('Get mock data')),
+                onPressed: _getCategories, label: const Text('Get categories')),
+            SizedBox(height: 16),
             const Footer(),
           ],
         ),

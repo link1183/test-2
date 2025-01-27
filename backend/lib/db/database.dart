@@ -6,7 +6,20 @@ class AppDatabase {
 
   void init() {
     _db = sqlite3.open('data.db');
-    _createTables();
+    _initializeDatabase();
+  }
+
+  void _initializeDatabase() {
+    final tableExists = _db.select('''
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table' AND name='link';
+      ''');
+
+    if (tableExists.isEmpty) {
+      _createTables();
+      _insertMockData();
+    }
   }
 
   void _createTables() {
@@ -63,20 +76,22 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
     ''');
   }
 
-  void insertMockData() {
-    final mockData = [
-      '''INSERT INTO status (id, name) VALUES
+  void _insertMockData() {
+    _db.execute('BEGIN TRANSACTION;');
+    try {
+      final mockData = [
+        '''INSERT INTO status (id, name) VALUES
          (1, 'Active'),
          (2, 'Pending'),
          (3, 'Archived'),
          (4, 'Under Review')''',
-      '''INSERT INTO categories (id, name) VALUES
+        '''INSERT INTO categories (id, name) VALUES
          (1, 'Documentation'),
          (2, 'Tutorials'),
          (3, 'API Reference'),
          (4, 'Best Practices'),
          (5, 'Getting Started')''',
-      '''INSERT INTO keyword (id, keyword) VALUES
+        '''INSERT INTO keyword (id, keyword) VALUES
          (1, 'flutter'),
          (2, 'dart'),
          (3, 'database'),
@@ -85,32 +100,38 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
          (6, 'backend'),
          (7, 'frontend'),
          (8, 'testing')''',
-      '''INSERT INTO link_manager (id, name, surname) VALUES
+        '''INSERT INTO link_manager (id, name, surname) VALUES
          (1, 'John', 'Doe'),
          (2, 'Jane', 'Smith'),
          (3, 'Robert', 'Johnson'),
          (4, 'Sarah', 'Williams')''',
-      '''INSERT INTO view (id, name) VALUES
+        '''INSERT INTO view (id, name) VALUES
          (1, 'Public'),
          (2, 'Internal'),
          (3, 'Developer'),
          (4, 'Administrator')''',
-      '''INSERT INTO link (id, title, description, doc_link, status_id, category_id) VALUES
+        '''INSERT INTO link (id, title, description, doc_link, status_id, category_id) VALUES
          (1, 'Flutter Setup Guide', 'Complete guide for setting up Flutter development environment', 'https://docs.example.com/flutter-setup', 1, 5),
          (2, 'Dart Language Overview', 'Comprehensive overview of Dart programming language', 'https://docs.example.com/dart-overview', 1, 1),
          (3, 'SQLite Integration', 'Tutorial on integrating SQLite with Flutter applications', 'https://docs.example.com/sqlite-flutter', 1, 2),
          (4, 'API Documentation', 'Complete API reference for the platform', 'https://docs.example.com/api-ref', 2, 3),
          (5, 'Testing Guidelines', 'Best practices for testing Flutter applications', 'https://docs.example.com/testing', 1, 4)''',
-      '''INSERT INTO link_managers_links (link_id, manager_id) VALUES
+        '''INSERT INTO link_managers_links (link_id, manager_id) VALUES
          (1, 1), (1, 2), (2, 2), (3, 3), (4, 4), (5, 1)''',
-      '''INSERT INTO links_views (link_id, view_id) VALUES
+        '''INSERT INTO links_views (link_id, view_id) VALUES
          (1, 1), (1, 2), (2, 1), (3, 3), (4, 2), (5, 1)''',
-      '''INSERT INTO keywords_links (link_id, keyword_id) VALUES
+        '''INSERT INTO keywords_links (link_id, keyword_id) VALUES
          (1, 1), (1, 4), (2, 2), (3, 1), (3, 3), (4, 6), (5, 1), (5, 8)'''
-    ];
+      ];
 
-    for (final sql in mockData) {
-      _db.execute(sql);
+      for (final sql in mockData) {
+        _db.execute(sql);
+      }
+
+      _db.execute('COMMIT;');
+    } catch (e) {
+      _db.execute('ROLLBACK;');
+      rethrow;
     }
   }
 }

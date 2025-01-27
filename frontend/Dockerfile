@@ -12,18 +12,13 @@ RUN apt-get update && apt-get install -y \
 # Install Flutter
 RUN git clone https://github.com/flutter/flutter.git /flutter
 ENV PATH="/flutter/bin:$PATH"
-RUN flutter channel stable
-RUN flutter upgrade
-RUN flutter config --enable-web
+RUN flutter channel stable && flutter upgrade && flutter config --enable-web
 
 # Copy app files
 WORKDIR /app
 COPY . .
 
-RUN flutter pub get
-
-# Build web app
-RUN flutter build web
+RUN flutter pub get && flutter build web
 
 # Production stage
 FROM nginx:alpine
