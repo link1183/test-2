@@ -2,9 +2,15 @@ import 'package:backend/db/api.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
+import 'package:shelf_router/shelf_router.dart';
 
 void main() async {
   var db = DatabaseApi();
+
+  final app = Router();
+
+  app.mount('/api/', db.router.call);
+
   final handler = Pipeline()
       .addMiddleware(logRequests.call())
       .addMiddleware(corsHeaders())

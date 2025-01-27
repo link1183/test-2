@@ -13,7 +13,7 @@ class DatabaseApi {
   Router get router {
     final router = Router();
 
-    router.get('/api/categories', (Request request) {
+    router.get('/categories', (Request request) {
       try {
         final categories = db.db.select('''
           WITH LinkData AS (
