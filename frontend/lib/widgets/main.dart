@@ -1,37 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:developer';
+import 'dart:convert';
+import 'category_section.dart';
 
-class Main extends StatelessWidget {
+class Main extends StatefulWidget {
   const Main({super.key});
 
   @override
+  State<Main> createState() => _MainState();
+}
+
+class _MainState extends State<Main> {
+  List<dynamic> categories = [];
+  int? expandedIndex;
+
+  void toggleCategory(int index) {
+    setState(() {
+      expandedIndex = expandedIndex == index ? null : index;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-        children: List.generate(
-      10,
-      (index) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 2,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const SelectableText(
-          "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
-          style: TextStyle(
-            fontSize: 16,
-            height: 1.6,
-            color: Color(0xFF2C3E50),
-          ),
+    const double maxContainerWidth = 1000;
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: maxContainerWidth),
+      margin: const EdgeInsets.symmetric(horizontal: 64),
+      child: SingleChildScrollView(
+        child: Column(
+          children: categories.asMap().entries.map((entry) {
+            final index = entry.key;
+            final category = entry.value;
+            return CategorySection(
+              category: category,
+              isExpanded: index == expandedIndex,
+              onToggle: () => toggleCategory(index),
+            );
+          }).toList(),
         ),
       ),
-    ));
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final response = await http.get(Uri.parse('/api/categories'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          categories = data['categories'];
+        });
+      }
+    } catch (e) {
+      log('Error fetching data: $e');
+    }
   }
 }

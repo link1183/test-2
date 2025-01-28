@@ -14,7 +14,7 @@ void main() async {
   final handler = Pipeline()
       .addMiddleware(logRequests.call())
       .addMiddleware(corsHeaders())
-      .addHandler(db.router.call);
+      .addHandler(app.call);
 
   final server = await io.serve(handler, '0.0.0.0', 8080);
   print('Server running on http://${server.address.host}:${server.port}');

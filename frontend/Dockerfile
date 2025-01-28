@@ -18,7 +18,8 @@ RUN flutter channel stable && flutter upgrade && flutter config --enable-web
 WORKDIR /app
 COPY . .
 
-RUN flutter pub get && flutter build web
+RUN flutter pub get 
+RUN flutter build web
 
 # Production stage
 FROM nginx:alpine
