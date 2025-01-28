@@ -7,7 +7,7 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF212529),
-      padding: const EdgeInsets.fromLTRB(0, 18, 32, 8),
+      padding: const EdgeInsets.fromLTRB(0, 8, 32, 8),
       child: Row(
         children: [
           Image(
