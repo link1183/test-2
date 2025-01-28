@@ -29,14 +29,28 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const Header(),
-            SizedBox(height: 16),
-            const Main(),
-            SizedBox(height: 16),
-            const Footer(),
-          ],
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Column(
+                children: [
+                  Header(),
+                  SizedBox(height: 16),
+                  Main(),
+                ],
+              ),
+              Column(
+                children: [
+                  SizedBox(height: 16),
+                  Footer(),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

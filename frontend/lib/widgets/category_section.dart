@@ -5,12 +5,14 @@ class CategorySection extends StatefulWidget {
   final Map<String, dynamic> category;
   final bool isExpanded;
   final VoidCallback onToggle;
+  final String searchQuery;
 
   const CategorySection({
     super.key,
     required this.category,
     required this.isExpanded,
     required this.onToggle,
+    required this.searchQuery,
   });
 
   @override
@@ -123,7 +125,10 @@ class _CategorySectionState extends State<CategorySection>
                   runSpacing: cellSpacing,
                   alignment: WrapAlignment.start,
                   children: (widget.category['links'] as List)
-                      .map((link) => LinkCard(link: link))
+                      .map((link) => LinkCard(
+                            link: link,
+                            searchQuery: widget.searchQuery,
+                          ))
                       .toList(),
                 ),
               ),

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'keyword_tag.dart';
+import 'highlighted_text.dart';
 
 class LinkCard extends StatelessWidget {
   final Map<String, dynamic> link;
+  final String searchQuery;
 
   const LinkCard({
     super.key,
     required this.link,
+    required this.searchQuery,
   });
 
   Future<void> _launchURL(String urlString) async {
@@ -49,8 +52,9 @@ class LinkCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        link['title'],
+                      HighlightedText(
+                        text: link['title'],
+                        query: searchQuery,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -60,8 +64,9 @@ class LinkCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        link['description'],
+                      HighlightedText(
+                        text: link['description'],
+                        query: searchQuery,
                         style: const TextStyle(
                           fontSize: 14,
                           height: 1.5,
@@ -74,7 +79,10 @@ class LinkCard extends StatelessWidget {
                   ),
                 ),
               ),
-              KeywordsList(keywords: link['keywords'] as List),
+              KeywordsList(
+                keywords: link['keywords'] as List,
+                searchQuery: searchQuery,
+              ),
             ],
           ),
         ),
