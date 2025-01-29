@@ -13,7 +13,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - sqlite_data:/app/data
+      - ./backend/data/data.db:/app/database/data.db
+      - sqlite_data:/app/database
 
 volumes:
   sqlite_data:
