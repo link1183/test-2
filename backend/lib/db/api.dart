@@ -18,7 +18,7 @@ class DatabaseApi {
         final categories = db.db.select('''
           WITH LinkData AS (
             SELECT 
-              l.*,
+              link.*,
               s.name as status_name,
               json_group_array(DISTINCT json_object(
                 'id', k.id,
@@ -33,35 +33,32 @@ class DatabaseApi {
                 'name', m.name,
                 'surname', m.surname
               )) as managers
-            FROM link l
-            LEFT JOIN status s ON s.id = l.status_id
-            LEFT JOIN keywords_links kl ON l.id = kl.link_id
+            FROM link
+            LEFT JOIN status s ON s.id = link.status_id
+            LEFT JOIN keywords_links kl ON link.id = kl.link_id
             LEFT JOIN keyword k ON k.id = kl.keyword_id
-            LEFT JOIN links_views lv ON l.id = lv.link_id
+            LEFT JOIN links_views lv ON link.id = lv.link_id
             LEFT JOIN view v ON v.id = lv.view_id
-            LEFT JOIN link_managers_links lm ON l.id = lm.link_id
+            LEFT JOIN link_managers_links lm ON link.id = lm.link_id
             LEFT JOIN link_manager m ON m.id = lm.manager_id
-            GROUP BY l.id
+            GROUP BY link.id
           )
           SELECT 
             c.id as category_id,
             c.name as category_name,
             json_group_array(
-              CASE 
-                WHEN ld.id IS NULL THEN json_object()
-                ELSE json_object(
-                  'id', ld.id,
-                  'link', ld.link,
-                  'title', ld.title,
-                  'description', ld.description,
-                  'doc_link', ld.doc_link,
-                  'status_id', ld.status_id,
-                  'status_name', ld.status_name,
-                  'keywords', ld.keywords,
-                  'views', ld.views,
-                  'managers', ld.managers
-                )
-              END
+              json_object(
+                'id', ld.id,
+                'link', ld.link,
+                'title', ld.title,
+                'description', ld.description,
+                'doc_link', ld.doc_link,
+                'status_id', ld.status_id,
+                'status_name', ld.status_name,
+                'keywords', ld.keywords,
+                'views', ld.views,
+                'managers', ld.managers
+              )
             ) as links
           FROM categories c
           LEFT JOIN LinkData ld ON c.id = ld.category_id
@@ -70,8 +67,7 @@ class DatabaseApi {
           var map = Map<String, dynamic>.from(row);
           var links = jsonDecode(map['links']) as List;
 
-          // Filter out empty objects from links
-          links = links.where((link) => link.isNotEmpty).map((link) {
+          links = links.where((link) => link != null).map((link) {
             if (link['keywords'] != null) {
               link['keywords'] = jsonDecode(link['keywords'].toString());
             }
@@ -94,8 +90,9 @@ class DatabaseApi {
         );
       } catch (e) {
         return Response.internalServerError(
-            body: jsonEncode({'error': e.toString()}),
-            headers: {'content-type': 'application/json'});
+          body: jsonEncode({'error': e.toString()}),
+          headers: {'content-type': 'application/json'},
+        );
       }
     });
 

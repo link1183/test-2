@@ -13,11 +13,11 @@ class LinkCard extends StatelessWidget {
     required this.searchQuery,
   });
 
-  Future<void> _launchURL(String urlString, {bool newTab = false}) async {
+  Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(
       url,
-      webOnlyWindowName: newTab ? '_blank' : '_self',
+      webOnlyWindowName: '_blank',
     )) {
       throw Exception('Could not launch $urlString');
     }
@@ -40,8 +40,8 @@ class LinkCard extends StatelessWidget {
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            onTertiaryTapUp: (_) => _launchURL(link['link'], newTab: true),
-            onTapDown: (_) => _launchURL(link['link'], newTab: true),
+            onTertiaryTapUp: (_) => _launchURL(link['link']),
+            onTapDown: (_) => _launchURL(link['link']),
             child: InkWell(
               onTap: () => _launchURL(link['link']),
               borderRadius: BorderRadius.circular(8),
@@ -93,7 +93,7 @@ class LinkCard extends StatelessWidget {
                           cursor: SystemMouseCursors.click,
                           child: GestureDetector(
                             onTertiaryTapUp: (_) =>
-                                _launchURL(link['doc_link'], newTab: true),
+                                _launchURL(link['doc_link']),
                             child: TextButton.icon(
                               onPressed: () => _launchURL(link['doc_link']),
                               icon: const Icon(Icons.description_outlined,

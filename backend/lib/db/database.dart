@@ -10,13 +10,13 @@ class AppDatabase {
   }
 
   void _initializeDatabase() {
-    final tableExists = _db.select('''
-        SELECT name
-        FROM sqlite_master
-        WHERE type='table' AND name='link';
-      ''');
+    final tables = _db.select('''
+    SELECT name FROM sqlite_master 
+    WHERE type='table' 
+    AND name IN ('link', 'categories', 'status', 'keyword', 'view', 'link_manager');
+  ''');
 
-    if (tableExists.isEmpty) {
+    if (tables.isEmpty) {
       _createTables();
       _insertMockData();
     }
@@ -144,7 +144,8 @@ INSERT INTO keyword (keyword) VALUES ('Gitlab'),
  ('Web Design'),
  ('Microsoft Store'),
  ('Plans'),
- ('Code');
+ ('Code'),
+ ('support');
 
 -- Insert links and their relationships
 -- Applications métiers
@@ -189,7 +190,8 @@ INSERT INTO keywords_links (link_id, keyword_id) VALUES (6, 18);
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://helpdesk.unil.ch/otobo', 'Otobo', 'Interface de gestion des tickets', 'https://doc.otobo.org/', 1, 1);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (7, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (7, 1);
-INSERT INTO keywords_links (link_id, keyword_id) VALUES (7, 19);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (7, 33);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (7, 18);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://discord.gg/6VwfW3j6r4', 'Discord', 'Lien vers le serveur Discord du service.', 'https://discord.com/developers/docs/intro', 1, 1);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (8, 1);

@@ -6,15 +6,13 @@ services:
       - "80:80"
     depends_on:
       - backend
-
   backend:
     build:
       context: ./backend
     ports:
       - "8080:8080"
+    user: "1000:1000"
     volumes:
-      - ./backend/data/data.db:/app/database/data.db
-      - sqlite_data:/app/database
-
+      - sqlite_data:/app
 volumes:
   sqlite_data:
