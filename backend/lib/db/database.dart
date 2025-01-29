@@ -26,6 +26,7 @@ class AppDatabase {
     _db.execute('''
 CREATE TABLE IF NOT EXISTS `link` (
 	`id` integer primary key NOT NULL UNIQUE,
+	`link` TEXT NOT NULL,
 	`title` TEXT NOT NULL UNIQUE,
 	`description` TEXT NOT NULL,
 	`doc_link` TEXT,
@@ -80,95 +81,394 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
     _db.execute('BEGIN TRANSACTION;');
     try {
       final mockData = [
-        '''INSERT INTO status (id, name) VALUES
-         (1, 'Active'),
-         (2, 'Pending'),
-         (3, 'Archived'),
-         (4, 'Under Review'),
-         (5, 'Draft'),
-         (6, 'Deprecated')''',
-        '''INSERT INTO categories (id, name) VALUES
-         (1, 'Documentation'),
-         (2, 'Tutorials'),
-         (3, 'API Reference'),
-         (4, 'Best Practices'),
-         (5, 'Getting Started'),
-         (6, 'Security Guidelines'),
-         (7, 'Performance Tips'),
-         (8, 'Troubleshooting'),
-         (9, 'Development Tools'),
-         (10, 'Integration Guides')''',
-        '''INSERT INTO keyword (id, keyword) VALUES
-         (1, 'flutter'),
-         (2, 'dart'),
-         (3, 'database'),
-         (4, 'mobile'),
-         (5, 'web'),
-         (6, 'backend'),
-         (7, 'frontend'),
-         (8, 'testing'),
-         (9, 'security'),
-         (10, 'performance'),
-         (11, 'deployment'),
-         (12, 'architecture'),
-         (13, 'debugging'),
-         (14, 'authentication'),
-         (15, 'api'),
-         (16, 'ui'),
-         (17, 'ux'),
-         (18, 'responsive'),
-         (19, 'storage'),
-         (20, 'networking')''',
-        '''INSERT INTO link_manager (id, name, surname) VALUES
-         (1, 'John', 'Doe'),
-         (2, 'Jane', 'Smith'),
-         (3, 'Robert', 'Johnson'),
-         (4, 'Sarah', 'Williams'),
-         (5, 'Michael', 'Brown'),
-         (6, 'Emily', 'Davis'),
-         (7, 'David', 'Miller'),
-         (8, 'Lisa', 'Wilson'),
-         (9, 'James', 'Taylor'),
-         (10, 'Emma', 'Anderson')''',
-        '''INSERT INTO view (id, name) VALUES
-         (1, 'Public'),
-         (2, 'Internal'),
-         (3, 'Developer'),
-         (4, 'Administrator'),
-         (5, 'Team Lead'),
-         (6, 'Security Team')''',
-        '''INSERT INTO link (id, title, description, doc_link, status_id, category_id) VALUES
-         (1, 'Flutter Setup Guide', 'Complete guide for setting up Flutter development environment', 'https://docs.example.com/flutter-setup', 1, 5),
-         (2, 'Dart Language Overview', 'Comprehensive overview of Dart programming language', 'https://docs.example.com/dart-overview', 1, 1),
-         (3, 'SQLite Integration', 'Tutorial on integrating SQLite with Flutter applications', 'https://docs.example.com/sqlite-flutter', 1, 2),
-         (4, 'API Documentation', 'Complete API reference for the platform', 'https://docs.example.com/api-ref', 2, 3),
-         (5, 'Testing Guidelines', 'Best practices for testing Flutter applications', 'https://docs.example.com/testing', 1, 4),
-         (6, 'Security Best Practices', 'Essential security guidelines for Flutter applications', 'https://docs.example.com/security', 1, 6),
-         (7, 'Performance Optimization Guide', 'Tips and tricks for optimizing Flutter app performance', 'https://docs.example.com/performance', 1, 7),
-         (8, 'Common Issues & Solutions', 'Solutions to frequently encountered Flutter problems', 'https://docs.example.com/troubleshooting', 1, 8),
-         (9, 'VS Code Setup for Flutter', 'Setting up Visual Studio Code for Flutter development', 'https://docs.example.com/vscode-setup', 1, 9),
-         (10, 'Firebase Integration', 'Guide to integrating Firebase with Flutter', 'https://docs.example.com/firebase', 1, 10),
-         (11, 'State Management Overview', 'Comparison of different state management solutions', 'https://docs.example.com/state', 1, 1),
-         (12, 'UI Components Guide', 'Comprehensive guide to Flutter UI components', 'https://docs.example.com/ui-components', 1, 2),
-         (13, 'REST API Integration', 'Tutorial on integrating REST APIs in Flutter', 'https://docs.example.com/rest-api', 1, 10),
-         (14, 'App Architecture Guide', 'Best practices for Flutter app architecture', 'https://docs.example.com/architecture', 1, 4),
-         (15, 'Animation Tutorial', 'Create smooth animations in Flutter', 'https://docs.example.com/animations', 1, 2)''',
-        '''INSERT INTO link_managers_links (link_id, manager_id) VALUES
-         (1, 1), (1, 2), (2, 2), (3, 3), (4, 4), (5, 1),
-         (6, 5), (7, 6), (8, 7), (9, 8), (10, 9),
-         (11, 2), (12, 3), (13, 4), (14, 5), (15, 6),
-         (6, 10), (7, 1), (8, 2), (9, 3), (10, 4)''',
-        '''INSERT INTO links_views (link_id, view_id) VALUES
-         (1, 1), (1, 2), (2, 1), (3, 3), (4, 2), (5, 1),
-         (6, 6), (7, 1), (8, 1), (9, 1), (10, 3),
-         (11, 1), (12, 1), (13, 3), (14, 2), (15, 1),
-         (6, 2), (7, 2), (8, 3), (9, 2), (10, 1)''',
-        '''INSERT INTO keywords_links (link_id, keyword_id) VALUES
-         (1, 1), (1, 4), (2, 2), (3, 1), (3, 3), (4, 6), (5, 1), (5, 8),
-         (6, 9), (6, 1), (7, 1), (7, 10), (8, 1), (8, 13), (9, 1), (9, 7),
-         (10, 1), (10, 15), (11, 1), (11, 12), (12, 1), (12, 16),
-         (13, 1), (13, 15), (14, 1), (14, 12), (15, 1), (15, 16),
-         (6, 14), (7, 18), (8, 19), (9, 17), (10, 20)'''
+        '''
+-- Insert statuses
+INSERT INTO status (name) VALUES ('Active');
+INSERT INTO status (name) VALUES ('Inactive');
+
+-- Insert views
+INSERT INTO view (name) VALUES ('Admin');
+INSERT INTO view (name) VALUES ('User');
+
+-- Insert categories
+INSERT INTO categories (name) VALUES ('Applications métiers'),
+ ('Monitoring'),
+ ('Serveurs Web'),
+ ('Virtualisation - BCUL'),
+ ('Formulaires BCUL'),
+ ('Formulaires UNIL'),
+ ('Administration'),
+ ('Lorawan'),
+ ('Virtualisation - UNIL'),
+ ('Mail'),
+ ('Réseau'),
+ ('Téléphonie'),
+ ('Formations'),
+ ('Utilitaires');
+
+-- Insert managers
+INSERT INTO link_manager (name, surname) VALUES ('Bob', 'Brown'),
+ ('John', 'Doe'),
+ ('Jane', 'Smith'),
+ ('Alice', 'Johnson');
+
+-- Insert keywords
+INSERT INTO keyword (keyword) VALUES ('Gitlab'),
+ ('Monitoring'),
+ ('Virtualisation'),
+ ('Formulaires'),
+ ('Administration'),
+ ('Réseau'),
+ ('Téléphonie'),
+ ('Formations'),
+ ('Utilitaires'),
+ ('Web'),
+ ('Serveurs'),
+ ('VMware'),
+ ('Grafana'),
+ ('Firewall'),
+ ('DNS'),
+ ('IP'),
+ ('Kubernetes'),
+ ('Passwords'),
+ ('Tickets'),
+ ('Inventaire'),
+ ('Stockage'),
+ ('Impression'),
+ ('Vulnérabilités'),
+ ('Sondes'),
+ ('Antennes'),
+ ('Restauration'),
+ ('Listes de diffusion'),
+ ('Annuaire'),
+ ('Web Design'),
+ ('Microsoft Store'),
+ ('Plans'),
+ ('Code');
+
+-- Insert links and their relationships
+-- Applications métiers
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://gitlab-bcul.unil.ch', 'Gitlab', 'Le Gitlab de la BCUL', 'https://docs.gitlab.com/', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (1, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (1, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 32);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 31);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 30);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 29);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 28);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 18);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 19);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 20);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://appm-bookstack.prduks-bcul-ci4881-limited.uks.unil.ch/', 'Bookstack', 'Bookstack - Le Wiki de la BCUL', 'https://www.bookstackapp.com/docs/', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (2, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (2, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (2, 1);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://itop-bcul.unil.ch/itop', 'Itop', 'iTop - Application d''inventaire', 'https://www.itophub.io/wiki/page', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (3, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (3, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 20);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-ocsinventory.prduks-bcul-ci4881-limited.uks.unil.ch/ocsreports/', 'OCS Inventory', 'Application d''inventaire des laptops', 'https://wiki.ocsinventory-ng.org/', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (4, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (4, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (4, 20);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://portal.uks.unil.ch/dashboard/auth/login?timed-out', 'UKS Portal', 'Portail de gestion des pods Kubernetes', 'https://rancher.com/docs/', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (5, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (5, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (5, 17);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-passbolt.prduks-bcul-ci4881-limited.uks.unil.ch/app/passwords', 'Passbolt', 'Gestionnaire de mots de passe BCUL', 'https://www.passbolt.com/docs/', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (6, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (6, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (6, 18);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://helpdesk.unil.ch/otobo', 'Otobo', 'Interface de gestion des tickets', 'https://doc.otobo.org/', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (7, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (7, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (7, 19);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://discord.gg/6VwfW3j6r4', 'Discord', 'Lien vers le serveur Discord du service.', 'https://discord.com/developers/docs/intro', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (8, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (8, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (8, 1);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/RESSOURCE-INF/itop-inventory/index.php', 'Application Inventaire', 'Application de scan d''inventaire connectée à iTop', 'https://google.com', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (9, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 20);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://ephoto-bcul.unil.ch', 'E-photo', 'Application e-photo de stockage de photos', '', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (10, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (10, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (10, 21);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://printunil-uniflow.unil.ch/pwbudget/', 'Uniflow', 'Application de gestion des crédits d''impression printunil sur les campus card', '', 1, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (11, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (11, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (11, 22);
+
+-- Monitoring
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-grafana.prduks-bcul-ci4881-limited.uks.unil.ch/login', 'Grafana BCUL', 'Monitoring Grafana de la BCUL', 'https://grafana.com/docs/', 1, 2);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (12, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (12, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (12, 13);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://status-bcul.unil.ch/', 'Cachet - Application de statuts des serveurs BCUL', 'Application permettant la vérification des status serveur.', '', 1, 2);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (13, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (13, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (13, 2);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://tenable-sc.unil.ch/', 'Tenable - Surveillance des vulnérabilités (SOC)', 'SOC de surveillance des vulnérabilités des serveurs.', 'https://docs.tenable.com/', 1, 2);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (14, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (14, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (14, 23);
+
+-- Serveurs Web
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webext-apache.prduks-bcul-ci4881.uks.unil.ch/', 'Externe', 'Serveur Web Externe', '', 1, 3);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (15, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (15, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (15, 10);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/', 'Interne', 'Serveur Web Interne', '', 1, 3);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (16, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (16, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (16, 10);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/index-it.html', 'IT', 'Serveur Web Interne du service IT', '', 1, 3);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (17, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (17, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (17, 10);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webtest-apache.prduks-bcul-ci4881-limited.uks.unil.ch/', 'Test', 'Serveur Web Test', '', 1, 3);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (18, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (18, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (18, 10);
+
+-- Virtualisation - BCUL
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vcsa-vdi-bcul.unil.ch/', 'VCSA VDI', 'VCSA VDI', 'https://docs.vmware.com/en/VMware-vSphere/index.html', 1, 4);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (19, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (19, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (19, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vcsa-prd-bcul.unil.ch/', 'VCSA PRD', 'VCSA PRD', 'https://docs.vmware.com/en/VMware-vSphere/index.html', 1, 4);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (20, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (20, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (20, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vco-bcul.unil.ch/admin/', 'VCO BCUL', 'VCO BCUL', 'https://docs.vmware.com/fr/VMware-SD-WAN/index.html', 1, 4);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (21, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (21, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (21, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://av-bcul.unil.ch/login', 'App Volumes', 'App Volumes', 'https://docs.vmware.com/en/VMware-App-Volumes/index.html', 1, 4);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (22, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (22, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (22, 12);
+
+-- Formulaires BCUL
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-pret.html', 'BCUL - Formulaire de prêt', 'Formulaire de prêt de matériel', '', 1, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (23, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (23, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (23, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webext-apache.prduks-bcul-ci4881.uks.unil.ch/FORMS/manuscrits/Formulaire-manuscrit.html', 'Manuscrits - Demande de consultation', 'Formulaire de demande de consultation de manuscrits', '', 1, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (24, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (24, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (24, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-entree.html', 'RH - Entrée d''un collaborateur', 'Formulaire d''entrée d''un collaborateur', '', 1, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (25, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (25, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (25, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-sortie.html', 'RH - Sortie d''un collaborateur', 'Formulaire de sortie d''un collaborateur', '', 1, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (26, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (26, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (26, 4);
+
+-- Formulaires BCUL (continued)
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/informatique/Formulaire-prolongation.html', 'RH - Prolongation d''un collaborateur', 'Formulaire de prolongation d''un collaborateur', '', 1, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (27, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (27, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (27, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/FORMS/rh/Formulaire-accident.html', 'RH - Déclaration d''accident', 'Formulaire de déclaration d''accident', '', 1, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (28, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (28, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (28, 4);
+
+-- Formulaires UNIL
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www2.unil.ch/dbcm-adm/SiteFormulaires/cde_materiel_UNIL2018.pdf', 'Formulaire achats UNIL', 'Formulaire à remplir pour les demandes d''achats à l''UNIL', '', 1, 6);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (29, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (29, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (29, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://unil.ch/ci/id', 'Compte informatique UNIL', 'Toutes les opérations concernant les comptes informatiques', '', 1, 6);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (30, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (30, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (30, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www2.unil.ch/ci/forms_otrs/comptes/acces_intranet/acces_intranet.php', 'Accès intranet UNIL', 'Formulaire de demande d''accès à l''Intranet UNIL', '', 1, 6);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (31, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (31, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (31, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www2.unil.ch/ci/forms_otrs/reseau/request.php', 'Formulaire de demande de réseau de l''UNIL', 'Formulaire de demande de réseau de l''UNIL', '', 1, 6);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (32, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (32, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (32, 4);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/voip', 'Activation téléphonie Teams', 'Permet d''activer la téléphonie sur Teams', '', 1, 6);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (33, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (33, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (33, 7);
+
+-- Administration
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://jbm6-bcul.ad.unil.ch/workflow/default.aspx?tick=988', 'JBM Workflow', 'Application JBM Workflow permettant de noter les heures effectuées', '', 1, 7);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (34, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (34, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (34, 5);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://applications.unil.ch/intra/auth/php/Sy/SyMenu.php', 'Intranet UNIL', 'Accès à Sylvia - l''Intranet de l''UNIL', '', 1, 7);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (35, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (35, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (35, 5);
+
+-- Lorawan
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:3000/login', 'Dashboard Grafana Lorawan', 'Dashboard de monitoring des sondes Lorawan', 'https://grafana.com/docs/', 1, 8);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (36, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (36, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (36, 13);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:8086/signin', 'Base de données influxDB', 'Base de données des sondes Lorawan', 'https://docs.influxdata.com/influxdb/v2/', 1, 8);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (37, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (37, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (37, 24);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:8080/#/login', 'Gateway des antennes Lorawan', 'Gateway de gestion des sondes Lorawan', 'https://www.chirpstack.io/docs/', 1, 8);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (38, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (38, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (38, 25);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://crypto.unil.ch/secubat', 'EXTUNI Gestion MCR Unibat', 'EXTUNI Gestion MCR Unibat', '', 1, 8);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (39, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (39, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (39, 5);
+
+-- Virtualisation - UNIL
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://xaas-di.vra.unil.ch/', 'Gestion des VM Ci UNIL (XaaS)', 'L''application Aria permet de simplifier et d''automatiser la gestion du cycle de vie des machines virtuelles (VM). Notamment sur le provisionnement et sur les opérations de gestion.', 'https://wiki.unil.ch/ci/books/hebergement-de-machines-virtuelles-vm-hors-recherche/chapter/doc-publique', 1, 9);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (40, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (40, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (40, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vcsa.unil.ch', 'Gestion des VM Ci UNIL (VCSA)', 'VSCA UNIL', 'https://docs.vmware.com/en/VMware-vSphere/index.html', 1, 9);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (41, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (41, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (41, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://prdvdiu-vcsa02.unil.ch/', 'vSphere VDI UNIL', 'vSphere VDI UNIL', 'https://docs.vmware.com/fr/VMware-vSphere/index.html', 1, 9);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (42, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (42, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (42, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vdiu-srvco-max.unil.ch/admin/#/login', 'VMWare Horizon UNIL', 'VMWare Horizon UNIL', '', 1, 9);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (43, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (43, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (43, 12);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://cohesity01.unil.ch/', 'Cohesity', 'Restauration de fichiers et de VM UNIL', 'https://docs.cohesity.com/ui/', 1, 9);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (44, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (44, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (44, 26);
+
+-- Mail
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://sympa.unil.ch/sympa/home', 'Listes de diffusion', 'Listes de diffusion de l''UNIL', '', 1, 10);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (45, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (45, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (45, 27);
+
+-- Réseau
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://web-auth.unil.ch/', 'Authentification Firewall UNIL', 'Permet de s''authentifier sur le firewall de l''UNIL et de se connecter sur leur différents services', '', 1, 11);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (46, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (46, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (46, 14);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/home/menuinst/catalogue-de-services/reseau-et-telephonie/firewall-as-a-service/acceder-au-service.html', 'Règles Firewall (FaaS)', 'Ajout, suppression et modification de règles pour le Firewall de l''UNIL', '', 1, 11);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (47, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (47, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (47, 14);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/fr/home/menuinst/catalogue-de-services/reseau-et-telephonie/demande-d-ip-fixe.html', 'Demande d''IP fixe et DNS', 'Pour effectuer une demande d''IP fixe et/ou de DNS pour un serveur/PC/VM', '', 1, 11);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (48, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (48, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (48, 15);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www2.unil.ch/ci/reseau/hosts_unil.arp', 'Adresses IP UNIL (ARP)', 'Table ARP regroupant toutes les adresses IP de l''UNIL (et les réseaux).', 'https://en.wikipedia.org/wiki/Address_Resolution_Protocol', 1, 11);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (49, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (49, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (49, 16);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-unificheck.prduks-bcul-ci4881-limited.uks.unil.ch/', 'Portail Unifi', 'Portail Unifi vers les devices unifi des différents sites BCUL', 'https://help.ui.com/hc/en-us/categories/6583256751383-UniFi', 1, 11);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (50, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (50, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (50, 14);
+
+-- Téléphonie
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/fr/home/menuinst/catalogue-de-services/reseau-et-telephonie.html', 'Formulaires UNIL de téléphonie', 'Formulaires diverses concernant la téléphonie à l''UNIL', '', 1, 12);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (51, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (51, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (51, 7);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://annuaire.unil.ch/', 'Annuaire UNIL', 'Annuaire de l''UNIL', '', 1, 12);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (52, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (52, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (52, 28);
+
+-- Formations
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.eni-training.com/instant-Connection/Default.aspx?WSLogin=TmRu6E1WYa1IEiTDUTLXrg%3D%3D&WSPwd=m3OjUZGox9AfMGCblpkA6g%3D%3D&IdDomain=239&IdGroup=168078', 'eni-training', 'Plateforme de formation Eni-training', '', 1, 13);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (53, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (53, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (53, 8);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.pressreader.com/', 'Pressreader', 'Plateforme de catalogue de journaux Pressreader', '', 1, 13);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (54, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (54, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (54, 8);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.elephorm.com/', 'Elephorm', 'Plateforme de formation Elephorm', '', 1, 13);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (55, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (55, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (55, 8);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.alphorm.com/', 'Alphorm', 'Plateforme de formation Alphorm', '', 1, 13);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (56, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (56, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (56, 24);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.packtpub.com/', 'Packtpub', 'Plateforme de formation Packtpub', '', 1, 13);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (57, 2);
+INSERT INTO links_views (link_id, view_id) VALUES (57, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (57, 24);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://m3.material.io/', 'Material - Web design', 'Système de Web Design créé par Google.', '', 1, 14);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (58, 3);
+INSERT INTO links_views (link_id, view_id) VALUES (58, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (58, 25);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://store.rg-adguard.net/', 'Microsoft Store bypass', 'Lien permettant de télécharger des applications du Microsoft Store sans passer par celui-ci', '', 1, 14);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (59, 4);
+INSERT INTO links_views (link_id, view_id) VALUES (59, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (59, 25);
+
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://planete.unil.ch/', 'Planete UNIL', 'Plans de l''UNIL', '', 1, 14);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (60, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (60, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (60, 25);
+'''
       ];
       for (final sql in mockData) {
         _db.execute(sql);

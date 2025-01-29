@@ -16,6 +16,10 @@ void main() async {
       .addMiddleware(corsHeaders())
       .addHandler(app.call);
 
+  app.get('/health', (Request request) {
+    return Response.ok('OK');
+  });
+
   final server = await io.serve(handler, '0.0.0.0', 8080);
   print('Server running on http://${server.address.host}:${server.port}');
 }

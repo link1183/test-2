@@ -13,18 +13,85 @@ class KeywordsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Wrap(
-        spacing: 8,
-        alignment: WrapAlignment.center,
-        children: keywords
-            .map((keyword) => KeywordTag(
-                  keyword: keyword['keyword'],
-                  searchQuery: searchQuery,
-                ))
-            .toList(),
+    final maxWidth = 318.0;
+    final List<KeywordTag> tags = keywords
+        .map((keyword) => KeywordTag(
+              keyword: keyword['keyword'],
+              searchQuery: searchQuery,
+            ))
+        .toList();
+
+    return SizedBox(
+      height: 24,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double currentWidth = 0;
+          int visibleCount = 0;
+
+          for (var tag in tags) {
+            final tagWidth = _calculateTagWidth(tag.keyword);
+            if (currentWidth + tagWidth > maxWidth) {
+              break;
+            }
+            currentWidth += tagWidth + 8;
+            visibleCount++;
+          }
+
+          if (visibleCount < tags.length) {
+            final visibleTags = tags.take(visibleCount).toList();
+            final hiddenKeywords =
+                tags.skip(visibleCount).map((tag) => tag.keyword).toList();
+
+            return Wrap(
+              spacing: 8,
+              runSpacing: 0,
+              alignment: WrapAlignment.start,
+              children: [
+                ...visibleTags,
+                Tooltip(
+                  message: hiddenKeywords.join(", "),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      '...',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return Wrap(
+            spacing: 8,
+            runSpacing: 0,
+            alignment: WrapAlignment.start,
+            children: tags,
+          );
+        },
       ),
     );
+  }
+
+  double _calculateTagWidth(String text) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(fontSize: 12),
+      ),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    return textPainter.width + 16;
   }
 }
 

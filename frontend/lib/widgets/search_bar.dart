@@ -33,7 +33,7 @@ class SearchBar extends StatelessWidget {
               TextPosition(offset: searchText.length),
             ),
           decoration: InputDecoration(
-            hintText: 'Search by keyword, description, title...',
+            hintText: 'Rechercher par mot clé, description, titre, ...',
             prefixIcon: const Icon(
               Icons.search,
               color: Color(0xFF2C3E50),

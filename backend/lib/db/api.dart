@@ -51,6 +51,7 @@ class DatabaseApi {
                 WHEN ld.id IS NULL THEN json_object()
                 ELSE json_object(
                   'id', ld.id,
+                  'link', ld.link,
                   'title', ld.title,
                   'description', ld.description,
                   'doc_link', ld.doc_link,

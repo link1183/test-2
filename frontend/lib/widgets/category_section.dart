@@ -55,7 +55,7 @@ class _CategorySectionState extends State<CategorySection>
 
   @override
   Widget build(BuildContext context) {
-    const double cellSpacing = 20.0;
+    const double cellSpacing = 10.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -67,10 +67,10 @@ class _CategorySectionState extends State<CategorySection>
               cursor: SystemMouseCursors.click,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    vertical: 24.0, horizontal: 16.0),
+                    vertical: 20.0, horizontal: 12.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(8.0),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -86,7 +86,7 @@ class _CategorySectionState extends State<CategorySection>
                       child: Text(
                         widget.category['category_name'],
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF2C3E50),
                           letterSpacing: -0.5,
@@ -119,7 +119,7 @@ class _CategorySectionState extends State<CategorySection>
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.only(top: 24.0, bottom: 16.0),
+                padding: const EdgeInsets.only(top: 20.0, bottom: 16.0),
                 child: Wrap(
                   spacing: cellSpacing,
                   runSpacing: cellSpacing,

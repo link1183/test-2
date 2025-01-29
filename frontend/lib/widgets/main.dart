@@ -16,14 +16,19 @@ class _MainState extends State<Main> {
   List<dynamic> categories = [];
   List<FilteredCategory> filteredCategories = [];
   Set<String> expandedIds = {};
+  String? expandedId;
   String searchText = '';
 
   void toggleCategory(String categoryId) {
     setState(() {
-      if (expandedIds.contains(categoryId)) {
-        expandedIds.remove(categoryId);
+      if (searchText.isEmpty) {
+        expandedId = expandedId == categoryId ? null : categoryId;
       } else {
-        expandedIds.add(categoryId);
+        if (expandedIds.contains(categoryId)) {
+          expandedIds.remove(categoryId);
+        } else {
+          expandedIds.add(categoryId);
+        }
       }
     });
   }
@@ -39,6 +44,7 @@ class _MainState extends State<Main> {
                 ))
             .toList();
         expandedIds.clear();
+        expandedId = null;
         return;
       }
 
@@ -75,11 +81,11 @@ class _MainState extends State<Main> {
 
   @override
   Widget build(BuildContext context) {
-    const double maxContainerWidth = 1000;
+    const double maxContainerWidth = 1140;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: maxContainerWidth),
-      margin: const EdgeInsets.symmetric(horizontal: 64),
+      margin: const EdgeInsets.symmetric(horizontal: 50),
       child: Column(
         children: [
           search_bar.SearchBar(
@@ -110,7 +116,9 @@ class _MainState extends State<Main> {
                   return CategorySection(
                     key: ValueKey(categoryId),
                     category: category,
-                    isExpanded: expandedIds.contains(categoryId),
+                    isExpanded: searchText.isEmpty
+                        ? expandedId == categoryId
+                        : expandedIds.contains(categoryId),
                     onToggle: () => toggleCategory(categoryId),
                     searchQuery: searchText,
                   );
