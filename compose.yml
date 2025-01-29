@@ -13,6 +13,6 @@ services:
       - "8080:8080"
     user: "1000:1000"
     volumes:
-      - sqlite_data:/app
+      - sqlite_data:/app/data
 volumes:
   sqlite_data:
