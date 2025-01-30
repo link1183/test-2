@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 import 'dart:convert';
-import 'category_section.dart';
+import 'category_section/category_section.dart';
 import 'search_bar.dart' as search_bar;
 
 class Main extends StatefulWidget {

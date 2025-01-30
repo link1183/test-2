@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'link_card.dart';
+import 'link_card/link_card.dart';
 
 class CategorySection extends StatefulWidget {
   final Map<String, dynamic> category;

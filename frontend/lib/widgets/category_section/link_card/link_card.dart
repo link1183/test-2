@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/widgets/category_section/link_card/doc_link.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'keyword_tag.dart';
 import 'highlighted_text.dart';
@@ -81,36 +82,8 @@ class LinkCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (link['doc_link'] != '') ...[
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color(0xFF2C3E50)
-                                  .withValues(alpha: 0.2)),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTertiaryTapUp: (_) =>
-                                _launchURL(link['doc_link']),
-                            child: TextButton.icon(
-                              onPressed: () => _launchURL(link['doc_link']),
-                              icon: const Icon(Icons.description_outlined,
-                                  size: 16),
-                              label: const Text('Documentation'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: const Color(0xFF2C3E50),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 4),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                textStyle: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    if (link['doc_link'].isNotEmpty) ...[
+                      DocLink(docLink: link['doc_link']),
                       const SizedBox(height: 8),
                     ],
                     KeywordsList(
