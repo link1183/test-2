@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:test/routes.dart';
 import 'package:test/screens/shared/widgets/footer.dart';
 import 'package:test/screens/shared/widgets/header.dart';
+import 'package:test/theme/theme.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -15,15 +17,42 @@ class Login extends StatelessWidget {
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Column(
                 children: [
-                  Header(),
-                  SizedBox(height: 16),
-                  Text('test'),
+                  const Header(),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.all(32),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(
+                              context, AppRoutes.home);
+                        },
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              Column(
+              const Column(
                 children: [
                   SizedBox(height: 16),
                   Footer(),
