@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/theme/theme.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -6,7 +7,7 @@ class Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF212529),
+      color: AppTheme.secondary,
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
@@ -20,7 +21,7 @@ class Footer extends StatelessWidget {
             child: Text(
               '© 2025 Bibliothèque Cantonale et Universitaire de Lausanne',
               style: TextStyle(
-                color: Colors.white,
+                color: AppTheme.textLight,
                 fontSize: 12,
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/theme/theme.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -6,7 +7,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF212529),
+      color: AppTheme.secondary,
       padding: const EdgeInsets.fromLTRB(0, 8, 32, 8),
       child: Row(
         children: [
@@ -18,7 +19,7 @@ class Header extends StatelessWidget {
           const Text(
             'Portail IT BCUL',
             style: TextStyle(
-              color: Colors.white,
+              color: AppTheme.textLight,
               fontSize: 32,
             ),
           ),

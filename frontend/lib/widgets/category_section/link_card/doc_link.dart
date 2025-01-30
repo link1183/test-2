@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DocLink extends StatelessWidget {
@@ -20,37 +21,39 @@ class DocLink extends StatelessWidget {
     return Container(
       height: 32,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         border: Border.all(
-          color: const Color(0xFF2C3E50).withValues(alpha: 0.2),
+          color: AppTheme.primary.withCustomOpacity(0.2),
         ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => _launchURL(docLink),
-          onSecondaryTap: () => _launchURL(docLink),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(
-                  Icons.description_outlined,
-                  size: 16,
-                  color: Color(0xFF2C3E50),
-                ),
-                SizedBox(width: 4),
-                Text(
-                  'Docs',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF2C3E50),
+        child: GestureDetector(
+          onTertiaryTapUp: (_) => _launchURL(docLink),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => _launchURL(docLink),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(
+                    Icons.description_outlined,
+                    size: 16,
+                    color: AppTheme.primary,
                   ),
-                ),
-              ],
+                  SizedBox(width: 4),
+                  Text(
+                    'Docs',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

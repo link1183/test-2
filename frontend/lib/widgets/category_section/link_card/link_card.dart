@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:test/theme/theme.dart';
 import 'package:test/widgets/category_section/link_card/doc_link.dart';
+import 'package:test/widgets/category_section/link_card/managers_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'keyword_tag.dart';
 import 'highlighted_text.dart';
@@ -27,7 +29,7 @@ class LinkCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double cellWidth = 350.0;
-    const double cellHeight = 145.0;
+    const double cellHeight = 200.0;
 
     return SizedBox(
       width: cellWidth,
@@ -42,7 +44,6 @@ class LinkCard extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTertiaryTapUp: (_) => _launchURL(link['link']),
-            onTapDown: (_) => _launchURL(link['link']),
             child: InkWell(
               onTap: () => _launchURL(link['link']),
               borderRadius: BorderRadius.circular(8),
@@ -57,31 +58,28 @@ class LinkCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2C3E50),
+                        color: AppTheme.textPrimary,
                       ),
                       maxLines: 1,
                     ),
                     const SizedBox(height: 4),
+                    if ((link['managers'] as List?)?.isNotEmpty ?? false) ...[
+                      ManagersList(managers: link['managers'] as List),
+                      const SizedBox(height: 4),
+                    ],
                     Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            child: HighlightedText(
-                              text: link['description'],
-                              query: searchQuery,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                height: 1.3,
-                                color: Color(0xFF2C3E50),
-                              ),
-                              maxLines: 2,
-                            ),
-                          ),
-                        ],
+                      child: HighlightedText(
+                        text: link['description'],
+                        query: searchQuery,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.3,
+                          color: Color(0xFF2C3E50),
+                        ),
+                        maxLines: 3,
                       ),
                     ),
+                    const SizedBox(height: 8),
                     if (link['doc_link'].isNotEmpty) ...[
                       DocLink(docLink: link['doc_link']),
                       const SizedBox(height: 8),

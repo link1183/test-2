@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/theme/theme.dart';
 import 'package:test/widgets/footer.dart';
 import 'package:test/widgets/header.dart';
 import 'package:test/widgets/main.dart';
@@ -14,9 +15,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Portail IT BCUL',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: AppTheme.theme,
       home: const Home(),
     );
   }

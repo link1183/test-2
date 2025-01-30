@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/theme/theme.dart';
 import 'highlighted_text.dart';
 
 class KeywordsList extends StatelessWidget {
@@ -117,8 +118,8 @@ class KeywordTag extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: isHighlighted
-            ? Colors.yellow.withValues(alpha: 0.3)
-            : Colors.blue.withValues(alpha: 0.1),
+            ? AppTheme.highlightYellow
+            : AppTheme.accent.withCustomOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: HighlightedText(
@@ -126,7 +127,7 @@ class KeywordTag extends StatelessWidget {
         query: searchQuery,
         style: TextStyle(
           fontSize: 12,
-          color: isHighlighted ? const Color(0xFF2C3E50) : Colors.blue,
+          color: isHighlighted ? AppTheme.textPrimary : AppTheme.accent,
         ),
       ),
     );

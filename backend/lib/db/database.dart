@@ -110,7 +110,9 @@ INSERT INTO categories (name) VALUES ('Applications métiers'),
 INSERT INTO link_manager (name, surname) VALUES ('Bob', 'Brown'),
  ('John', 'Doe'),
  ('Jane', 'Smith'),
- ('Alice', 'Johnson');
+ ('Alice', 'Johnson'),
+ ('Kevin', 'Pradervand'),
+ ('Augustin', 'Schicker');
 
 -- Insert keywords
 INSERT INTO keyword (keyword) VALUES ('gitlab'),
@@ -169,7 +171,16 @@ INSERT INTO keywords_links (link_id, keyword_id) VALUES (2, 1);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://itop-bcul.unil.ch/itop', 'Itop', 'iTop - Application d''inventaire', 'https://www.itophub.io/wiki/page', 1, 1);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (3, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (3, 2);
 INSERT INTO links_views (link_id, view_id) VALUES (3, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 32);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 31);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 30);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 29);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 28);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 18);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 19);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (3, 20);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-ocsinventory.prduks-bcul-ci4881-limited.uks.unil.ch/ocsreports/', 'OCS Inventory', 'Application d''inventaire des laptops', 'https://wiki.ocsinventory-ng.org/', 1, 1);
@@ -200,7 +211,20 @@ INSERT INTO keywords_links (link_id, keyword_id) VALUES (8, 1);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://webint-apache.prduks-bcul-ci4881-limited.uks.unil.ch/RESSOURCE-INF/itop-inventory/index.php', 'Application Inventaire', 'Application de scan d''inventaire connectée à iTop', 'https://google.com', 1, 1);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 1);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 2);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 3);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 4);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 5);
+INSERT INTO link_managers_links (link_id, manager_id) VALUES (9, 6);
 INSERT INTO links_views (link_id, view_id) VALUES (9, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 1);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 32);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 31);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 30);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 29);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 28);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 18);
+INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 19);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (9, 20);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://ephoto-bcul.unil.ch', 'E-photo', 'Application e-photo de stockage de photos', '', 1, 1);
