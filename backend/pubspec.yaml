@@ -12,6 +12,9 @@ dependencies:
   shelf_router: ^1.1.4
   shelf_cors_headers: ^0.1.5
   sqlite3: ^2.7.2
+  dartdap: ^0.7.6
+  jwt_decoder: ^2.0.1
+  jose: ^0.3.4
   # path: ^1.8.0
 
 dev_dependencies:

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test/theme/theme.dart';
-import 'package:test/widgets/category_section/link_card/doc_link.dart';
-import 'package:test/widgets/category_section/link_card/managers_list.dart';
+import 'package:test/screens/home/widgets/category_section/link_card/doc_link.dart';
+import 'package:test/screens/home/widgets/category_section/link_card/managers_list.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'keyword_tag.dart';
 import 'highlighted_text.dart';
