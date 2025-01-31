@@ -1,13 +1,15 @@
 import 'dart:convert';
-
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test/middlewares/auth_provider.dart';
 import 'package:test/routes.dart';
-import 'package:test/screens/shared/widgets/footer.dart';
-import 'package:test/screens/shared/widgets/header.dart';
+import 'package:test/screens/shared/widgets/loading_screen.dart';
+import 'package:test/screens/login/widgets/login_form.dart';
+import 'package:test/screens/login/widgets/login_layout.dart';
 import 'package:http/http.dart' as http;
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:encrypt/encrypt.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -19,7 +21,6 @@ class Login extends StatefulWidget {
 class _Login extends State<Login> {
   late final Encrypter _encrypter;
   bool _isEncrypterReady = false;
-
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -35,21 +36,17 @@ class _Login extends State<Login> {
   Future<void> _initializeEncrypter() async {
     try {
       final response = await http.get(Uri.parse('/api/public-key'));
-
       if (response.statusCode == 200) {
         final publicKeyPem = json.decode(response.body)['publicKey'];
         final parser = RSAKeyParser();
         final publicKey = parser.parse(publicKeyPem) as RSAPublicKey;
-
         setState(() {
           _encrypter = Encrypter(RSA(publicKey: publicKey));
           _isEncrypterReady = true;
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to initialize encryption';
-      });
+      setState(() => _errorMessage = 'Failed to initialize encryption');
     }
   }
 
@@ -61,10 +58,10 @@ class _Login extends State<Login> {
       _errorMessage = null;
     });
 
-    final encryptedUsername = _encrypter.encrypt(_usernameController.text);
-    final encryptedPassword = _encrypter.encrypt(_passwordController.text);
-
     try {
+      final encryptedUsername = _encrypter.encrypt(_usernameController.text);
+      final encryptedPassword = _encrypter.encrypt(_passwordController.text);
+
       final response = await http.post(
         Uri.parse('/api/login'),
         headers: {'Content-Type': 'application/json'},
@@ -79,114 +76,51 @@ class _Login extends State<Login> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', data['token']);
 
-        if (!mounted) return;
-        _navigateToHome();
+        await prefs.setString('token', data['token']);
+        await prefs.setString('displayName', data['user']['displayName']);
+        await prefs.setString(
+            'email', data['user']['mail']); // Changed from 'mail' to 'email'
+
+        if (mounted) {
+          Provider.of<AuthProvider>(context, listen: false).setAuthenticated(
+            true,
+            name: data['user']['displayName'],
+            email: data['user']
+                ['mail'], // Changed parameter name from mail to email
+          );
+          Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+        }
       } else {
-        setState(() {
-          _errorMessage = 'Nom d\'utilisateur ou mot de passe invalide';
-        });
+        if (mounted) {
+          setState(() =>
+              _errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect.');
+        }
       }
     } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = 'Connection error';
-      });
+      if (mounted) {
+        setState(() => _errorMessage = 'Connection error');
+      }
     }
 
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _navigateToHome() {
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: !_isEncrypterReady
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        const Header(),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                TextFormField(
-                                  controller: _usernameController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Username',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (value) => value?.isEmpty ?? true
-                                      ? 'Required'
-                                      : null,
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _passwordController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Password',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  obscureText: true,
-                                  validator: (value) => value?.isEmpty ?? true
-                                      ? 'Required'
-                                      : null,
-                                ),
-                                const SizedBox(height: 8),
-                                if (_errorMessage != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      _errorMessage!,
-                                      style: const TextStyle(color: Colors.red),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ElevatedButton(
-                                  onPressed: _isLoading ? null : _login,
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2),
-                                        )
-                                      : const Text('Login'),
-                                )
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    const Column(
-                      children: [
-                        SizedBox(height: 16),
-                        Footer(),
-                      ],
-                    ),
-                  ],
-                ),
+          ? const LoadingScreen()
+          : LoginLayout(
+              loginForm: LoginForm(
+                formKey: _formKey,
+                usernameController: _usernameController,
+                passwordController: _passwordController,
+                isLoading: _isLoading,
+                errorMessage: _errorMessage,
+                onLogin: _login,
               ),
             ),
     );

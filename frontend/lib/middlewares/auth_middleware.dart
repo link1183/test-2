@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test/middlewares/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,12 +15,11 @@ class AuthMiddleware extends StatefulWidget {
   });
 
   @override
-  State<AuthMiddleware> createState() => _AuthMiddleware();
+  State<AuthMiddleware> createState() => _AuthMiddlewareState();
 }
 
-class _AuthMiddleware extends State<AuthMiddleware> {
+class _AuthMiddlewareState extends State<AuthMiddleware> {
   bool _isLoading = true;
-  bool _isAuthenticated = false;
 
   @override
   void initState() {
@@ -27,14 +28,13 @@ class _AuthMiddleware extends State<AuthMiddleware> {
   }
 
   Future<void> _checkAuth() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
     if (token == null) {
-      setState(() {
-        _isLoading = false;
-        _isAuthenticated = false;
-      });
+      authProvider.setAuthenticated(false);
+      setState(() => _isLoading = false);
       return;
     }
 
@@ -44,30 +44,36 @@ class _AuthMiddleware extends State<AuthMiddleware> {
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      setState(() {
-        _isLoading = false;
-        _isAuthenticated = response.statusCode == 200;
-      });
+      final isValid = response.statusCode == 200;
+      authProvider.setAuthenticated(isValid);
 
-      if (!_isAuthenticated) {
+      if (isValid) {
+        authProvider.setAuthenticated(true,
+            name: prefs.getString('displayName'),
+            email: prefs.getString('email'));
+      } else {
         await prefs.remove('token');
+        await prefs.remove('displayName');
+        await prefs.remove('email');
+        authProvider.setAuthenticated(false);
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _isAuthenticated = false;
-      });
+      authProvider.setAuthenticated(false);
     }
+
+    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    return _isAuthenticated ? widget.child : widget.loginScreen;
+    return authProvider.isAuthenticated ? widget.child : widget.loginScreen;
   }
 }

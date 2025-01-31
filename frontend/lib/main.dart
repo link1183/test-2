@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test/middlewares/auth_provider.dart';
 import 'package:test/middlewares/auth_middleware.dart';
 import 'package:test/routes.dart';
 import 'package:test/screens/home/home.dart';
@@ -8,7 +10,13 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 void main() async {
   setUrlStrategy(PathUrlStrategy());
-  runApp(const App());
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AuthProvider()..checkAuth(),
+      child: const App(),
+    ),
+  );
 }
 
 class App extends StatelessWidget {
