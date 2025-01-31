@@ -1,12 +1,18 @@
 import 'dart:convert';
 import 'package:backend/db/database.dart';
+import 'package:backend/services/auth_service.dart';
+import 'package:backend/services/encryption_service.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
-class DatabaseApi {
+class Api {
   final AppDatabase db;
+  final AuthService authService;
+  final EncryptionService encryptionService;
 
-  DatabaseApi() : db = AppDatabase() {
+  Api({required this.authService})
+      : db = AppDatabase(),
+        encryptionService = EncryptionService() {
     db.init();
   }
 
@@ -93,6 +99,66 @@ class DatabaseApi {
           body: jsonEncode({'error': e.toString()}),
           headers: {'content-type': 'application/json'},
         );
+      }
+    });
+
+    // Auth endpoints
+    router.get('/public-key', (Request request) {
+      return Response.ok(
+        json.encode({'publicKey': encryptionService.publicKey}),
+        headers: {'content-type': 'application/json'},
+      );
+    });
+
+    router.post('/login', (Request request) async {
+      try {
+        final payload = await request.readAsString();
+        final data = json.decode(payload);
+
+        final encryptedUsername = data['username'];
+        final encryptedPassword = data['password'];
+
+        if (encryptedUsername == null || encryptedPassword == null) {
+          return Response(400, body: 'Username and password required');
+        }
+
+        final username = encryptionService.decrypt(encryptedUsername);
+        final password = encryptionService.decrypt(encryptedPassword);
+
+        final userData = await authService.authenticateUser(username, password);
+
+        if (userData == null) {
+          return Response(401, body: 'Invalid credentials');
+        }
+
+        final token = authService.generateToken(userData);
+
+        return Response.ok(
+          json.encode({'token': token, 'user': userData}),
+          headers: {'content-type': 'application/json'},
+        );
+      } catch (e) {
+        return Response.internalServerError(body: 'Server error');
+      }
+    });
+
+    router.post('/verify-token', (Request request) {
+      try {
+        final authHeader = request.headers['authorization'];
+        if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+          return Response(401, body: 'No token provided');
+        }
+
+        final token = authHeader.substring(7);
+        final isValid = authService.verifyToken(token);
+
+        if (!isValid) {
+          return Response(401, body: 'Invalid or expired token');
+        }
+
+        return Response.ok('Token valid');
+      } catch (e) {
+        return Response.internalServerError(body: 'Server error');
       }
     });
 

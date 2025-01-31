@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test/middlewares/auth_middleware.dart';
 import 'package:test/routes.dart';
 import 'package:test/screens/home/home.dart';
 import 'package:test/screens/login/login.dart';
@@ -18,9 +19,12 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Portail IT BCUL',
       theme: AppTheme.theme,
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.home,
       routes: {
-        AppRoutes.home: (context) => const Home(),
+        AppRoutes.home: (context) => AuthMiddleware(
+              loginScreen: const Login(),
+              child: const Home(),
+            ),
         AppRoutes.login: (context) => const Login(),
       },
     );

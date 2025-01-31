@@ -14,9 +14,13 @@ dependencies:
   sqlite3: ^2.7.2
   dartdap: ^0.7.6
   jwt_decoder: ^2.0.1
-  jose: ^0.3.4
+  dart_jsonwebtoken: ^2.16.0
+  encrypt: ^5.0.3
+  pointycastle: ^3.9.1
+  asn1lib: ^1.5.8
+  basic_utils: ^5.7.0
   # path: ^1.8.0
 
 dev_dependencies:
-  lints: ^5.0.0
+  lints: ^5.1.1
   test: ^1.24.0
