@@ -26,19 +26,18 @@ class Header extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image(
-                  image: AssetImage('assets/img/bcul_logo_RVB_small.png'),
-                  width: 115,
-                  filterQuality: FilterQuality.high,
-                ),
+              Image(
+                image: AssetImage('assets/img/bcul_logo_RVB.png'),
+                width: 155,
+                height: 119.25,
+                filterQuality: FilterQuality.high,
+                fit: BoxFit.contain,
+                isAntiAlias: true,
               ),
               const SizedBox(width: 16),
               Text(

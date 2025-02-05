@@ -12,7 +12,7 @@ class Footer extends StatelessWidget {
       child: Row(
         children: [
           Image(
-            image: AssetImage('assets/img/logoVD-blanc-2014_small.png'),
+            image: AssetImage('assets/img/logoVD-blanc-2014.png'),
             width: 40,
             filterQuality: FilterQuality.high,
           ),
