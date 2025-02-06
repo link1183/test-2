@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:test/screens/login/widgets/login_header.dart';
-import 'package:test/screens/shared/widgets/footer.dart';
-import 'package:test/screens/shared/widgets/header.dart';
+import 'package:portail_it/screens/login/widgets/login_header.dart';
+import 'package:portail_it/screens/shared/widgets/footer.dart';
+import 'package:portail_it/screens/shared/widgets/header.dart';
 
 class LoginLayout extends StatelessWidget {
   final Widget loginForm;

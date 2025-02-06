@@ -85,12 +85,7 @@ class _CategorySectionState extends State<CategorySection>
                     Expanded(
                       child: Text(
                         widget.category['category_name'],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2C3E50),
-                          letterSpacing: -0.5,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
                     AnimatedRotation(

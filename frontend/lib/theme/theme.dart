@@ -23,6 +23,35 @@ class AppTheme {
   static const Color shadowColor = Color.fromRGBO(0, 0, 0, 0.05);
 
   static ThemeData get theme => ThemeData(
+        useMaterial3: true,
+        fontFamily: 'Roboto',
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0,
+            height: 1.2,
+            leadingDistribution: TextLeadingDistribution.even,
+            textBaseline: TextBaseline.alphabetic,
+            fontFeatures: [
+              FontFeature.enable('kern'),
+              FontFeature.enable('liga'),
+            ],
+          ),
+          titleLarge: TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0,
+            height: 1.2,
+            leadingDistribution: TextLeadingDistribution.even,
+            textBaseline: TextBaseline.alphabetic,
+          ),
+        ).apply(
+          bodyColor: textPrimary,
+          displayColor: textPrimary,
+        ),
         primaryColor: primary,
         scaffoldBackgroundColor: scaffoldBackground,
         cardTheme: const CardTheme(
@@ -32,7 +61,6 @@ class AppTheme {
       );
 }
 
-// Extension method for easy color opacity
 extension ColorExtension on Color {
   Color withCustomOpacity(double opacity) => withValues(alpha: opacity);
 }

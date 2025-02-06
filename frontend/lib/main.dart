@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test/middlewares/auth_provider.dart';
-import 'package:test/middlewares/auth_middleware.dart';
-import 'package:test/routes.dart';
-import 'package:test/screens/home/home.dart';
-import 'package:test/screens/login/login.dart';
-import 'package:test/theme/theme.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:portail_it/middlewares/auth_middleware.dart';
+import 'package:portail_it/screens/home/home.dart';
+import 'package:portail_it/screens/login/login.dart';
+import 'package:portail_it/theme/theme.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 void main() async {
@@ -27,13 +26,16 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Portail IT BCUL',
       theme: AppTheme.theme,
-      initialRoute: AppRoutes.home,
-      routes: {
-        AppRoutes.home: (context) => AuthMiddleware(
-              loginScreen: const Login(),
-              child: const Home(),
-            ),
-        AppRoutes.login: (context) => const Login(),
+      home: AuthMiddleware(
+        loginScreen: const Login(),
+        child: const Home(),
+      ),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(1.0)),
+          child: child!,
+        );
       },
     );
   }

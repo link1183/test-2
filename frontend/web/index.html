@@ -1,6 +1,21 @@
 <!doctype html>
 <html>
   <head>
+    <style>
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      @media screen and (-webkit-min-device-pixel-ratio: 2),
+        screen and (min-resolution: 2dppx) {
+        * {
+          -moz-osx-font-smoothing: grayscale;
+          -webkit-font-smoothing: subpixel-antialiased;
+        }
+      }
+    </style>
     <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test/theme/theme.dart';
+import 'package:portail_it/theme/theme.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -15,6 +15,8 @@ class Footer extends StatelessWidget {
             image: AssetImage('assets/img/logoVD-blanc-2014.png'),
             width: 40,
             filterQuality: FilterQuality.high,
+            fit: BoxFit.contain,
+            isAntiAlias: true,
           ),
           SizedBox(width: 32),
           const Flexible(

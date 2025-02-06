@@ -93,14 +93,11 @@ class _MainState extends State<Main> {
             onSearch: handleSearch,
           ),
           if (filteredCategories.isEmpty && searchText.isNotEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(32.0),
               child: Text(
                 'No results found',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF2C3E50),
-                ),
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             )
           else

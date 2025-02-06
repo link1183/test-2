@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test/theme/theme.dart';
+import 'package:portail_it/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DocLink extends StatelessWidget {

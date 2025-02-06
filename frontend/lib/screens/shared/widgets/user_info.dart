@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:test/middlewares/auth_provider.dart';
-import 'package:test/theme/theme.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:portail_it/theme/theme.dart';
 
 class UserInfo extends StatelessWidget {
   final String displayName;

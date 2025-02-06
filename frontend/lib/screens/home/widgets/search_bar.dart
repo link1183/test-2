@@ -51,10 +51,7 @@ class SearchBar extends StatelessWidget {
               vertical: 14.0,
             ),
           ),
-          style: const TextStyle(
-            fontSize: 16.0,
-            color: Color(0xFF2C3E50),
-          ),
+          style: Theme.of(context).textTheme.bodyLarge,
           onChanged: onSearch,
         ),
       ),

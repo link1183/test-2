@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:test/screens/shared/widgets/footer.dart';
-import 'package:test/screens/shared/widgets/header.dart';
-import 'package:test/screens/home/widgets/main.dart';
+import 'package:portail_it/screens/shared/widgets/footer.dart';
+import 'package:portail_it/screens/shared/widgets/header.dart';
+import 'package:portail_it/screens/home/widgets/main.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});

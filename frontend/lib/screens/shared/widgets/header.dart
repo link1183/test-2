@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test/screens/shared/widgets/user_info.dart';
-import 'package:test/theme/theme.dart';
-import 'package:test/middlewares/auth_provider.dart';
+import 'package:portail_it/screens/shared/widgets/user_info.dart';
+import 'package:portail_it/theme/theme.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -34,7 +34,6 @@ class Header extends StatelessWidget {
               Image(
                 image: AssetImage('assets/img/bcul_logo_RVB.png'),
                 width: 155,
-                height: 119.25,
                 filterQuality: FilterQuality.high,
                 fit: BoxFit.contain,
                 isAntiAlias: true,
