@@ -4,6 +4,7 @@ class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
+  final FocusNode passwordFocusNode;
   final bool isLoading;
   final String? errorMessage;
   final VoidCallback onLogin;
@@ -13,6 +14,7 @@ class LoginForm extends StatefulWidget {
     required this.formKey,
     required this.usernameController,
     required this.passwordController,
+    required this.passwordFocusNode,
     required this.isLoading,
     required this.errorMessage,
     required this.onLogin,
@@ -78,6 +80,7 @@ class _LoginFormState extends State<LoginForm> {
   Widget _buildPasswordField() {
     return TextFormField(
       controller: widget.passwordController,
+      focusNode: widget.passwordFocusNode,
       obscureText: _obscurePassword,
       decoration: InputDecoration(
         labelText: 'Mot de passe',

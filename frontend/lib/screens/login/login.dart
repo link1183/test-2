@@ -24,6 +24,7 @@ class _Login extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordFocusNode = FocusNode();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -93,6 +94,8 @@ class _Login extends State<Login> {
         }
       } else {
         if (mounted) {
+          _passwordController.clear();
+          _passwordFocusNode.requestFocus();
           setState(() =>
               _errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect.');
         }
@@ -118,6 +121,7 @@ class _Login extends State<Login> {
                 formKey: _formKey,
                 usernameController: _usernameController,
                 passwordController: _passwordController,
+                passwordFocusNode: _passwordFocusNode,
                 isLoading: _isLoading,
                 errorMessage: _errorMessage,
                 onLogin: _login,
