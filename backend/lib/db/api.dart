@@ -19,6 +19,66 @@ class Api {
   Router get router {
     final router = Router();
 
+    router.post('/all-groups', (Request request) async {
+      try {
+        final payload = await request.readAsString();
+        final data = json.decode(payload);
+
+        final username = data['username'];
+        final password = data['password'];
+
+        if (username == null || password == null) {
+          return Response(
+            400,
+            body: jsonEncode({'error': 'Username and password are required'}),
+            headers: {'content-type': 'application/json'},
+          );
+        }
+
+        final groups = await authService.getAllGroups(username, password);
+
+        return Response.ok(
+          jsonEncode({'groups': groups}),
+          headers: {'content-type': 'application/json'},
+        );
+      } catch (e) {
+        return Response.internalServerError(
+          body: jsonEncode({'error': 'Failed to fetch groups: $e'}),
+          headers: {'content-type': 'application/json'},
+        );
+      }
+    });
+
+    router.post('/groups', (Request request) async {
+      try {
+        final payload = await request.readAsString();
+        final data = json.decode(payload);
+
+        final username = data['username'];
+        final password = data['password'];
+
+        if (username == null || password == null) {
+          return Response(
+            400,
+            body: jsonEncode({'error': 'Username and password are required'}),
+            headers: {'content-type': 'application/json'},
+          );
+        }
+
+        final groups = await authService.getUserGroups(username, password);
+
+        return Response.ok(
+          jsonEncode({'groups': groups}),
+          headers: {'content-type': 'application/json'},
+        );
+      } catch (e) {
+        return Response.internalServerError(
+          body: jsonEncode({'error': 'Failed to fetch groups: $e'}),
+          headers: {'content-type': 'application/json'},
+        );
+      }
+    });
+
     router.get('/categories', (Request request) {
       try {
         final categories = db.db.select('''
@@ -111,7 +171,7 @@ class Api {
       );
     });
 
-    router.post('/login', (Request request) async {
+    router.post('/printin', (Request request) async {
       try {
         final payload = await request.readAsString();
         final data = json.decode(payload);

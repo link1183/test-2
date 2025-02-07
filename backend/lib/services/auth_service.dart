@@ -69,8 +69,46 @@ class AuthService {
     }
   }
 
+  Future<List<String>> getAllGroups(String username, String password) async {
+    LdapConnection? ldap;
+    try {
+      ldap = await _getLdapConnection();
+      final userDN = '$username@ad.unil.ch';
+      await ldap.bind(DN: userDN, password: password);
+
+      // Filter for security groups (groupType=2147483650)
+      final result = await ldap.search(
+        baseDN,
+        Filter.and([
+          Filter.equals('objectClass', 'group'),
+          //Filter.equals('groupType', '2147483650'), // Security group
+          Filter.substring('cn', '*bcu*'),
+        ]),
+        ['distinguishedName', 'cn'],
+        scope: SearchScope.SUB_LEVEL,
+      );
+
+      final groups = <String>[];
+      await for (var entry in result.stream) {
+        if (entry.attributes.containsKey('cn')) {
+          final cn = entry.attributes['cn']?.values.first.toString() ?? '';
+          if (cn.isNotEmpty) {
+            groups.add(cn);
+          }
+        }
+      }
+
+      return groups..sort();
+    } catch (e) {
+      print('Error getting all groups: $e');
+      return [];
+    } finally {
+      await ldap?.close();
+    }
+  }
+
   Future<List<String>> getUserGroups(String username, String password) async {
-    late final LdapConnection ldap;
+    LdapConnection? ldap;
     try {
       ldap = await _getLdapConnection();
       final userDN = '$username@ad.unil.ch';
@@ -96,8 +134,11 @@ class AuthService {
         }
       }
       return groups..sort();
+    } catch (e) {
+      print('Error getting user groups: $e');
+      return [];
     } finally {
-      await ldap.close();
+      await ldap?.close();
     }
   }
 

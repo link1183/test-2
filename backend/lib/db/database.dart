@@ -114,7 +114,8 @@ INSERT INTO link_manager (name, surname, link) VALUES
  ('Jane', 'Smith', ''),
  ('Alice', 'Johnson', ''),
  ('Kevin', 'Pradervand', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1184744'),
- ('Augustin', 'Schicker', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1079784');
+ ('Augustin', 'Schicker', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1079784'),
+ ('Brendan', 'Demierre', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1279608');
 
 -- Insert keywords
 INSERT INTO keyword (keyword) VALUES ('gitlab'),
@@ -190,7 +191,7 @@ INSERT INTO link_managers_links (link_id, manager_id) VALUES (4, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (4, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (4, 20);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://portal.uks.unil.ch/dashboard/auth/login?timed-out', 'UKS Portal', 'Portail de gestion des pods Kubernetes', 'https://rancher.com/docs/', 1, 1);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://portal.uks.unil.ch/dashboard/auth/printin?timed-out', 'UKS Portal', 'Portail de gestion des pods Kubernetes', 'https://rancher.com/docs/', 1, 1);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (5, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (5, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (5, 17);
@@ -240,7 +241,7 @@ INSERT INTO links_views (link_id, view_id) VALUES (11, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (11, 22);
 
 -- Monitoring
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-grafana.prduks-bcul-ci4881-limited.uks.unil.ch/login', 'Grafana BCUL', 'Monitoring Grafana de la BCUL', 'https://grafana.com/docs/', 1, 2);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://apps-grafana.prduks-bcul-ci4881-limited.uks.unil.ch/printin', 'Grafana BCUL', 'Monitoring Grafana de la BCUL', 'https://grafana.com/docs/', 1, 2);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (12, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (12, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (12, 13);
@@ -292,7 +293,7 @@ INSERT INTO link_managers_links (link_id, manager_id) VALUES (21, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (21, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (21, 12);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://av-bcul.unil.ch/login', 'App Volumes', 'App Volumes', 'https://docs.vmware.com/en/VMware-App-Volumes/index.html', 1, 4);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://av-bcul.unil.ch/printin', 'App Volumes', 'App Volumes', 'https://docs.vmware.com/en/VMware-App-Volumes/index.html', 1, 4);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (22, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (22, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (22, 12);
@@ -367,7 +368,7 @@ INSERT INTO links_views (link_id, view_id) VALUES (35, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (35, 5);
 
 -- Lorawan
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:3000/login', 'Dashboard Grafana Lorawan', 'Dashboard de monitoring des sondes Lorawan', 'https://grafana.com/docs/', 1, 8);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:3000/printin', 'Dashboard Grafana Lorawan', 'Dashboard de monitoring des sondes Lorawan', 'https://grafana.com/docs/', 1, 8);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (36, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (36, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (36, 13);
@@ -377,7 +378,7 @@ INSERT INTO link_managers_links (link_id, manager_id) VALUES (37, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (37, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (37, 24);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:8080/#/login', 'Gateway des antennes Lorawan', 'Gateway de gestion des sondes Lorawan', 'https://www.chirpstack.io/docs/', 1, 8);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('http://lorawan01.unil.ch:8080/#/printin', 'Gateway des antennes Lorawan', 'Gateway de gestion des sondes Lorawan', 'https://www.chirpstack.io/docs/', 1, 8);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (38, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (38, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (38, 25);
@@ -403,7 +404,7 @@ INSERT INTO link_managers_links (link_id, manager_id) VALUES (42, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (42, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (42, 12);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vdiu-srvco-max.unil.ch/admin/#/login', 'VMWare Horizon UNIL', 'VMWare Horizon UNIL', '', 1, 9);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://vdiu-srvco-max.unil.ch/admin/#/printin', 'VMWare Horizon UNIL', 'VMWare Horizon UNIL', '', 1, 9);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (43, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (43, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (43, 12);
@@ -425,12 +426,12 @@ INSERT INTO link_managers_links (link_id, manager_id) VALUES (46, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (46, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (46, 14);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/home/menuinst/catalogue-de-services/reseau-et-telephonie/firewall-as-a-service/acceder-au-service.html', 'Règles Firewall (FaaS)', 'Ajout, suppression et modification de règles pour le Firewall de l''UNIL', '', 1, 11);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/home/menuinst/cataprintue-de-services/reseau-et-telephonie/firewall-as-a-service/acceder-au-service.html', 'Règles Firewall (FaaS)', 'Ajout, suppression et modification de règles pour le Firewall de l''UNIL', '', 1, 11);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (47, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (47, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (47, 14);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/fr/home/menuinst/catalogue-de-services/reseau-et-telephonie/demande-d-ip-fixe.html', 'Demande d''IP fixe et DNS', 'Pour effectuer une demande d''IP fixe et/ou de DNS pour un serveur/PC/VM', '', 1, 11);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/fr/home/menuinst/cataprintue-de-services/reseau-et-telephonie/demande-d-ip-fixe.html', 'Demande d''IP fixe et DNS', 'Pour effectuer une demande d''IP fixe et/ou de DNS pour un serveur/PC/VM', '', 1, 11);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (48, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (48, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (48, 15);
@@ -446,7 +447,7 @@ INSERT INTO links_views (link_id, view_id) VALUES (50, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (50, 14);
 
 -- Téléphonie
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/fr/home/menuinst/catalogue-de-services/reseau-et-telephonie.html', 'Formulaires UNIL de téléphonie', 'Formulaires diverses concernant la téléphonie à l''UNIL', '', 1, 12);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.unil.ch/ci/fr/home/menuinst/cataprintue-de-services/reseau-et-telephonie.html', 'Formulaires UNIL de téléphonie', 'Formulaires diverses concernant la téléphonie à l''UNIL', '', 1, 12);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (51, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (51, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (51, 7);
@@ -462,7 +463,7 @@ INSERT INTO link_managers_links (link_id, manager_id) VALUES (53, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (53, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (53, 8);
 
-INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.pressreader.com/', 'Pressreader', 'Plateforme de catalogue de journaux Pressreader', '', 1, 13);
+INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://www.pressreader.com/', 'Pressreader', 'Plateforme de cataprintue de journaux Pressreader', '', 1, 13);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (54, 1);
 INSERT INTO links_views (link_id, view_id) VALUES (54, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (54, 8);
