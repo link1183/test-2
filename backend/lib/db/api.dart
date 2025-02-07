@@ -37,7 +37,8 @@ class Api {
               json_group_array(DISTINCT json_object(
                 'id', m.id,
                 'name', m.name,
-                'surname', m.surname
+                'surname', m.surname,
+                'link', m.link
               )) as managers
             FROM link
             LEFT JOIN status s ON s.id = link.status_id

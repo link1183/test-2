@@ -38,7 +38,8 @@ FOREIGN KEY(`category_id`) REFERENCES `categories`(`id`)
 CREATE TABLE IF NOT EXISTS `link_manager` (
 	`id` integer primary key NOT NULL UNIQUE,
 	`name` TEXT NOT NULL,
-	`surname` TEXT NOT NULL
+	`surname` TEXT NOT NULL,
+	`link` TEXT
 );
 CREATE TABLE IF NOT EXISTS `link_managers_links` (
 	`link_id` INTEGER NOT NULL,
@@ -107,12 +108,13 @@ INSERT INTO categories (name) VALUES ('Applications métiers'),
  ('Utilitaires');
 
 -- Insert managers
-INSERT INTO link_manager (name, surname) VALUES ('Bob', 'Brown'),
- ('John', 'Doe'),
- ('Jane', 'Smith'),
- ('Alice', 'Johnson'),
- ('Kevin', 'Pradervand'),
- ('Augustin', 'Schicker');
+INSERT INTO link_manager (name, surname, link) VALUES 
+ ('Bob', 'Brown', ''),
+ ('John', 'Doe', ''),
+ ('Jane', 'Smith', ''),
+ ('Alice', 'Johnson', ''),
+ ('Kevin', 'Pradervand', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1184744'),
+ ('Augustin', 'Schicker', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1079784');
 
 -- Insert keywords
 INSERT INTO keyword (keyword) VALUES ('gitlab'),
