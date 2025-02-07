@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'package:portail_it/services/api_client.dart';
 
 class AuthMiddleware extends StatefulWidget {
   final Widget child;
@@ -39,22 +39,13 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('/api/verify-token'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final response = await ApiClient.post('/api/verify-token');
 
       final isValid = response.statusCode == 200;
-      authProvider.setAuthenticated(isValid);
 
       if (isValid) {
-        authProvider.setAuthenticated(true,
-            name: prefs.getString('displayName'),
-            email: prefs.getString('email'));
+        authProvider.setAuthenticated(true, token: token);
       } else {
-        await prefs.remove('token');
-        await prefs.remove('displayName');
-        await prefs.remove('email');
         authProvider.setAuthenticated(false);
       }
     } catch (e) {

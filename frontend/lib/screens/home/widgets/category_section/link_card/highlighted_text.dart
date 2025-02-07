@@ -45,7 +45,6 @@ class HighlightedText extends StatelessWidget {
     while (true) {
       final matchIndex = textLower.indexOf(queryLower, currentIndex);
       if (matchIndex == -1) {
-        // Add remaining text
         spans.add(TextSpan(
           text: text.substring(currentIndex),
           style: style,
@@ -53,7 +52,6 @@ class HighlightedText extends StatelessWidget {
         break;
       }
 
-      // Add text before match
       if (matchIndex > currentIndex) {
         spans.add(TextSpan(
           text: text.substring(currentIndex, matchIndex),
@@ -61,7 +59,6 @@ class HighlightedText extends StatelessWidget {
         ));
       }
 
-      // Add highlighted match
       spans.add(TextSpan(
         text: text.substring(matchIndex, matchIndex + query.length),
         style: style.copyWith(

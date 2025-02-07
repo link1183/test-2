@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:developer';
+import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'category_section/category_section.dart';
 import 'search_bar.dart' as search_bar;
+import 'package:portail_it/services/api_client.dart';
 
 class Main extends StatefulWidget {
   const Main({super.key});
@@ -13,6 +14,8 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
+  bool _isLoading = true;
+  String? _error;
   List<dynamic> categories = [];
   List<FilteredCategory> filteredCategories = [];
   Set<String> expandedIds = {};
@@ -83,6 +86,38 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     const double maxContainerWidth = 1140;
 
+    if (_isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _error!,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadCategories,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       constraints: const BoxConstraints(maxWidth: maxContainerWidth),
       margin: const EdgeInsets.symmetric(horizontal: 50),
@@ -94,7 +129,7 @@ class _MainState extends State<Main> {
           ),
           if (filteredCategories.isEmpty && searchText.isNotEmpty)
             Padding(
-              padding: EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(32.0),
               child: Text(
                 'No results found',
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -130,14 +165,26 @@ class _MainState extends State<Main> {
   @override
   void initState() {
     super.initState();
-    _loadCategories();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _loadCategories();
+    });
   }
 
   Future<void> _loadCategories() async {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
     try {
-      final response = await http.get(Uri.parse('/api/categories'));
+      final response = await ApiClient.get('/api/categories');
+
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = json.decode(response.body);
         setState(() {
           categories = data['categories'];
           filteredCategories = categories
@@ -146,10 +193,27 @@ class _MainState extends State<Main> {
                     filteredLinks: category['links'],
                   ))
               .toList();
+          _isLoading = false;
+        });
+      } else if (response.statusCode == 401) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.logout();
+        setState(() {
+          _error = 'Session expired. Please login again.';
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = 'Failed to load categories: ${response.body}';
+          _isLoading = false;
         });
       }
     } catch (e) {
-      log('Error fetching data: $e');
+      if (!mounted) return;
+      setState(() {
+        _error = 'Error: $e';
+        _isLoading = false;
+      });
     }
   }
 }

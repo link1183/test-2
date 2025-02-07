@@ -42,7 +42,7 @@ class AuthService {
       final searchResult = await ldap.search(
         baseDN,
         Filter.equals('sAMAccountName', username),
-        ['displayName', 'cn', 'mail'],
+        ['displayName', 'cn', 'mail', 'memberOf'],
         scope: SearchScope.SUB_LEVEL,
       );
 
@@ -56,89 +56,28 @@ class AuthService {
       }
 
       if (userEntry == null) return null;
+
+      final groups = <String>[];
+      if (userEntry.attributes.containsKey('memberOf')) {
+        groups.addAll(
+          userEntry.attributes['memberOf']!.values
+              .map((v) => v.toString())
+              .map((dn) => RegExp(r'CN=([^,]+)').firstMatch(dn)?.group(1) ?? '')
+              .where((cn) => cn.isNotEmpty),
+        );
+      }
+
       return {
         'username': userEntry.attributes['cn']?.values.first,
         'displayName': userEntry.attributes['displayName']?.values.first,
         'mail': userEntry.attributes['mail']?.values.first,
+        'groups': groups,
       };
     } on LdapException catch (e) {
-      print('Unexpected error during authentification: $e');
+      print('Unexpected error during authentication: $e');
       return null;
     } finally {
       await ldap.close();
-    }
-  }
-
-  Future<List<String>> getAllGroups(String username, String password) async {
-    LdapConnection? ldap;
-    try {
-      ldap = await _getLdapConnection();
-      final userDN = '$username@ad.unil.ch';
-      await ldap.bind(DN: userDN, password: password);
-
-      // Filter for security groups (groupType=2147483650)
-      final result = await ldap.search(
-        baseDN,
-        Filter.and([
-          Filter.equals('objectClass', 'group'),
-          //Filter.equals('groupType', '2147483650'), // Security group
-          Filter.substring('cn', '*bcu*'),
-        ]),
-        ['distinguishedName', 'cn'],
-        scope: SearchScope.SUB_LEVEL,
-      );
-
-      final groups = <String>[];
-      await for (var entry in result.stream) {
-        if (entry.attributes.containsKey('cn')) {
-          final cn = entry.attributes['cn']?.values.first.toString() ?? '';
-          if (cn.isNotEmpty) {
-            groups.add(cn);
-          }
-        }
-      }
-
-      return groups..sort();
-    } catch (e) {
-      print('Error getting all groups: $e');
-      return [];
-    } finally {
-      await ldap?.close();
-    }
-  }
-
-  Future<List<String>> getUserGroups(String username, String password) async {
-    LdapConnection? ldap;
-    try {
-      ldap = await _getLdapConnection();
-      final userDN = '$username@ad.unil.ch';
-      await ldap.bind(DN: userDN, password: password);
-
-      final result = await ldap.search(
-        baseDN,
-        Filter.equals('sAMAccountName', username),
-        ['memberOf'],
-        scope: SearchScope.SUB_LEVEL,
-      );
-
-      final groups = <String>[];
-      await for (var entry in result.stream) {
-        if (entry.attributes.containsKey('memberOf')) {
-          groups.addAll(
-            entry.attributes['memberOf']!.values
-                .map((v) => v.toString())
-                .map((dn) =>
-                    RegExp(r'CN=([^,]+)').firstMatch(dn)?.group(1) ?? '')
-                .where((cn) => cn.isNotEmpty),
-          );
-        }
-      }
-      return groups..sort();
-    } catch (e) {
-      print('Error getting user groups: $e');
-      return [];
-    } finally {
-      await ldap?.close();
     }
   }
 
@@ -148,6 +87,7 @@ class AuthService {
         'sub': userData['username'],
         'name': userData['displayName'],
         'email': userData['mail'],
+        'groups': userData['groups'],
         'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
         'exp': DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch ~/
             1000,

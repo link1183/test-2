@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:portail_it/services/api_client.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:portail_it/routes.dart';
 import 'package:portail_it/screens/shared/widgets/loading_screen.dart';
@@ -60,44 +60,33 @@ class _Login extends State<Login> {
     });
 
     try {
-      final encryptedUsername = _encrypter.encrypt(_usernameController.text);
-      final encryptedPassword = _encrypter.encrypt(_passwordController.text);
-
-      final response = await http.post(
-        Uri.parse('/api/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'username': encryptedUsername.base64,
-          'password': encryptedPassword.base64,
-        }),
+      final response = await ApiClient.login(
+        _usernameController.text,
+        _passwordController.text,
+        _encrypter,
       );
 
       if (!mounted) return;
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final prefs = await SharedPreferences.getInstance();
-
-        await prefs.setString('token', data['token']);
-        await prefs.setString('displayName', data['user']['displayName']);
-        await prefs.setString(
-            'email', data['user']['mail']); // Changed from 'mail' to 'email'
+        final token = data['token'];
 
         if (mounted) {
-          Provider.of<AuthProvider>(context, listen: false).setAuthenticated(
-            true,
-            name: data['user']['displayName'],
-            email: data['user']
-                ['mail'], // Changed parameter name from mail to email
-          );
-          Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+          await Provider.of<AuthProvider>(context, listen: false)
+              .setAuthenticated(true, token: token);
+
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+          }
         }
       } else {
         if (mounted) {
           _passwordController.clear();
           _passwordFocusNode.requestFocus();
-          setState(() =>
-              _errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect.');
+          setState(() => _errorMessage = 'Invalid credentials');
         }
       }
     } catch (e) {

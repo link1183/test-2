@@ -1,44 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool _isAuthenticated = false;
-  String? _displayName;
-  String? _email;
+  Map<String, dynamic>? _userData;
 
   bool get isAuthenticated => _isAuthenticated;
-  String? get displayName => _displayName;
-  String? get email => _email;
+  String? get displayName => _userData?['name'];
+  String? get email => _userData?['email'];
+  String? get username => _userData?['sub'];
 
   Future<void> checkAuth() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
-    _isAuthenticated = token != null;
-    _displayName = prefs.getString('displayName');
-    _email = prefs.getString('email');
+    if (token != null) {
+      try {
+        final decodedToken = JwtDecoder.decode(token);
+        _userData = decodedToken;
+        _isAuthenticated = true;
+      } catch (e) {
+        _userData = null;
+        _isAuthenticated = false;
+        await prefs.remove('token');
+      }
+    } else {
+      _userData = null;
+      _isAuthenticated = false;
+    }
 
     notifyListeners();
   }
 
-  Future<void> setAuthenticated(bool value,
-      {String? name, String? email}) async {
-    _isAuthenticated = value;
-    _displayName = name;
-    _email = email;
+  Future<void> setAuthenticated(bool value, {String? token}) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (value && token != null) {
+      await prefs.setString('token', token);
+      _userData = JwtDecoder.decode(token);
+      _isAuthenticated = true;
+    } else {
+      await prefs.remove('token');
+      _userData = null;
+      _isAuthenticated = false;
+    }
+
     notifyListeners();
   }
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
-    await prefs.remove('displayName');
-    await prefs.remove('email');
-
+    _userData = null;
     _isAuthenticated = false;
-    _displayName = null;
-    _email = null;
-
     notifyListeners();
   }
 }

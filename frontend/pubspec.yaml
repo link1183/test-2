@@ -43,6 +43,7 @@ dependencies:
   pointycastle: ^3.9.1
   provider: ^6.1.2
   toastification: ^2.3.0
+  jwt_decoder: ^2.0.1
 
 dev_dependencies:
   flutter_test:

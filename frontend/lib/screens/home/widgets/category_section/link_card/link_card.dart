@@ -57,7 +57,6 @@ class LinkCard extends StatelessWidget {
                       query: searchQuery,
                       style: const TextStyle(
                         fontSize: 16,
-                        //fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
                       ),
                       maxLines: 1,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:backend/db/database.dart';
 import 'package:backend/services/auth_service.dart';
 import 'package:backend/services/encryption_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
@@ -19,101 +20,72 @@ class Api {
   Router get router {
     final router = Router();
 
-    router.post('/all-groups', (Request request) async {
+    router.get('/categories', (Request request) async {
       try {
-        final payload = await request.readAsString();
-        final data = json.decode(payload);
+        final authHeader = request.headers['authorization'];
+        if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+          return Response(401, body: 'No token provided');
+        }
 
-        final username = data['username'];
-        final password = data['password'];
+        final token = authHeader
+            .substring(7); // We remove the "bearer: " part, which is 7 chars
+        if (!authService.verifyToken(token)) {
+          return Response(401, body: 'Invalid token');
+        }
 
-        if (username == null || password == null) {
-          return Response(
-            400,
-            body: jsonEncode({'error': 'Username and password are required'}),
+        final decodedToken = JwtDecoder.decode(token);
+        final userGroups =
+            (decodedToken['groups'] as List<dynamic>?)?.cast<String>() ?? [];
+
+        if (userGroups.isEmpty) {
+          return Response.ok(
+            jsonEncode({'categories': []}),
             headers: {'content-type': 'application/json'},
           );
         }
 
-        final groups = await authService.getAllGroups(username, password);
-
-        return Response.ok(
-          jsonEncode({'groups': groups}),
-          headers: {'content-type': 'application/json'},
-        );
-      } catch (e) {
-        return Response.internalServerError(
-          body: jsonEncode({'error': 'Failed to fetch groups: $e'}),
-          headers: {'content-type': 'application/json'},
-        );
-      }
-    });
-
-    router.post('/groups', (Request request) async {
-      try {
-        final payload = await request.readAsString();
-        final data = json.decode(payload);
-
-        final username = data['username'];
-        final password = data['password'];
-
-        if (username == null || password == null) {
-          return Response(
-            400,
-            body: jsonEncode({'error': 'Username and password are required'}),
-            headers: {'content-type': 'application/json'},
-          );
-        }
-
-        final groups = await authService.getUserGroups(username, password);
-
-        return Response.ok(
-          jsonEncode({'groups': groups}),
-          headers: {'content-type': 'application/json'},
-        );
-      } catch (e) {
-        return Response.internalServerError(
-          body: jsonEncode({'error': 'Failed to fetch groups: $e'}),
-          headers: {'content-type': 'application/json'},
-        );
-      }
-    });
-
-    router.get('/categories', (Request request) {
-      try {
         final categories = db.db.select('''
-          WITH LinkData AS (
-            SELECT 
-              link.*,
-              s.name as status_name,
-              json_group_array(DISTINCT json_object(
-                'id', k.id,
-                'keyword', k.keyword
-              )) as keywords,
-              json_group_array(DISTINCT json_object(
-                'id', v.id,
-                'name', v.name
-              )) as views,
-              json_group_array(DISTINCT json_object(
-                'id', m.id,
-                'name', m.name,
-                'surname', m.surname,
-                'link', m.link
-              )) as managers
-            FROM link
-            LEFT JOIN status s ON s.id = link.status_id
-            LEFT JOIN keywords_links kl ON link.id = kl.link_id
-            LEFT JOIN keyword k ON k.id = kl.keyword_id
-            LEFT JOIN links_views lv ON link.id = lv.link_id
-            LEFT JOIN view v ON v.id = lv.view_id
-            LEFT JOIN link_managers_links lm ON link.id = lm.link_id
-            LEFT JOIN link_manager m ON m.id = lm.manager_id
-            GROUP BY link.id
-          )
-          SELECT 
-            c.id as category_id,
-            c.name as category_name,
-            json_group_array(
+      WITH LinkData AS (
+        SELECT 
+          link.*,
+          s.name as status_name,
+          json_group_array(DISTINCT json_object(
+            'id', k.id,
+            'keyword', k.keyword
+          )) as keywords,
+          json_group_array(DISTINCT json_object(
+            'id', v.id,
+            'name', v.name
+          )) as views,
+          json_group_array(DISTINCT json_object(
+            'id', m.id,
+            'name', m.name,
+            'surname', m.surname,
+            'link', m.link
+          )) as managers,
+          EXISTS (
+            SELECT 1 
+            FROM links_views lv2
+            JOIN view v2 ON v2.id = lv2.view_id
+            WHERE lv2.link_id = link.id 
+            AND v2.name IN (${userGroups.map((g) => "'$g'").join(',')})
+          ) as has_access
+        FROM link
+        LEFT JOIN status s ON s.id = link.status_id
+        LEFT JOIN keywords_links kl ON link.id = kl.link_id
+        LEFT JOIN keyword k ON k.id = kl.keyword_id
+        LEFT JOIN links_views lv ON link.id = lv.link_id
+        LEFT JOIN view v ON v.id = lv.view_id
+        LEFT JOIN link_managers_links lm ON link.id = lm.link_id
+        LEFT JOIN link_manager m ON m.id = lm.manager_id
+        GROUP BY link.id
+      )
+      SELECT 
+        c.id as category_id,
+        c.name as category_name,
+        json_group_array(
+          CASE 
+            WHEN ld.has_access = 1 THEN
               json_object(
                 'id', ld.id,
                 'link', ld.link,
@@ -126,11 +98,13 @@ class Api {
                 'views', ld.views,
                 'managers', ld.managers
               )
-            ) as links
-          FROM categories c
-          LEFT JOIN LinkData ld ON c.id = ld.category_id
-          GROUP BY c.id
-        ''').map((row) {
+            ELSE NULL
+          END
+        ) as links
+      FROM categories c
+      LEFT JOIN LinkData ld ON c.id = ld.category_id
+      GROUP BY c.id
+    ''').map((row) {
           var map = Map<String, dynamic>.from(row);
           var links = jsonDecode(map['links']) as List;
 
@@ -151,13 +125,17 @@ class Api {
           return map;
         }).toList();
 
+        categories
+            .removeWhere((category) => (category['links'] as List).isEmpty);
+
         return Response.ok(
           jsonEncode({'categories': categories}),
           headers: {'content-type': 'application/json'},
         );
-      } catch (e) {
+      } catch (e, stackTrace) {
+        print('Error in /categories: $e\n$stackTrace');
         return Response.internalServerError(
-          body: jsonEncode({'error': e.toString()}),
+          body: jsonEncode({'error': 'Internal server error'}),
           headers: {'content-type': 'application/json'},
         );
       }
@@ -171,7 +149,7 @@ class Api {
       );
     });
 
-    router.post('/printin', (Request request) async {
+    router.post('/login', (Request request) async {
       try {
         final payload = await request.readAsString();
         final data = json.decode(payload);
