@@ -16,9 +16,9 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   String? get accessToken => _accessToken;
   Map<String, dynamic>? get userData => _userData;
-  String? get displayName => _userData?['name'];
+  String? get displayName => _userData?['displayName'];
   String? get email => _userData?['email'];
-  String? get username => _userData?['sub'];
+  String? get username => _userData?['username'];
 
   Future<void> setAuthenticated(
     bool value, {

@@ -79,7 +79,7 @@ class AuthService {
       return {
         'username': userEntry.attributes['cn']?.values.first,
         'displayName': userEntry.attributes['displayName']?.values.first,
-        'mail': userEntry.attributes['mail']?.values.first,
+        'email': userEntry.attributes['mail']?.values.first,
         'groups': groups,
       };
     } on LdapException catch (e) {
@@ -130,7 +130,7 @@ class AuthService {
       return {
         'username': userEntry.attributes['cn']?.values.first,
         'displayName': userEntry.attributes['displayName']?.values.first,
-        'mail': userEntry.attributes['mail']?.values.first,
+        'email': userEntry.attributes['mail']?.values.first,
         'groups': groups,
       };
     } on LdapException catch (e) {
