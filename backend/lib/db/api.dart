@@ -20,6 +20,45 @@ class Api {
   Router get router {
     final router = Router();
 
+    router.post('/refresh-token', (Request request) async {
+      try {
+        final payload = await request.readAsString();
+        final data = json.decode(payload);
+        final refreshToken = data['refreshToken'];
+
+        if (refreshToken == null) {
+          return Response(400, body: 'Refresh token required');
+        }
+
+        if (!authService.verifyRefreshToken(refreshToken)) {
+          return Response(401, body: 'Invalid refresh token');
+        }
+
+        final username = authService.getUsernameFromRefreshToken(refreshToken);
+        if (username == null) {
+          return Response(401, body: 'Invalid refresh token');
+        }
+
+        final userData = await authService.authenticateUser(username, '');
+        if (userData == null) {
+          return Response(401, body: 'User no longer valid');
+        }
+
+        final tokenPair = authService.generateTokenPair(userData);
+
+        return Response.ok(
+          json.encode({
+            'accessToken': tokenPair.accessToken,
+            'refreshToken': tokenPair.refreshToken,
+            'user': userData,
+          }),
+          headers: {'content-type': 'application/json'},
+        );
+      } catch (e) {
+        return Response.internalServerError(body: 'Server error');
+      }
+    });
+
     router.get('/categories', (Request request) async {
       try {
         final authHeader = request.headers['authorization'];
@@ -29,7 +68,7 @@ class Api {
 
         final token = authHeader
             .substring(7); // We remove the "bearer: " part, which is 7 chars
-        if (!authService.verifyToken(token)) {
+        if (!authService.verifyAccessToken(token)) {
           return Response(401, body: 'Invalid token');
         }
 
@@ -170,10 +209,14 @@ class Api {
           return Response(401, body: 'Invalid credentials');
         }
 
-        final token = authService.generateToken(userData);
+        final tokenPair = authService.generateTokenPair(userData);
 
         return Response.ok(
-          json.encode({'token': token, 'user': userData}),
+          json.encode({
+            'accessToken': tokenPair.accessToken,
+            'refreshToken': tokenPair.refreshToken,
+            'user': userData,
+          }),
           headers: {'content-type': 'application/json'},
         );
       } catch (e) {
@@ -189,7 +232,7 @@ class Api {
         }
 
         final token = authHeader.substring(7);
-        final isValid = authService.verifyToken(token);
+        final isValid = authService.verifyAccessToken(token);
 
         if (!isValid) {
           return Response(401, body: 'Invalid or expired token');

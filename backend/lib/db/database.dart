@@ -169,7 +169,7 @@ INSERT INTO keywords_links (link_id, keyword_id) VALUES (1, 20);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://appm-bookstack.prduks-bcul-ci4881-limited.uks.unil.ch/', 'Bookstack', 'Bookstack - Le Wiki de la BCUL', 'https://www.bookstackapp.com/docs/', 1, 1);
 INSERT INTO link_managers_links (link_id, manager_id) VALUES (2, 1);
--- INSERT INTO links_views (link_id, view_id) VALUES (2, 1);
+INSERT INTO links_views (link_id, view_id) VALUES (2, 1);
 INSERT INTO keywords_links (link_id, keyword_id) VALUES (2, 1);
 
 INSERT INTO link (link, title, description, doc_link, status_id, category_id) VALUES ('https://itop-bcul.unil.ch/itop', 'Itop', 'iTop - Application d''inventaire', 'https://www.itophub.io/wiki/page', 1, 1);

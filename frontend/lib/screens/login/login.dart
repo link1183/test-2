@@ -70,11 +70,18 @@ class _Login extends State<Login> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final token = data['token'];
+        final accessToken = data['accessToken'];
+        final refreshToken = data['refreshToken'];
+        final userData = data['user'];
 
         if (mounted) {
           await Provider.of<AuthProvider>(context, listen: false)
-              .setAuthenticated(true, token: token);
+              .setAuthenticated(
+            true,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            userData: userData,
+          );
 
           await Future.delayed(const Duration(milliseconds: 100));
 

@@ -1,19 +1,18 @@
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:backend/services/token_service.dart';
 import 'package:dartdap/dartdap.dart';
 
 class AuthService {
   final String ldapUrl;
   final int ldapPort;
   String baseDN;
-  final String jwtSecret;
+  final TokenService tokenService;
 
   AuthService({
     this.ldapUrl = 'dc1.ad.unil.ch',
     this.ldapPort = 636,
     this.baseDN = 'DC=ad,DC=unil,DC=ch',
-    required this.jwtSecret,
-  });
+    required String jwtSecret,
+  }) : tokenService = TokenService(jwtSecret: jwtSecret);
 
   Future<LdapConnection> _getLdapConnection() async {
     final ldap = LdapConnection(
@@ -81,29 +80,19 @@ class AuthService {
     }
   }
 
-  String generateToken(Map<String, dynamic> userData) {
-    final claims = JWT(
-      {
-        'sub': userData['username'],
-        'name': userData['displayName'],
-        'email': userData['mail'],
-        'groups': userData['groups'],
-        'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'exp': DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch ~/
-            1000,
-      },
-    );
-
-    return claims.sign(SecretKey(jwtSecret));
+  TokenPair generateTokenPair(Map<String, dynamic> userData) {
+    return tokenService.generateTokenPair(userData);
   }
 
-  bool verifyToken(String token) {
-    try {
-      final decodedToken = JwtDecoder.decode(token);
-      final exp = decodedToken['exp'] as int;
-      return DateTime.now().millisecondsSinceEpoch ~/ 1000 < exp;
-    } catch (e) {
-      return false;
-    }
+  bool verifyAccessToken(String token) {
+    return tokenService.verifyAccessToken(token);
+  }
+
+  bool verifyRefreshToken(String token) {
+    return tokenService.verifyRefreshToken(token);
+  }
+
+  String? getUsernameFromRefreshToken(String token) {
+    return tokenService.getUsernameFromRefreshToken(token);
   }
 }

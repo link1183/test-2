@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
@@ -27,28 +29,69 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
     _checkAuth();
   }
 
+  Future<bool> _refreshTokens(String refreshToken) async {
+    try {
+      final response = await ApiClient.refreshToken(refreshToken);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final accessToken = data['accessToken'];
+        final newRefreshToken = data['refreshToken'];
+        final userData = data['user'];
+
+        await Provider.of<AuthProvider>(context, listen: false)
+            .setAuthenticated(
+          true,
+          accessToken: accessToken,
+          refreshToken: newRefreshToken,
+          userData: userData,
+        );
+        return true;
+      }
+    } catch (e) {
+      print('Error refreshing tokens: $e');
+    }
+    return false;
+  }
+
   Future<void> _checkAuth() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
 
-    if (token == null) {
+    final accessToken = prefs.getString('access_token');
+    final refreshToken = prefs.getString('refresh_token');
+    final userDataString = prefs.getString('user_data');
+
+    if (refreshToken == null) {
       authProvider.setAuthenticated(false);
       setState(() => _isLoading = false);
       return;
     }
 
     try {
-      final response = await ApiClient.post('/api/verify-token');
+      if (accessToken != null) {
+        final verifyResponse = await ApiClient.verifyToken(accessToken);
 
-      final isValid = response.statusCode == 200;
+        if (verifyResponse.statusCode == 200) {
+          await authProvider.setAuthenticated(
+            true,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            userData:
+                userDataString != null ? json.decode(userDataString) : null,
+          );
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
 
-      if (isValid) {
-        authProvider.setAuthenticated(true, token: token);
-      } else {
-        authProvider.setAuthenticated(false);
+      final refreshSuccess = await _refreshTokens(refreshToken);
+
+      if (!refreshSuccess) {
+        await authProvider.setAuthenticated(false);
       }
     } catch (e) {
+      print('Error during auth check: $e');
       authProvider.setAuthenticated(false);
     }
 
