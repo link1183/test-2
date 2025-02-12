@@ -22,6 +22,10 @@ class Api {
 
     router.post('/refresh-token', (Request request) async {
       try {
+        if (!authService.checkRateLimit(request)) {
+          return Response(429, body: 'Too many attempts');
+        }
+
         final payload = await request.readAsString();
         final data = json.decode(payload);
         final refreshToken = data['refreshToken'];
@@ -30,7 +34,7 @@ class Api {
           return Response(400, body: 'Refresh token required');
         }
 
-        if (!authService.verifyRefreshToken(refreshToken)) {
+        if (!authService.verifyRefreshToken(refreshToken, request)) {
           return Response(401, body: 'Invalid refresh token');
         }
 
@@ -39,12 +43,12 @@ class Api {
           return Response(401, body: 'Invalid refresh token');
         }
 
-        final userData = await authService.authenticateUser(username, '');
+        final userData = await authService.getUserData(username);
         if (userData == null) {
           return Response(401, body: 'User no longer valid');
         }
 
-        final tokenPair = authService.generateTokenPair(userData);
+        final tokenPair = authService.generateTokenPair(userData, request);
 
         return Response.ok(
           json.encode({
@@ -68,7 +72,7 @@ class Api {
 
         final token = authHeader
             .substring(7); // We remove the "bearer: " part, which is 7 chars
-        if (!authService.verifyAccessToken(token)) {
+        if (!authService.verifyAccessToken(token, request)) {
           return Response(401, body: 'Invalid token');
         }
 
@@ -171,8 +175,7 @@ class Api {
           jsonEncode({'categories': categories}),
           headers: {'content-type': 'application/json'},
         );
-      } catch (e, stackTrace) {
-        print('Error in /categories: $e\n$stackTrace');
+      } catch (e) {
         return Response.internalServerError(
           body: jsonEncode({'error': 'Internal server error'}),
           headers: {'content-type': 'application/json'},
@@ -190,6 +193,10 @@ class Api {
 
     router.post('/login', (Request request) async {
       try {
+        if (!authService.checkRateLimit(request)) {
+          return Response(429, body: 'Too many attempts');
+        }
+
         final payload = await request.readAsString();
         final data = json.decode(payload);
 
@@ -209,7 +216,7 @@ class Api {
           return Response(401, body: 'Invalid credentials');
         }
 
-        final tokenPair = authService.generateTokenPair(userData);
+        final tokenPair = authService.generateTokenPair(userData, request);
 
         return Response.ok(
           json.encode({
@@ -232,7 +239,7 @@ class Api {
         }
 
         final token = authHeader.substring(7);
-        final isValid = authService.verifyAccessToken(token);
+        final isValid = authService.verifyAccessToken(token, request);
 
         if (!isValid) {
           return Response(401, body: 'Invalid or expired token');

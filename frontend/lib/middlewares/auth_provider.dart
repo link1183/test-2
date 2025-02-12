@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:portail_it/services/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -63,7 +64,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> _refreshAccessToken() async {
-    if (_refreshToken == null) return false;
+    Logger.info('Attempting to refresh access token');
+    if (_refreshToken == null) {
+      Logger.warning('No refresh token available');
+      return false;
+    }
 
     try {
       final response = await http.post(
@@ -71,6 +76,8 @@ class AuthProvider extends ChangeNotifier {
         body: json.encode({'refreshToken': _refreshToken}),
         headers: {'Content-Type': 'application/json'},
       );
+
+      Logger.info('Refresh token response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -80,12 +87,16 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: data['refreshToken'],
           userData: data['user'],
         );
+        Logger.info('Token refresh successful');
         return true;
       } else {
+        Logger.warning(
+            'Token refresh failed with status: ${response.statusCode}');
         await setAuthenticated(false);
         return false;
       }
     } catch (e) {
+      Logger.error('Error refreshing token', e);
       await setAuthenticated(false);
       return false;
     }

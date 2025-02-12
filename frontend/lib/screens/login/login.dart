@@ -68,37 +68,57 @@ class _Login extends State<Login> {
 
       if (!mounted) return;
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final accessToken = data['accessToken'];
-        final refreshToken = data['refreshToken'];
-        final userData = data['user'];
-
-        if (mounted) {
-          await Provider.of<AuthProvider>(context, listen: false)
-              .setAuthenticated(
-            true,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            userData: userData,
-          );
-
-          await Future.delayed(const Duration(milliseconds: 100));
+      switch (response.statusCode) {
+        case 200:
+          final data = json.decode(response.body);
+          final accessToken = data['accessToken'];
+          final refreshToken = data['refreshToken'];
+          final userData = data['user'];
 
           if (mounted) {
-            Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+            await Provider.of<AuthProvider>(context, listen: false)
+                .setAuthenticated(
+              true,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              userData: userData,
+            );
+
+            await Future.delayed(const Duration(milliseconds: 100));
+
+            if (mounted) {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+            }
           }
-        }
-      } else {
-        if (mounted) {
-          _passwordController.clear();
-          _passwordFocusNode.requestFocus();
-          setState(() => _errorMessage = 'Invalid credentials');
-        }
+          break;
+
+        case 401:
+          if (mounted) {
+            _passwordController.clear();
+            _passwordFocusNode.requestFocus();
+            setState(() =>
+                _errorMessage = 'Nom d\'utilisateur ou mot de passe invalide.');
+          }
+          break;
+
+        case 429:
+          setState(() => _errorMessage =
+              'Trop de tentatives de connexion invalides. Veuillez réessayer plus tard.');
+          break;
+
+        case 400:
+          setState(() => _errorMessage = 'Données de connexion manquantes.');
+          break;
+
+        default:
+          setState(
+              () => _errorMessage = 'Une erreur inattendue s\'est produite.');
+          break;
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = 'Connection error');
+        setState(() => _errorMessage =
+            'Erreur de connexion au serveur. Merci de signaler le problème au service informatique en ouvrant un ticket.');
       }
     }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart' as http;
+import 'package:portail_it/services/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -55,8 +56,8 @@ class ApiClient {
         return true;
       }
       return false;
-    } catch (e) {
-      print('Error refreshing tokens: $e');
+    } catch (e, stackTrace) {
+      Logger.error('Error refreshing tokens', e, stackTrace);
       return false;
     }
   }

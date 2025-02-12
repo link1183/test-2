@@ -6,7 +6,11 @@ import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 void main() async {
-  final AuthService authService = AuthService(jwtSecret: 'Some secret key');
+  final AuthService authService = AuthService(
+    jwtSecret: 'Some secret key',
+    serviceAccountUsername: 'agunthe1adm',
+    serviceAccountPassword: 'E1MimgfaIlh2!?',
+  );
   var api = Api(authService: authService);
 
   final app = Router();

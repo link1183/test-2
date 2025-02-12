@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:portail_it/services/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,7 +30,8 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
     _checkAuth();
   }
 
-  Future<bool> _refreshTokens(String refreshToken) async {
+  Future<bool> _refreshTokens(
+      String refreshToken, AuthProvider authProvider) async {
     try {
       final response = await ApiClient.refreshToken(refreshToken);
 
@@ -39,8 +41,7 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
         final newRefreshToken = data['refreshToken'];
         final userData = data['user'];
 
-        await Provider.of<AuthProvider>(context, listen: false)
-            .setAuthenticated(
+        await authProvider.setAuthenticated(
           true,
           accessToken: accessToken,
           refreshToken: newRefreshToken,
@@ -48,8 +49,8 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
         );
         return true;
       }
-    } catch (e) {
-      print('Error refreshing tokens: $e');
+    } catch (e, stackTrace) {
+      Logger.error('Error refreshing tokens', e, stackTrace);
     }
     return false;
   }
@@ -85,17 +86,19 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
         }
       }
 
-      final refreshSuccess = await _refreshTokens(refreshToken);
+      final refreshSuccess = await _refreshTokens(refreshToken, authProvider);
 
       if (!refreshSuccess) {
         await authProvider.setAuthenticated(false);
       }
-    } catch (e) {
-      print('Error during auth check: $e');
+    } catch (e, stackTrace) {
+      Logger.error('Error during auth check', e, stackTrace);
       authProvider.setAuthenticated(false);
     }
 
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
