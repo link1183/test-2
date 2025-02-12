@@ -111,15 +111,11 @@ class TokenService {
         return false;
       }
 
-      print('Refresh token not used');
-
       final JWT jwt = JWT.verify(token, SecretKey(jwtSecret));
-      print('JWT verified');
       if (jwt.payload['type'] != 'refresh' ||
           jwt.payload['fingerprint'] != fingerprint) {
         return false;
       }
-      print('Fingerprint matches');
 
       _usedRefreshTokens.add(token);
 
@@ -127,7 +123,6 @@ class TokenService {
 
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }

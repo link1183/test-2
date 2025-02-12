@@ -44,7 +44,7 @@ class ConfigService {
     }
 
     try {
-      final file = File('config.yaml');
+      final file = File('${Directory.current.path}/config.yaml');
       if (!await file.exists()) {
         throw Exception(
             'Configuration file not found. Please create the config.yaml file based on the config.yaml.example file.');
@@ -62,7 +62,8 @@ class ConfigService {
 
   void _validateConfig() {
     if (!_config.containsKey('auth') ||
-        !_config.containsKey('service_account') ||
+        !_config['auth'].containsKey('service_account') ||
+        !_config['auth'].containsKey('jwt_secret') ||
         !_config['auth']['service_account'].containsKey('username') ||
         !_config['auth']['service_account'].containsKey('password')) {
       throw Exception('Invalid configuration: Missing required auth settings');
@@ -75,7 +76,7 @@ class ConfigService {
   String get serviceAccountPassword =>
       _config['auth']['service_account']['password'];
   String get ldapUrl => _config['ldap']['url'];
-  int get ldapPort => _config['ldap']['url'];
+  int get ldapPort => _config['ldap']['port'];
   String get ldapBaseDN => _config['ldap']['base_dn'];
   int get maxAttempts => _config['rate_limit']['max_attempts'];
   int get windowMinutes => _config['rate_limit']['windows_minutes'];
