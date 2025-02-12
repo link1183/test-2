@@ -11,9 +11,9 @@ class AuthService {
   final String serviceAccountPassword;
 
   AuthService({
-    this.ldapUrl = 'dc1.ad.unil.ch',
-    this.ldapPort = 636,
-    this.baseDN = 'DC=ad,DC=unil,DC=ch',
+    required this.ldapUrl,
+    required this.ldapPort,
+    required this.baseDN,
     required String jwtSecret,
     required this.serviceAccountUsername,
     required this.serviceAccountPassword,
@@ -45,10 +45,11 @@ class AuthService {
       ldap = await _getLdapConnection();
 
       final serviceAccountDN = '$serviceAccountUsername@ad.unil.ch';
-      await ldap.bind(DN: serviceAccountDN, password: serviceAccountPassword);
+      await ldap.bind(
+          dn: DN(serviceAccountDN), password: serviceAccountPassword);
 
       final searchResult = await ldap.search(
-        baseDN,
+        DN(baseDN),
         Filter.equals('sAMAccountName', username),
         ['displayName', 'cn', 'mail', 'memberOf'],
         scope: SearchScope.SUB_LEVEL,
@@ -96,10 +97,10 @@ class AuthService {
     try {
       ldap = await _getLdapConnection();
       final userDN = '$username@ad.unil.ch';
-      await ldap.bind(DN: userDN, password: password);
+      await ldap.bind(dn: DN(userDN), password: password);
 
       final searchResult = await ldap.search(
-        baseDN,
+        DN(baseDN),
         Filter.equals('sAMAccountName', username),
         ['displayName', 'cn', 'mail', 'memberOf'],
         scope: SearchScope.SUB_LEVEL,
