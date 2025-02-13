@@ -1,2 +1,6 @@
 backend/config.yaml
 .env
+ad_dump/bin
+ad_dump/lib/python3.13/site-packages
+ad_dump/lib64
+ad_dump/pyvenv.cfg
