@@ -244,51 +244,64 @@ class LDAPGroupAnalyzer:
             print(f"Error analyzing target group: {e}")
 
     def generate_report(self, output_file: str = "group_analysis.md"):
-        """Generate detailed report in Markdown format"""
+        """Generate an improved, well-structured Markdown report."""
         with open(output_file, "w", encoding="utf-8") as f:
-            # Header
+            # Header and Table of Contents
             f.write("# Active Directory Group Analysis\n\n")
+            f.write("## Table of Contents\n")
+            f.write("- [Summary](#summary)\n")
+            f.write("- [Group Details](#group-details)\n\n")
 
-            # Summary section
+            # Summary Section
             total_groups = len(self.groups)
             mail_enabled = sum(1 for g in self.groups.values() if g.mail_enabled)
             hidden = sum(1 for g in self.groups.values() if g.hidden_from_gal)
 
             f.write("## Summary\n\n")
-            f.write(f"- Total Groups: {total_groups}\n")
-            f.write(f"- Mail-Enabled Groups: {mail_enabled}\n")
-            f.write(f"- Hidden Groups: {hidden}\n\n")
+            f.write("| Metric | Value |\n")
+            f.write("|--------|-------|\n")
+            f.write(f"| **Total Groups** | {total_groups} |\n")
+            f.write(f"| **Mail-Enabled Groups** | {mail_enabled} |\n")
+            f.write(f"| **Hidden from GAL** | {hidden} |\n\n")
 
-            # Groups section
-            f.write("## Groups\n\n")
+            # Group Details
+            f.write("## Group Details\n\n")
 
-            # Sort groups by member count
+            # Sort groups: Mail-enabled first, then by member count
             sorted_groups = sorted(
-                self.groups.values(), key=lambda g: g.member_count, reverse=True
+                self.groups.values(),
+                key=lambda g: (not g.mail_enabled, -g.member_count),
             )
 
             for group in sorted_groups:
                 f.write(f"### {group.name}\n\n")
                 f.write("**Properties:**\n\n")
-                f.write(f"- Distinguished Name: `{group.dn}`\n")
-                f.write(f"- Member Count: {group.member_count}\n")
-                f.write(f"- Mail Enabled: {group.mail_enabled}\n")
-                f.write(f"- Hidden from GAL: {group.hidden_from_gal}\n")
+                f.write(f"- **Distinguished Name:** `{group.dn}`\n")
+                f.write(f"- **Member Count:** {group.member_count}\n")
+                f.write(f"- **Mail Enabled:** {'✅' if group.mail_enabled else '❌'}\n")
+                f.write(
+                    f"- **Hidden from GAL:** {'✅' if group.hidden_from_gal else '❌'}\n\n"
+                )
 
+                # Members Listing
                 members = self.member_cache.get(group.dn, set())
-
                 filtered_members = members.intersection(
                     self.member_cache.get(self.target_group_dn, set())
                 )
+
                 if filtered_members:
                     f.write("**Members:**\n\n")
+                    f.write("| Member Name |\n")
+                    f.write("|-------------|\n")
                     for member in sorted(filtered_members):
-                        f.write(f"- {member}\n")
+                        f.write(f"| `{member}` |\n")
+                    f.write("\n")
                 else:
-                    f.write("*No members*\n")
-                f.write("\n---\n\n")
+                    f.write("*No members found in this group*\n\n")
 
-            print(f"Report generated: {output_file}")
+                f.write("---\n\n")
+
+        print(f"Report generated: {output_file}")
 
     def generate_visual_report(self):
         """Generate visual representations of the group analysis"""
