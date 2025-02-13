@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portail_it/utils/input_validator.dart';
 
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
@@ -71,8 +72,7 @@ class _LoginFormState extends State<LoginForm> {
         filled: true,
         fillColor: Colors.grey[50],
       ),
-      validator: (value) =>
-          value?.isEmpty ?? true ? 'Le nom d\'utilisateur est requis' : null,
+      validator: InputValidator.validateUsername,
       onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
     );
   }
@@ -99,8 +99,7 @@ class _LoginFormState extends State<LoginForm> {
         filled: true,
         fillColor: Colors.grey[50],
       ),
-      validator: (value) =>
-          value?.isEmpty ?? true ? 'Le mot de passe est requis' : null,
+      validator: InputValidator.validatePassword,
       onFieldSubmitted: (_) {
         if (!widget.isLoading) {
           widget.onLogin();

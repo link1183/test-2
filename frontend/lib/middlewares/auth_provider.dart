@@ -74,7 +74,7 @@ class AuthProvider extends ChangeNotifier {
       final response = await http.post(
         Uri.parse('/api/refresh-token'),
         body: json.encode({'refreshToken': _refreshToken}),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'content-type': 'application/json'},
       );
 
       Logger.info('Refresh token response status: ${response.statusCode}');

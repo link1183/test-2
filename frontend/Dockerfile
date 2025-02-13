@@ -19,9 +19,11 @@ WORKDIR /app
 COPY . .
 
 RUN flutter pub get
-RUN flutter build web
+RUN flutter build web --profile --dart-define=Dart2jsOptimization=O0
 
 # Production stage
 FROM nginx:alpine
 COPY --from=build /app/build/web /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+LABEL build_type="debug"

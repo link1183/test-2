@@ -1,3 +1,4 @@
+import 'package:backend/services/input_sanitizer.dart';
 import 'package:backend/services/token_service.dart';
 import 'package:dartdap/dartdap.dart';
 import 'package:shelf/shelf.dart';
@@ -39,12 +40,15 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>?> getUserData(String username) async {
+    username = InputSanitizer.sanitizeLdapDN(username);
+
     late final LdapConnection ldap;
 
     try {
       ldap = await _getLdapConnection();
 
-      final serviceAccountDN = '$serviceAccountUsername@ad.unil.ch';
+      final serviceAccountDN =
+          InputSanitizer.sanitizeLdapDN('$serviceAccountUsername@ad.unil.ch');
       await ldap.bind(
           dn: DN(serviceAccountDN), password: serviceAccountPassword);
 
@@ -56,7 +60,6 @@ class AuthService {
       );
 
       SearchEntry? userEntry;
-
       await for (var entry in searchResult.stream) {
         if (entry.attributes['cn']?.values.first == username) {
           userEntry = entry;
@@ -66,25 +69,24 @@ class AuthService {
 
       if (userEntry == null) return null;
 
-      final groups = <String>[];
-      if (userEntry.attributes.containsKey('memberOf')) {
-        groups.addAll(
-          userEntry.attributes['memberOf']!.values
-              .map((v) => v.toString())
-              .map((dn) => RegExp(r'CN=([^,]+)').firstMatch(dn)?.group(1) ?? '')
-              .where((cn) => cn.isNotEmpty),
-        );
-      }
-
-      return {
-        'username': userEntry.attributes['cn']?.values.first,
-        'displayName': userEntry.attributes['displayName']?.values.first,
-        'email': userEntry.attributes['mail']?.values.first,
-        'groups': groups,
+      final sanitizedData = {
+        'username': InputSanitizer.sanitizeText(
+            userEntry.attributes['cn']?.values.first ?? ''),
+        'displayName': InputSanitizer.sanitizeText(
+            userEntry.attributes['displayName']?.values.first ?? ''),
+        'email': InputSanitizer.sanitizeText(
+            userEntry.attributes['mail']?.values.first ?? ''),
+        'groups': userEntry.attributes['memberOf']?.values
+                .map((v) => v.toString())
+                .map((dn) =>
+                    RegExp(r'CN=([^,]+)').firstMatch(dn)?.group(1) ?? '')
+                .where((cn) => cn.isNotEmpty)
+                .map((group) => InputSanitizer.sanitizeText(group))
+                .toList() ??
+            [],
       };
-    } on LdapException catch (e) {
-      print('Unexpected error during authentication: $e');
-      return null;
+
+      return sanitizedData;
     } finally {
       await ldap.close();
     }
@@ -153,7 +155,6 @@ class AuthService {
 
   bool verifyRefreshToken(String token, Request request) {
     final fingerprint = tokenService.generateFingerPrint(request);
-    print(fingerprint);
     return tokenService.verifyRefreshToken(token, fingerprint);
   }
 

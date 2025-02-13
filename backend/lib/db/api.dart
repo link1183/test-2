@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:backend/db/database.dart';
 import 'package:backend/services/auth_service.dart';
 import 'package:backend/services/encryption_service.dart';
+import 'package:backend/services/input_sanitizer.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -198,7 +199,11 @@ class Api {
         }
 
         final payload = await request.readAsString();
-        final data = json.decode(payload);
+        final data = InputSanitizer.sanitizeRequestBody(payload);
+
+        if (data == null) {
+          return Response(400, body: 'Invalid request format');
+        }
 
         final encryptedUsername = data['username'];
         final encryptedPassword = data['password'];
@@ -210,7 +215,17 @@ class Api {
         final username = encryptionService.decrypt(encryptedUsername);
         final password = encryptionService.decrypt(encryptedPassword);
 
-        final userData = await authService.authenticateUser(username, password);
+        if (!InputSanitizer.isValidUsername(username)) {
+          return Response(400, body: 'Invalid username format');
+        }
+
+        if (!InputSanitizer.isValidPassword(password)) {
+          return Response(400, body: 'Invalid password format');
+        }
+
+        final sanitizedUsername = InputSanitizer.sanitizeLdapDN(username);
+        final userData =
+            await authService.authenticateUser(sanitizedUsername, password);
 
         if (userData == null) {
           return Response(401, body: 'Invalid credentials');
