@@ -1,12 +1,10 @@
 import re
 from ldap3 import ALL_ATTRIBUTES, Server, Connection, SUBTREE, ALL
-import csv
 import sys
 from typing import Dict, List, Any, Set
 import getpass
 from enum import IntFlag
 from dataclasses import dataclass
-from collections import defaultdict
 
 
 class GroupType(IntFlag):
@@ -47,20 +45,6 @@ class ADGroup:
 
 
 class LDAPGroupAnalyzer:
-    @staticmethod
-    def _get_recipient_type(recipient_type: int) -> str:
-        recipient_types = {
-            0: "Regular Mailbox",
-            1: "GAL Only User",
-            6: "Mail Contact",
-            7: "Mail User",
-            1073741824: "Universal Security Group",  # 0x40000000
-            2147483392: "Universal Distribution Group",
-            -2147483642: "Non-Universal Security Group",
-            -2147483390: "Non-Universal Distribution Group",
-        }
-        return recipient_types.get(recipient_type, f"Unknown ({hex(recipient_type)})")
-
     def __init__(self, ldap_url: str, base_dn: str):
         self.server = Server(ldap_url, use_ssl=True, get_info=ALL)
         self.base_dn = base_dn
@@ -290,9 +274,6 @@ class LDAPGroupAnalyzer:
                 f.write(f"- Member Count: {group.member_count}\n")
                 f.write(f"- Mail Enabled: {group.mail_enabled}\n")
                 f.write(f"- Hidden from GAL: {group.hidden_from_gal}\n")
-                f.write(
-                    f"- Recipient Type: {self._get_recipient_type(group.recipient_type)}\n\n"
-                )
 
                 members = self.member_cache.get(group.dn, set())
                 if members:
@@ -365,30 +346,6 @@ class LDAPGroupAnalyzer:
         )
         ax2.set_title("Mail Configuration Distribution", pad=20, fontsize=14)
 
-        # 3. Recipient Types (pie chart)
-        ax3 = fig.add_subplot(gs[1, 1])
-        recipient_counts = defaultdict(int)
-        for group in self.groups.values():
-            recipient_type = self._get_recipient_type(group.recipient_type)
-            recipient_counts[recipient_type] += 1
-
-        # Sort by count for better visualization
-        sorted_recipients = dict(
-            sorted(recipient_counts.items(), key=lambda x: x[1], reverse=True)
-        )
-        total_recipients = sum(sorted_recipients.values())
-
-        ax3.pie(
-            sorted_recipients.values(),
-            labels=[
-                f"{k}\n({v} groups, {v / total_recipients * 100:.1f}%)"
-                for k, v in sorted_recipients.items()
-            ],
-            colors=colors[3:],
-            startangle=90,
-        )
-        ax3.set_title("Recipient Type Distribution", pad=20, fontsize=14)
-
         # Add main title
         plt.suptitle("Active Directory Group Analysis", fontsize=16, y=0.95)
 
@@ -421,11 +378,6 @@ This tool analyzes Active Directory groups and their memberships, providing deta
 - **hiddenFromGAL**: Whether the group is hidden from the Global Address List
 - **memberCount**: Number of members in the group (including nested group members)
 
-### Recipient Types
-Each group has a specific recipient type that defines its behavior in Exchange:
-
-{recipient_types}
-
 ## Statistics
 Total number of analyzed groups: {total_groups}
 - Mail-enabled groups: {mail_enabled}
@@ -451,25 +403,9 @@ The detailed report ([{report_file}](./{report_file})) contains:
 - Complete member list
 """
 
-        # Get recipient type explanations
-        recipient_types = []
-        for recipient_type in [
-            0,
-            1,
-            6,
-            7,
-            1073741824,
-            2147483392,
-            -2147483642,
-            -2147483390,
-        ]:
-            name = self._get_recipient_type(recipient_type)
-            recipient_types.append(f"- `{hex(recipient_type)}`: {name}")
-
         # Format the content
         content = readme_content.format(
             report_file=report_file,
-            recipient_types="\n".join(recipient_types),
             total_groups=len(self.groups),
             mail_enabled=sum(1 for g in self.groups.values() if g.mail_enabled),
             hidden=sum(1 for g in self.groups.values() if g.hidden_from_gal),

@@ -17,18 +17,6 @@ This tool analyzes Active Directory groups and their memberships, providing deta
 - **hiddenFromGAL**: Whether the group is hidden from the Global Address List
 - **memberCount**: Number of members in the group (including nested group members)
 
-### Recipient Types
-Each group has a specific recipient type that defines its behavior in Exchange:
-
-- `0x0`: Regular Mailbox
-- `0x1`: GAL Only User
-- `0x6`: Mail Contact
-- `0x7`: Mail User
-- `0x40000000`: Universal Security Group
-- `0x7fffff00`: Universal Distribution Group
-- `-0x7ffffffa`: Non-Universal Security Group
-- `-0x7ffffefe`: Non-Universal Distribution Group
-
 ## Statistics
 Total number of analyzed groups: 796
 - Mail-enabled groups: 113
