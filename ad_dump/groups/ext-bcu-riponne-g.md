@@ -1,0 +1,72 @@
+# Group: ext-bcu-riponne-g
+
+## Properties
+
+- **Distinguished Name:** `CN=ext-bcu-riponne-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
+- **Member Count:** 61
+- **Mail Enabled:** ❌
+- **Hidden from GAL:** ❌
+
+## Members
+
+- aforcla2
+- agoncal4
+- amazzon1
+- arichar6
+- aryf
+- bisaki
+- cbezenc2
+- cbuzzi3
+- cdebeffo
+- cdragna
+- cfollon1
+- cgirardi
+- cguillet
+- ciachini
+- dleboule
+- dnaef2
+- ecampich
+- egasser
+- fgolay3
+- fmeystre
+- frusconi
+- fsimonet
+- gfredagu
+- gnzolani
+- hhahling
+- hjolivey
+- ihaldema
+- ijunod
+- jchammar
+- jwullyam
+- kichters
+- kkauppay
+- lalbenqu
+- ldennaou
+- limpala1
+- ljaillet
+- llavadot
+- lpache
+- mberna18
+- mburri6
+- mcareddu
+- mdalu
+- mdelesse
+- mjouhar
+- mkoch1
+- mmaffei
+- mmarrer
+- mmullerd
+- mshazar
+- mvautier
+- nrocha11
+- rmarti15
+- salj
+- sbutschi
+- seusebi1
+- srerat1
+- sreymon3
+- vcelery
+- vjacquod
+- vlecoul2
+- vmonnie1

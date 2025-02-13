@@ -4,7 +4,7 @@
 This tool analyzes Active Directory groups and their memberships, providing detailed information about group configurations, types, and member relationships.
 
 ## Reports
-- [Detailed Group Analysis](./group_analysis.md) - Full analysis of each group and its members
+- [Detailed Group Analysis](./report.md) - Full analysis of each group and its members
 - [Visual Analysis](./group_analysis.png) - Visual representation of group statistics
 
 ![Group Analysis](./group_analysis.png)
@@ -34,7 +34,7 @@ The tool analyzes several aspects of each group:
 - **Visible**: Appears in address lists and GAL
 
 ## Report Structure
-The detailed report ([group_analysis.md](./group_analysis.md)) contains:
+The detailed report ([report.md](./report.md)) contains:
 1. Overall summary of analyzed groups
 2. Detailed information for each group:
 - Basic properties

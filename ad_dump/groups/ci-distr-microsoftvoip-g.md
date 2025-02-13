@@ -1,0 +1,96 @@
+# Group: ci-distr-microsoftvoip-g
+
+## Properties
+
+- **Distinguished Name:** `CN=ci-distr-microsoftvoip-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
+- **Member Count:** 85
+- **Mail Enabled:** ❌
+- **Hidden from GAL:** ❌
+
+## Members
+
+- abavaud
+- aborowek
+- acantino
+- achicha
+- adeprett
+- aperreno
+- aschicke
+- aterrier1
+- bmoser
+- bvourdam
+- cbessero
+- cburki1
+- ccoquil1
+- cdebray
+- cgizzi
+- clecosse
+- cmulle14
+- crenna
+- croger3
+- dcanton
+- ebarmanc
+- edeferrh
+- ejoudie
+- emanisca
+- flovis1
+- frichar2
+- fwettste
+- ggaville
+- gnicoli
+- gschnei7
+- jfauquex
+- jfrey
+- jlegere1
+- jpardal
+- jrudaz6
+- jsandink
+- jweber5
+- klinde
+- kpraderv
+- lborrema
+- ldubois
+- lkeller6
+- llavadot
+- lmontan1
+- lpernot
+- mferrari
+- mgadina
+- mgoarzin
+- mhanrot
+- mhertig
+- mmaille3
+- mneyroud
+- mpochon
+- msadoun
+- mtiefena
+- mtoledan
+- mvalsesi
+- mvassaux
+- nbailatv
+- nbenkhel
+- nbroisin
+- ncharbon
+- npayot
+- nperret6
+- nseverin
+- ochevall
+- pdevaud
+- pthery
+- rfritsc1
+- rguedj
+- rvez1
+- salj
+- sbiro1
+- scodresc
+- scourret
+- sdelarze
+- sdiogo
+- spiller1
+- sreymon3
+- tdartigu
+- tnaito
+- vconstan
+- vmayor
+- yodier
+- ysayad

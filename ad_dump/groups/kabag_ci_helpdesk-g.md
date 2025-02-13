@@ -1,0 +1,12 @@
+# Group: kabag_ci_helpdesk-g
+
+## Properties
+
+- **Distinguished Name:** `CN=kabag_ci_helpdesk-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
+- **Member Count:** 1
+- **Mail Enabled:** ❌
+- **Hidden from GAL:** ❌
+
+## Members
+
+- lpernot

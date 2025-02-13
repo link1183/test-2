@@ -1,4 +1,6 @@
 import re
+import shutil
+import os
 from ldap3 import ALL_ATTRIBUTES, Server, Connection, SUBTREE, ALL
 import sys
 from typing import Dict, List, Any, Set
@@ -113,7 +115,11 @@ class LDAPGroupAnalyzer:
                 self.base_dn,
                 f"(&(objectClass=group){group_filter})",
                 SUBTREE,
-                attributes=["member", "distinguishedName", "objectClass"],
+                attributes=[
+                    "member",
+                    "distinguishedName",
+                    "objectClass",
+                ],
             )
 
             # First pass: collect direct members
@@ -243,65 +249,61 @@ class LDAPGroupAnalyzer:
         except Exception as e:
             print(f"Error analyzing target group: {e}")
 
-    def generate_report(self, output_file: str = "group_analysis.md"):
-        """Generate an improved, well-structured Markdown report."""
-        with open(output_file, "w", encoding="utf-8") as f:
-            # Header and Table of Contents
-            f.write("# Active Directory Group Analysis\n\n")
-            f.write("## Table of Contents\n")
-            f.write("- [Summary](#summary)\n")
-            f.write("- [Group Details](#group-details)\n\n")
+    def generate_group_reports(
+        self, main_file: str = "report.md", subfolder: str = "groups"
+    ):
+        """Generate a main README summarizing all groups with links to detailed reports for each group.
+        Each group gets its own markdown file in a subfolder. This method cleans up any previous output."""
 
-            # Summary Section
-            total_groups = len(self.groups)
-            mail_enabled = sum(1 for g in self.groups.values() if g.mail_enabled)
-            hidden = sum(1 for g in self.groups.values() if g.hidden_from_gal)
+        # Clean up subfolder if it exists
+        if os.path.exists(subfolder):
+            shutil.rmtree(subfolder)
+        os.makedirs(subfolder)
 
-            f.write("## Summary\n\n")
-            f.write("| Metric | Value |\n")
-            f.write("|--------|-------|\n")
-            f.write(f"| **Total Groups** | {total_groups} |\n")
-            f.write(f"| **Mail-Enabled Groups** | {mail_enabled} |\n")
-            f.write(f"| **Hidden from GAL** | {hidden} |\n\n")
-
-            # Group Details
-            f.write("## Group Details\n\n")
-
-            # Sort groups: Mail-enabled first, then by member count
-            sorted_groups = sorted(
-                self.groups.values(),
-                key=lambda g: (not g.mail_enabled, -g.member_count),
+        # Create main README with a giant list of all groups
+        with open(main_file, "w", encoding="utf-8") as main_f:
+            main_f.write("# Active Directory Group Analysis\n\n")
+            main_f.write("## Groups Summary\n\n")
+            main_f.write(
+                "The following is a list of all analyzed groups. Click a group name for a detailed report.\n\n"
             )
 
+            # Sort groups alphabetically by name
+            sorted_groups = sorted(self.groups.values(), key=lambda g: g.name)
             for group in sorted_groups:
-                f.write(f"### {group.name}\n\n")
-                f.write("**Properties:**\n\n")
-                f.write(f"- **Distinguished Name:** `{group.dn}`\n")
-                f.write(f"- **Member Count:** {group.member_count}\n")
-                f.write(f"- **Mail Enabled:** {'✅' if group.mail_enabled else '❌'}\n")
-                f.write(
-                    f"- **Hidden from GAL:** {'✅' if group.hidden_from_gal else '❌'}\n\n"
-                )
+                # Sanitize group name for a safe filename (allowing only alphanumerics, underscore, and dash)
+                safe_name = re.sub(r"[^\w\-]", "_", group.name)
+                filename = f"{safe_name}.md"
+                # Write the link in the main README
+                main_f.write(f"- [{group.name}]({subfolder}/{filename})\n")
 
-                # Members Listing
-                members = self.member_cache.get(group.dn, set())
-                filtered_members = members.intersection(
-                    self.member_cache.get(self.target_group_dn, set())
-                )
+                # Generate an individual markdown file for the group in the subfolder
+                group_file_path = os.path.join(subfolder, filename)
+                with open(group_file_path, "w", encoding="utf-8") as group_f:
+                    group_f.write(f"# Group: {group.name}\n\n")
+                    group_f.write("## Properties\n\n")
+                    group_f.write(f"- **Distinguished Name:** `{group.dn}`\n")
+                    group_f.write(f"- **Member Count:** {group.member_count}\n")
+                    group_f.write(
+                        f"- **Mail Enabled:** {'✅' if group.mail_enabled else '❌'}\n"
+                    )
+                    group_f.write(
+                        f"- **Hidden from GAL:** {'✅' if group.hidden_from_gal else '❌'}\n\n"
+                    )
 
-                if filtered_members:
-                    f.write("**Members:**\n\n")
-                    f.write("| Member Name |\n")
-                    f.write("|-------------|\n")
-                    for member in sorted(filtered_members):
-                        f.write(f"| `{member}` |\n")
-                    f.write("\n")
-                else:
-                    f.write("*No members found in this group*\n\n")
+                    group_f.write("## Members\n\n")
+                    members = self.member_cache.get(group.dn, set())
+                    target_members = self.member_cache.get(self.target_group_dn, set())
+                    filtered_members = members.intersection(target_members)
+                    if filtered_members:
+                        for member in sorted(filtered_members):
+                            group_f.write(f"- {member}\n")
+                    else:
+                        group_f.write("No members found in this group.\n")
 
-                f.write("---\n\n")
-
-        print(f"Report generated: {output_file}")
+        print(
+            f"Main README and individual group reports generated in folder '{subfolder}' and file '{main_file}'."
+        )
 
     def generate_visual_report(self):
         """Generate visual representations of the group analysis"""
@@ -374,7 +376,7 @@ class LDAPGroupAnalyzer:
 
         print("Visual report generated: group_analysis.png")
 
-    def generate_readme(self, report_file: str = "group_analysis.md"):
+    def generate_readme(self, report_file: str = "report.md"):
         """Generate a README with documentation and links to reports"""
         readme_content = """# Active Directory Group Analysis Tool
 
@@ -448,7 +450,7 @@ def main():
     try:
         analyzer.connect(username, password)
         analyzer.analyze_target_group(TARGET_GROUP)
-        analyzer.generate_report()
+        analyzer.generate_group_reports()
         analyzer.generate_visual_report()
         analyzer.generate_readme()
 
