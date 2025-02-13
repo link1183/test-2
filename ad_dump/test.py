@@ -165,14 +165,14 @@ class LDAPGroupAnalyzer:
             if not target_props:
                 return
 
-            target_dn = target_props[target_group]["distinguishedName"]
+            self.target_group_dn = target_props[target_group]["distinguishedName"]
 
             print("Getting target group members...")
-            all_members = self.get_all_group_members({target_dn})
+            all_members = self.get_all_group_members({self.target_group_dn})
             if not all_members:
                 return
 
-            target_members = all_members[target_dn]
+            target_members = all_members[self.target_group_dn]
             print(f"Found {len(target_members)} total members in target group")
 
             # Get related groups in batch
@@ -276,9 +276,13 @@ class LDAPGroupAnalyzer:
                 f.write(f"- Hidden from GAL: {group.hidden_from_gal}\n")
 
                 members = self.member_cache.get(group.dn, set())
-                if members:
+
+                filtered_members = members.intersection(
+                    self.member_cache.get(self.target_group_dn, set())
+                )
+                if filtered_members:
                     f.write("**Members:**\n\n")
-                    for member in sorted(members):
+                    for member in sorted(filtered_members):
                         f.write(f"- {member}\n")
                 else:
                     f.write("*No members*\n")
