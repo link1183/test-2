@@ -5,7 +5,7 @@
 - **Distinguished Name:** `CN=unidoc-bcu-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
 - **Member Count:** 18
 - **Mail Enabled:** ✅
-- **Hidden from GAL:** ❌
+- **Hidden from Global Address List:** ❌
 
 ## Members
 

@@ -5,7 +5,7 @@
 - **Distinguished Name:** `CN=No_Skype,CN=Users,DC=ad,DC=unil,DC=ch`
 - **Member Count:** 143
 - **Mail Enabled:** ❌
-- **Hidden from GAL:** ❌
+- **Hidden from Global Address List:** ❌
 
 ## Members
 

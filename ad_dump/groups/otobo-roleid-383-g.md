@@ -5,7 +5,7 @@
 - **Distinguished Name:** `CN=otobo-roleid-383-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
 - **Member Count:** 11
 - **Mail Enabled:** ❌
-- **Hidden from GAL:** ❌
+- **Hidden from Global Address List:** ❌
 
 ## Members
 

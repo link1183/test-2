@@ -5,7 +5,7 @@
 - **Distinguished Name:** `CN=polyrightg-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
 - **Member Count:** 16
 - **Mail Enabled:** ❌
-- **Hidden from GAL:** ❌
+- **Hidden from Global Address List:** ❌
 
 ## Members
 

@@ -5,7 +5,7 @@
 - **Distinguished Name:** `CN=Activeusers,DC=ad,DC=unil,DC=ch`
 - **Member Count:** 123
 - **Mail Enabled:** ❌
-- **Hidden from GAL:** ❌
+- **Hidden from Global Address List:** ❌
 
 ## Members
 

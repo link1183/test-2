@@ -277,10 +277,8 @@ class LDAPGroupAnalyzer:
             main_f.write("| Group Name | Members |\n")
             main_f.write("|------------|----------|\n")
 
-            # Sort groups by member count (descending)
-            sorted_groups = sorted(
-                self.groups.values(), key=lambda g: g.member_count, reverse=True
-            )
+            # Sort groups alphabetically
+            sorted_groups = sorted(self.groups.values(), key=lambda g: g.name.lower())
 
             for group in sorted_groups:
                 # Sanitize group name for filename
@@ -302,7 +300,7 @@ class LDAPGroupAnalyzer:
                         f"- **Mail Enabled:** {'✅' if group.mail_enabled else '❌'}\n"
                     )
                     group_f.write(
-                        f"- **Hidden from GAL:** {'✅' if group.hidden_from_gal else '❌'}\n\n"
+                        f"- **Hidden from Global Address List:** {'✅' if group.hidden_from_gal else '❌'}\n\n"
                     )
 
                     group_f.write("## Members\n\n")

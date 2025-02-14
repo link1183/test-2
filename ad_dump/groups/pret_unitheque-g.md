@@ -5,7 +5,7 @@
 - **Distinguished Name:** `CN=pret.unitheque-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
 - **Member Count:** 25
 - **Mail Enabled:** ✅
-- **Hidden from GAL:** ❌
+- **Hidden from Global Address List:** ❌
 
 ## Members
 
