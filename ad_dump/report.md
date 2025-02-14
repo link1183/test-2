@@ -2,614 +2,614 @@
 
 ## Groups Summary
 
-The following is a list of all analyzed groups. Click a group name for a detailed report.
-
-- [Activeusers](groups/Activeusers.md) (123 members)
-- [No_Skype](groups/No_Skype.md) (143 members)
-- [acces-emplois-g](groups/acces-emplois-g.md) (16 members)
-- [acces-otobo-bas-g](groups/acces-otobo-bas-g.md) (21 members)
-- [acces-secubat-hw-g](groups/acces-secubat-hw-g.md) (2 members)
-- [acces-soft-g](groups/acces-soft-g.md) (214 members)
-- [accueil-info-d-bcu-g](groups/accueil-info-d-bcu-g.md) (3 members)
-- [acquisitions.riponne-g](groups/acquisitions_riponne-g.md) (14 members)
-- [adifac-g](groups/adifac-g.md) (2 members)
-- [adirbcul-g](groups/adirbcul-g.md) (4 members)
-- [aftereffects2018-g](groups/aftereffects2018-g.md) (3 members)
-- [all-ens-portail-g](groups/all-ens-portail-g.md) (2 members)
-- [all-etu-portail-g](groups/all-etu-portail-g.md) (19 members)
-- [all-users-portail-g](groups/all-users-portail-g.md) (23 members)
-- [anthropologie-g](groups/anthropologie-g.md) (1 members)
-- [anti-plagiat-g](groups/anti-plagiat-g.md) (5 members)
-- [antiquite-g](groups/antiquite-g.md) (2 members)
-- [archives.musicales-g](groups/archives_musicales-g.md) (1 members)
-- [avis-g](groups/avis-g.md) (8 members)
-- [bcujbmadmin-bcu-g](groups/bcujbmadmin-bcu-g.md) (5 members)
-- [bcujbmmanager-bcu-g](groups/bcujbmmanager-bcu-g.md) (9 members)
-- [bcul.civilistes-g](groups/bcul_civilistes-g.md) (6 members)
-- [bcul.crissier-g](groups/bcul_crissier-g.md) (2 members)
-- [bcul.hepvd-g](groups/bcul_hepvd-g.md) (8 members)
-- [bcul.internef-g](groups/bcul_internef-g.md) (10 members)
-- [bcul.provence-g](groups/bcul_provence-g.md) (2 members)
-- [bcul.renens-g](groups/bcul_renens-g.md) (4 members)
-- [bib-acces-portal-g](groups/bib-acces-portal-g.md) (17 members)
-- [bib-pub-lv1-g](groups/bib-pub-lv1-g.md) (5 members)
-- [bib-recherche-portal-g](groups/bib-recherche-portal-g.md) (1 members)
-- [bib-unil-masterthese_v-g](groups/bib-unil-masterthese_v-g.md) (3 members)
-- [bib-unil-these_v-g](groups/bib-unil-these_v-g.md) (4 members)
-- [bib-validateur-g](groups/bib-validateur-g.md) (12 members)
-- [bibliotheconomie-g](groups/bibliotheconomie-g.md) (1 members)
-- [biologie-g](groups/biologie-g.md) (1 members)
-- [boutique-g](groups/boutique-g.md) (1 members)
-- [c-rnv-bcu-g](groups/c-rnv-bcu-g.md) (9 members)
-- [ca_bcu-g](groups/ca_bcu-g.md) (2 members)
-- [captivate2018-g](groups/captivate2018-g.md) (2 members)
-- [cd-bcu-g](groups/cd-bcu-g.md) (15 members)
-- [ce-9393-g](groups/ce-9393-g.md) (1 members)
-- [ci-dcsr-infra-hpc-curentuser-u-g](groups/ci-dcsr-infra-hpc-curentuser-u-g.md) (2 members)
-- [ci-distr-adobeacrobat-g](groups/ci-distr-adobeacrobat-g.md) (100 members)
-- [ci-distr-adobeallapps-g](groups/ci-distr-adobeallapps-g.md) (7 members)
-- [ci-distr-affinity-g](groups/ci-distr-affinity-g.md) (17 members)
-- [ci-distr-arcgispro-g](groups/ci-distr-arcgispro-g.md) (7 members)
-- [ci-distr-cometbackup-g](groups/ci-distr-cometbackup-g.md) (22 members)
-- [ci-distr-endnote-g](groups/ci-distr-endnote-g.md) (6 members)
-- [ci-distr-filemakeradv-g](groups/ci-distr-filemakeradv-g.md) (11 members)
-- [ci-distr-microsoftendpointdefender-g](groups/ci-distr-microsoftendpointdefender-g.md) (2 members)
-- [ci-distr-microsoftvoip-g](groups/ci-distr-microsoftvoip-g.md) (85 members)
-- [ci-distr-spss-g](groups/ci-distr-spss-g.md) (5 members)
-- [ci-infra-vra-bcul-admins-g](groups/ci-infra-vra-bcul-admins-g.md) (1 members)
-- [ci-infra-vra-bcul-users-g](groups/ci-infra-vra-bcul-users-g.md) (6 members)
-- [ci-vmware-bcul-g](groups/ci-vmware-bcul-g.md) (7 members)
-- [ci-vmware-bcul-viewer-g](groups/ci-vmware-bcul-viewer-g.md) (1 members)
-- [ciel-g](groups/ciel-g.md) (1 members)
-- [cifdata_100793-pr-g](groups/cifdata_100793-pr-g.md) (1 members)
-- [cinema-g](groups/cinema-g.md) (2 members)
-- [cineread-g](groups/cineread-g.md) (1 members)
-- [cinespace-bcu-g](groups/cinespace-bcu-g.md) (5 members)
-- [cirdoc-bcu-g](groups/cirdoc-bcu-g.md) (21 members)
-- [cirdoc-r-bcu-g](groups/cirdoc-r-bcu-g.md) (17 members)
-- [cirdoc.bcud-g](groups/cirdoc_bcud-g.md) (5 members)
-- [cnlr-wwwacces-g](groups/cnlr-wwwacces-g.md) (1 members)
-- [cnlr-wwwall-g](groups/cnlr-wwwall-g.md) (1 members)
-- [cnlr-wwwangl-g](groups/cnlr-wwwangl-g.md) (2 members)
-- [cnlr-wwwcampuscard-g](groups/cnlr-wwwcampuscard-g.md) (1 members)
-- [cnlr-wwwcec-g](groups/cnlr-wwwcec-g.md) (1 members)
-- [cnlr-wwwcemep-g](groups/cnlr-wwwcemep-g.md) (1 members)
-- [cnlr-wwwcentre-durabilite-g](groups/cnlr-wwwcentre-durabilite-g.md) (1 members)
-- [cnlr-wwwcet-g](groups/cnlr-wwwcet-g.md) (1 members)
-- [cnlr-wwwci-annonce-g](groups/cnlr-wwwci-annonce-g.md) (1 members)
-- [cnlr-wwwclsl-g](groups/cnlr-wwwclsl-g.md) (1 members)
-- [cnlr-wwwclsr-g](groups/cnlr-wwwclsr-g.md) (1 members)
-- [cnlr-wwwcopers-g](groups/cnlr-wwwcopers-g.md) (1 members)
-- [cnlr-wwwctl-g](groups/cnlr-wwwctl-g.md) (1 members)
-- [cnlr-wwwdurable-g](groups/cnlr-wwwdurable-g.md) (1 members)
-- [cnlr-wwwedl-g](groups/cnlr-wwwedl-g.md) (1 members)
-- [cnlr-wwwesp-g](groups/cnlr-wwwesp-g.md) (1 members)
-- [cnlr-wwwfdi-g](groups/cnlr-wwwfdi-g.md) (1 members)
-- [cnlr-wwwfle-g](groups/cnlr-wwwfle-g.md) (1 members)
-- [cnlr-wwwfra-g](groups/cnlr-wwwfra-g.md) (1 members)
-- [cnlr-wwwftsr-g](groups/cnlr-wwwftsr-g.md) (1 members)
-- [cnlr-wwwhist-g](groups/cnlr-wwwhist-g.md) (1 members)
-- [cnlr-wwwiasa-g](groups/cnlr-wwwiasa-g.md) (2 members)
-- [cnlr-wwwihar-g](groups/cnlr-wwwihar-g.md) (1 members)
-- [cnlr-wwwissr-g](groups/cnlr-wwwissr-g.md) (1 members)
-- [cnlr-wwwital-g](groups/cnlr-wwwital-g.md) (1 members)
-- [cnlr-wwwlacs-g](groups/cnlr-wwwlacs-g.md) (1 members)
-- [cnlr-wwwlettres-g](groups/cnlr-wwwlettres-g.md) (3 members)
-- [cnlr-wwwlleuc-g](groups/cnlr-wwwlleuc-g.md) (1 members)
-- [cnlr-wwwmyunil-g](groups/cnlr-wwwmyunil-g.md) (1 members)
-- [cnlr-wwwphilo-g](groups/cnlr-wwwphilo-g.md) (1 members)
-- [cnlr-wwwplage-g](groups/cnlr-wwwplage-g.md) (1 members)
-- [cnlr-wwwsasme-g](groups/cnlr-wwwsasme-g.md) (1 members)
-- [cnlr-wwwshc-g](groups/cnlr-wwwshc-g.md) (1 members)
-- [cnlr-wwwslas-g](groups/cnlr-wwwslas-g.md) (2 members)
-- [cnlr-wwwssp-g](groups/cnlr-wwwssp-g.md) (1 members)
-- [cnlv-wwwbcul-annonce-g](groups/cnlv-wwwbcul-annonce-g.md) (3 members)
-- [cnlv-wwwciel-g](groups/cnlv-wwwciel-g.md) (1 members)
-- [cnlv-wwwcphsr-g](groups/cnlv-wwwcphsr-g.md) (1 members)
-- [cnlv-wwwformations-g](groups/cnlv-wwwformations-g.md) (1 members)
-- [cohesity_admin-g](groups/cohesity_admin-g.md) (1 members)
-- [collart-palmyre_100513-pr-g](groups/collart-palmyre_100513-pr-g.md) (1 members)
-- [collection.grandpublic-g](groups/collection_grandpublic-g.md) (2 members)
-- [collection.gymnasiale-g](groups/collection_gymnasiale-g.md) (3 members)
-- [collection.juridique-g](groups/collection_juridique-g.md) (1 members)
-- [commande.internet-g](groups/commande_internet-g.md) (4 members)
-- [communication-bcu-g](groups/communication-bcu-g.md) (7 members)
-- [communication-g](groups/communication-g.md) (3 members)
-- [comptabilite-g](groups/comptabilite-g.md) (6 members)
-- [comptabilite.fournisseur-g](groups/comptabilite_fournisseur-g.md) (4 members)
-- [comptabilite.lecteur-g](groups/comptabilite_lecteur-g.md) (5 members)
-- [conservation-bcu-g](groups/conservation-bcu-g.md) (37 members)
-- [consultation.bcul-g](groups/consultation_bcul-g.md) (5 members)
-- [coord-bs-bcu-g](groups/coord-bs-bcu-g.md) (14 members)
-- [coordbs-g](groups/coordbs-g.md) (4 members)
-- [copat-g](groups/copat-g.md) (15 members)
-- [coper-bcu-g](groups/coper-bcu-g.md) (1 members)
-- [cores-bcu-g](groups/cores-bcu-g.md) (6 members)
-- [corrinfoca-g](groups/corrinfoca-g.md) (2 members)
-- [corrinfocaweb-g](groups/corrinfocaweb-g.md) (1 members)
-- [cours_secr-g](groups/cours_secr-g.md) (2 members)
-- [cp-17255-g](groups/cp-17255-g.md) (2 members)
-- [cp-49707-g](groups/cp-49707-g.md) (1 members)
-- [cp-80951-g](groups/cp-80951-g.md) (1 members)
-- [cp-9938-g](groups/cp-9938-g.md) (1 members)
-- [depotlegalvd-g](groups/depotlegalvd-g.md) (5 members)
-- [dl-numerique-g](groups/dl-numerique-g.md) (3 members)
-- [doc.vaud-g](groups/doc_vaud-g.md) (1 members)
-- [doct-semc-sema-g](groups/doct-semc-sema-g.md) (3 members)
-- [doctorants-unil-g](groups/doctorants-unil-g.md) (3 members)
-- [documentation.vaudoise-g](groups/documentation_vaudoise-g.md) (2 members)
-- [documents.reference-g](groups/documents_reference-g.md) (1 members)
-- [education-g](groups/education-g.md) (1 members)
-- [eliot-g](groups/eliot-g.md) (210 members)
-- [endnote-7-g](groups/endnote-7-g.md) (5 members)
-- [endnote-8-g](groups/endnote-8-g.md) (1 members)
-- [enseignants-assistants-lett-g](groups/enseignants-assistants-lett-g.md) (1 members)
-- [enseignants-assistants-unil-g](groups/enseignants-assistants-unil-g.md) (1 members)
-- [enseignants-chercheurs-unil-g](groups/enseignants-chercheurs-unil-g.md) (3 members)
-- [enseignants-lett-g](groups/enseignants-lett-g.md) (1 members)
-- [enseignants-unil-g](groups/enseignants-unil-g.md) (1 members)
-- [eprh-val-unite-g](groups/eprh-val-unite-g.md) (6 members)
-- [etu-examens-gse-g](groups/etu-examens-gse-g.md) (2 members)
-- [etu-examens-ssp-g](groups/etu-examens-ssp-g.md) (1 members)
-- [etu-examens-unil-g](groups/etu-examens-unil-g.md) (5 members)
-- [etu-sem-semanc-g](groups/etu-sem-semanc-g.md) (19 members)
-- [etu-sem-semanc-ssp-g](groups/etu-sem-semanc-ssp-g.md) (2 members)
-- [etudiants-fbm-biol-g](groups/etudiants-fbm-biol-g.md) (1 members)
-- [etudiants-fbm-g](groups/etudiants-fbm-g.md) (1 members)
-- [etudiants-ftsr-g](groups/etudiants-ftsr-g.md) (1 members)
-- [etudiants-gse-1-part-ba-g](groups/etudiants-gse-1-part-ba-g.md) (1 members)
-- [etudiants-gse-g](groups/etudiants-gse-g.md) (2 members)
-- [etudiants-gse-master-g](groups/etudiants-gse-master-g.md) (1 members)
-- [etudiants-hec-g](groups/etudiants-hec-g.md) (2 members)
-- [etudiants-lett-g](groups/etudiants-lett-g.md) (7 members)
-- [etudiants-ssp-g](groups/etudiants-ssp-g.md) (2 members)
-- [etudiants-unil-g](groups/etudiants-unil-g.md) (15 members)
-- [ext-a-g](groups/ext-a-g.md) (2 members)
-- [ext-bcu-g](groups/ext-bcu-g.md) (117 members)
-- [ext-bcu-generiques-g](groups/ext-bcu-generiques-g.md) (10 members)
-- [ext-bcu-intranet-g](groups/ext-bcu-intranet-g.md) (34 members)
-- [ext-bcu-riponne-g](groups/ext-bcu-riponne-g.md) (61 members)
-- [ext-bcu-riponne-intranet-g](groups/ext-bcu-riponne-intranet-g.md) (4 members)
-- [ext-invit-a-m-g](groups/ext-invit-a-m-g.md) (109 members)
-- [ext-invit-a-m-i-g](groups/ext-invit-a-m-i-g.md) (30 members)
-- [extutq-bcu-g](groups/extutq-bcu-g.md) (3 members)
-- [extutq-gt-bcu-g](groups/extutq-gt-bcu-g.md) (17 members)
-- [faculty_0_v-g](groups/faculty_0_v-g.md) (2 members)
-- [faculty_106_a-g](groups/faculty_106_a-g.md) (4 members)
-- [faculty_106_v-g](groups/faculty_106_v-g.md) (3 members)
-- [faculty_160_v-g](groups/faculty_160_v-g.md) (2 members)
-- [faculty_174_a-g](groups/faculty_174_a-g.md) (4 members)
-- [faculty_174_v-g](groups/faculty_174_v-g.md) (2 members)
-- [faculty_75_a-g](groups/faculty_75_a-g.md) (4 members)
-- [faculty_75_v-g](groups/faculty_75_v-g.md) (3 members)
-- [faculty_83_a-g](groups/faculty_83_a-g.md) (5 members)
-- [faculty_83_v-g](groups/faculty_83_v-g.md) (2 members)
-- [faculty_88_a-g](groups/faculty_88_a-g.md) (4 members)
-- [faculty_88_v-g](groups/faculty_88_v-g.md) (3 members)
-- [faculty_89_a-g](groups/faculty_89_a-g.md) (4 members)
-- [faculty_89_v-g](groups/faculty_89_v-g.md) (2 members)
-- [faculty_90_a-g](groups/faculty_90_a-g.md) (4 members)
-- [faculty_90_v-g](groups/faculty_90_v-g.md) (5 members)
-- [fbm-cal-bu7-setup-vibratome-g](groups/fbm-cal-bu7-setup-vibratome-g.md) (1 members)
-- [finances-bcu-g](groups/finances-bcu-g.md) (13 members)
-- [formation-bcul-g](groups/formation-bcul-g.md) (8 members)
-- [formation.internef-g](groups/formation_internef-g.md) (2 members)
-- [formation.riponne-g](groups/formation_riponne-g.md) (11 members)
-- [formation.unitheque-g](groups/formation_unitheque-g.md) (3 members)
-- [formgym-bcu-g](groups/formgym-bcu-g.md) (7 members)
-- [fournisseurs.hepvd-g](groups/fournisseurs_hepvd-g.md) (2 members)
-- [fp-bcu-g](groups/fp-bcu-g.md) (10 members)
-- [gedbcul-bcu-g](groups/gedbcul-bcu-g.md) (166 members)
-- [gedbs-bcu-g](groups/gedbs-bcu-g.md) (7 members)
-- [gedcontrats-bcu-g](groups/gedcontrats-bcu-g.md) (6 members)
-- [gedrm-bcu-g](groups/gedrm-bcu-g.md) (2 members)
-- [gedrnv-bcu-g](groups/gedrnv-bcu-g.md) (16 members)
-- [gedsu-bcu-g](groups/gedsu-bcu-g.md) (27 members)
-- [geographie.durabilite-g](groups/geographie_durabilite-g.md) (1 members)
-- [gestion-ressource-bcu-g-g](groups/gestion-ressource-bcu-g-g.md) (9 members)
-- [gisdata-all-g](groups/gisdata-all-g.md) (2 members)
-- [group_557-g](groups/group_557-g.md) (1 members)
-- [guest-mgrs-g](groups/guest-mgrs-g.md) (5 members)
-- [hart-dilps-g](groups/hart-dilps-g.md) (2 members)
-- [hepvd-bcu-g](groups/hepvd-bcu-g.md) (14 members)
-- [histoire-g](groups/histoire-g.md) (1 members)
-- [histoire.art-g](groups/histoire_art-g.md) (1 members)
-- [histoire.livre-g](groups/histoire_livre-g.md) (1 members)
-- [hw-acces-bcu-g](groups/hw-acces-bcu-g.md) (2 members)
-- [iconographie-g](groups/iconographie-g.md) (3 members)
-- [info-parents-unil-g](groups/info-parents-unil-g.md) (5 members)
-- [info.riponne-g](groups/info_riponne-g.md) (5 members)
-- [info_web_lettres-g](groups/info_web_lettres-g.md) (1 members)
-- [infoplus-bcu-g](groups/infoplus-bcu-g.md) (21 members)
-- [infotravaux-bcud-g](groups/infotravaux-bcud-g.md) (2 members)
-- [infrastructure-bcu-g](groups/infrastructure-bcu-g.md) (10 members)
-- [int-resp-cours-anacad-fbm-g](groups/int-resp-cours-anacad-fbm-g.md) (1 members)
-- [int-resp-cours-sem-g](groups/int-resp-cours-sem-g.md) (1 members)
-- [internef-bcu-g](groups/internef-bcu-g.md) (5 members)
-- [intranet-g](groups/intranet-g.md) (47 members)
-- [iris-tst-g](groups/iris-tst-g.md) (2 members)
-- [jahia_redactors-g](groups/jahia_redactors-g.md) (8 members)
-- [kabag-g](groups/kabag-g.md) (5 members)
-- [kabag_bcu-g](groups/kabag_bcu-g.md) (3 members)
-- [kabag_bcu_bdse-g](groups/kabag_bcu_bdse-g.md) (2 members)
-- [kube-dev4-g](groups/kube-dev4-g.md) (3 members)
-- [kube-devs-g](groups/kube-devs-g.md) (3 members)
-- [labdoc_100529-pr-g](groups/labdoc_100529-pr-g.md) (1 members)
-- [lac1-g](groups/lac1-g.md) (5 members)
-- [lac2-g](groups/lac2-g.md) (5 members)
-- [langues.orientales-g](groups/langues_orientales-g.md) (1 members)
-- [legacyaacollaborateur-g](groups/legacyaacollaborateur-g.md) (13 members)
-- [lett_acces_nas_asa-g](groups/lett_acces_nas_asa-g.md) (2 members)
-- [lett_acces_nas_hist_doc-g](groups/lett_acces_nas_hist_doc-g.md) (1 members)
-- [lett_acces_nas_numerisations-g](groups/lett_acces_nas_numerisations-g.md) (8 members)
-- [lett_sect_asa-g](groups/lett_sect_asa-g.md) (2 members)
-- [lett_sect_hist-g](groups/lett_sect_hist-g.md) (1 members)
-- [lett_section_sli-g](groups/lett_section_sli-g.md) (1 members)
-- [lightroom2018-g](groups/lightroom2018-g.md) (2 members)
-- [linguistique-g](groups/linguistique-g.md) (1 members)
-- [litteratures.comparees-g](groups/litteratures_comparees-g.md) (1 members)
-- [litteratures.modernes-g](groups/litteratures_modernes-g.md) (1 members)
-- [lucens-bcul-g](groups/lucens-bcul-g.md) (1 members)
-- [ma-recher-stslab-iss-ssp-g](groups/ma-recher-stslab-iss-ssp-g.md) (1 members)
-- [mailbox-g](groups/mailbox-g.md) (219 members)
-- [manifestations-g](groups/manifestations-g.md) (2 members)
-- [manuscrits-bcu-g](groups/manuscrits-bcu-g.md) (17 members)
-- [manuscrits-g](groups/manuscrits-g.md) (5 members)
-- [masterthesis_faculty_174_v-g](groups/masterthesis_faculty_174_v-g.md) (2 members)
-- [masterthesis_faculty_88_v-g](groups/masterthesis_faculty_88_v-g.md) (2 members)
-- [masterthesis_faculty_89_v-g](groups/masterthesis_faculty_89_v-g.md) (2 members)
-- [masterthesis_faculty_90_v-g](groups/masterthesis_faculty_90_v-g.md) (2 members)
-- [membres-ur_unil-g](groups/membres-ur_unil-g.md) (7 members)
-- [mobatime-g](groups/mobatime-g.md) (8 members)
-- [ms365-comptes-externes-g](groups/ms365-comptes-externes-g.md) (139 members)
-- [ms365-comptes-moraux-g](groups/ms365-comptes-moraux-g.md) (11 members)
-- [ms365-licence-a5-bcul-g](groups/ms365-licence-a5-bcul-g.md) (225 members)
-- [ms365-licence-a5-staff-exchange-g](groups/ms365-licence-a5-staff-exchange-g.md) (153 members)
-- [musique-g](groups/musique-g.md) (2 members)
-- [myunil-3-portal-test-g](groups/myunil-3-portal-test-g.md) (2 members)
-- [noreply-repro-g](groups/noreply-repro-g.md) (1 members)
-- [numerisations-bcu-g](groups/numerisations-bcu-g.md) (10 members)
-- [otobo-roleid-238-g](groups/otobo-roleid-238-g.md) (3 members)
-- [otobo-roleid-345-g](groups/otobo-roleid-345-g.md) (2 members)
-- [otobo-roleid-356-g](groups/otobo-roleid-356-g.md) (21 members)
-- [otobo-roleid-358-g](groups/otobo-roleid-358-g.md) (15 members)
-- [otobo-roleid-361-g](groups/otobo-roleid-361-g.md) (2 members)
-- [otobo-roleid-365-g](groups/otobo-roleid-365-g.md) (2 members)
-- [otobo-roleid-383-g](groups/otobo-roleid-383-g.md) (11 members)
-- [otobo-roleid-5-g](groups/otobo-roleid-5-g.md) (6 members)
-- [otobo-roleid-58-g](groups/otobo-roleid-58-g.md) (3 members)
-- [otobo-roleid-69-g](groups/otobo-roleid-69-g.md) (21 members)
-- [pat-lett-g](groups/pat-lett-g.md) (1 members)
-- [pat-services-centraux-g](groups/pat-services-centraux-g.md) (2 members)
-- [pat-unil-g](groups/pat-unil-g.md) (3 members)
-- [patrimoine.scolaire-g](groups/patrimoine_scolaire-g.md) (1 members)
-- [patrinum-bcu-g](groups/patrinum-bcu-g.md) (19 members)
-- [patrinum-g](groups/patrinum-g.md) (3 members)
-- [peb-g](groups/peb-g.md) (5 members)
-- [pedagogie-g](groups/pedagogie-g.md) (2 members)
-- [periodiques-bcu-g](groups/periodiques-bcu-g.md) (10 members)
-- [periodiques.dorigny-g](groups/periodiques_dorigny-g.md) (10 members)
-- [periodiques.riponne-g](groups/periodiques_riponne-g.md) (5 members)
-- [pers-unil-couranc-g](groups/pers-unil-couranc-g.md) (8 members)
-- [personnel-unil-g](groups/personnel-unil-g.md) (6 members)
-- [phdthesis_fonds_unil_chuv_v-g](groups/phdthesis_fonds_unil_chuv_v-g.md) (3 members)
-- [philosophie-g](groups/philosophie-g.md) (1 members)
-- [phonotheque-g](groups/phonotheque-g.md) (1 members)
-- [polyright_infor_bcu-g](groups/polyright_infor_bcu-g.md) (2 members)
-- [polyrightg-g](groups/polyrightg-g.md) (16 members)
-- [polyrightg_bcu-g](groups/polyrightg_bcu-g.md) (15 members)
-- [portail-sap-g](groups/portail-sap-g.md) (6 members)
-- [pret-d-bcu-g](groups/pret-d-bcu-g.md) (27 members)
-- [pret-inter-bcu-g](groups/pret-inter-bcu-g.md) (5 members)
-- [pret-r-bcu-g](groups/pret-r-bcu-g.md) (23 members)
-- [pret.riponne-g](groups/pret_riponne-g.md) (23 members)
-- [pret.unitheque-g](groups/pret_unitheque-g.md) (25 members)
-- [print-sites-bcu-g](groups/print-sites-bcu-g.md) (8 members)
-- [printoffice-bcul-tous-g](groups/printoffice-bcul-tous-g.md) (225 members)
-- [printunil-staff-g](groups/printunil-staff-g.md) (225 members)
-- [prog-rnv-g](groups/prog-rnv-g.md) (4 members)
-- [prot-images-lpc-g](groups/prot-images-lpc-g.md) (1 members)
-- [provence-bcu-g](groups/provence-bcu-g.md) (3 members)
-- [psychologie-g](groups/psychologie-g.md) (1 members)
-- [pu-etu-exclus-g](groups/pu-etu-exclus-g.md) (2 members)
-- [pu-etu-scms-g](groups/pu-etu-scms-g.md) (2 members)
-- [python-club-bcul-g](groups/python-club-bcul-g.md) (39 members)
-- [reb-g](groups/reb-g.md) (10 members)
-- [recher-stslab-iss-ssp-g](groups/recher-stslab-iss-ssp-g.md) (1 members)
-- [recrute1-g](groups/recrute1-g.md) (8 members)
-- [religions-g](groups/religions-g.md) (1 members)
-- [renseignements-r-bcu-g](groups/renseignements-r-bcu-g.md) (20 members)
-- [res-elec-bcu-g](groups/res-elec-bcu-g.md) (18 members)
-- [reserve-bcu-g](groups/reserve-bcu-g.md) (5 members)
-- [reserve-g](groups/reserve-g.md) (1 members)
-- [ressources.humaines-g](groups/ressources_humaines-g.md) (8 members)
-- [ressources.numeriques-g](groups/ressources_numeriques-g.md) (4 members)
-- [rh-bcu-g](groups/rh-bcu-g.md) (10 members)
-- [rn-bcu-g](groups/rn-bcu-g.md) (5 members)
-- [rnv-bcu-g](groups/rnv-bcu-g.md) (24 members)
-- [school_56_a-g](groups/school_56_a-g.md) (3 members)
-- [science.politique-g](groups/science_politique-g.md) (1 members)
-- [sciences.economiques-g](groups/sciences_economiques-g.md) (1 members)
-- [scms-g](groups/scms-g.md) (1 members)
-- [scms-temporaires-g](groups/scms-temporaires-g.md) (1 members)
-- [scmsperhor-g](groups/scmsperhor-g.md) (2 members)
-- [scriptorium-g](groups/scriptorium-g.md) (3 members)
-- [secretariat.bcud-g](groups/secretariat_bcud-g.md) (3 members)
-- [secretariat.riponne-g](groups/secretariat_riponne-g.md) (1 members)
-- [serval_projet_contrib-g](groups/serval_projet_contrib-g.md) (1 members)
-- [serval_super_admins-g](groups/serval_super_admins-g.md) (2 members)
-- [servalr_bib-admin-g](groups/servalr_bib-admin-g.md) (4 members)
-- [servicespublics-utq-bcu-g](groups/servicespublics-utq-bcu-g.md) (55 members)
-- [sffonddemandeur-g](groups/sffonddemandeur-g.md) (3 members)
-- [si-bcu-g](groups/si-bcu-g.md) (8 members)
-- [sitedorigny-bcu-g](groups/sitedorigny-bcu-g.md) (126 members)
-- [sitehep-bcu-g](groups/sitehep-bcu-g.md) (8 members)
-- [siteinternef-bcu-g](groups/siteinternef-bcu-g.md) (7 members)
-- [siteprovence-bcu-g](groups/siteprovence-bcu-g.md) (2 members)
-- [siterenens-bcu-g](groups/siterenens-bcu-g.md) (5 members)
-- [siteriponne-bcu-g](groups/siteriponne-bcu-g.md) (57 members)
-- [slavistique-g](groups/slavistique-g.md) (1 members)
-- [sn-bcu-g](groups/sn-bcu-g.md) (1 members)
-- [snfproject_100531-pr-g](groups/snfproject_100531-pr-g.md) (1 members)
-- [sociologie-g](groups/sociologie-g.md) (1 members)
-- [sport-g](groups/sport-g.md) (1 members)
-- [sports_surveillants-g](groups/sports_surveillants-g.md) (1 members)
-- [sports_unil-g](groups/sports_unil-g.md) (1 members)
-- [support.scriptorium-g](groups/support_scriptorium-g.md) (3 members)
-- [sysadmin-bcu-g](groups/sysadmin-bcu-g.md) (6 members)
-- [tenable-console-g](groups/tenable-console-g.md) (4 members)
-- [theologie-g](groups/theologie-g.md) (1 members)
-- [theses-g](groups/theses-g.md) (1 members)
-- [tous-bcu-g](groups/tous-bcu-g.md) (225 members)
-- [tous-cif-g](groups/tous-cif-g.md) (1 members)
-- [tous-fbm-autres-g](groups/tous-fbm-autres-g.md) (1 members)
-- [tous-fbm-g](groups/tous-fbm-g.md) (1 members)
-- [tous-ftsr-g](groups/tous-ftsr-g.md) (2 members)
-- [tous-gse-g](groups/tous-gse-g.md) (2 members)
-- [tous-hec-g](groups/tous-hec-g.md) (2 members)
-- [tous-lett-g](groups/tous-lett-g.md) (8 members)
-- [tous-ssp-g](groups/tous-ssp-g.md) (2 members)
-- [tous-unil-autres-g](groups/tous-unil-autres-g.md) (210 members)
-- [tous-unil-g](groups/tous-unil-g.md) (19 members)
-- [uem-admin-bcu-g](groups/uem-admin-bcu-g.md) (5 members)
-- [unidoc-bcu-g](groups/unidoc-bcu-g.md) (18 members)
-- [unidoc-r-bcu-g](groups/unidoc-r-bcu-g.md) (33 members)
-- [unil-empl-12-g](groups/unil-empl-12-g.md) (2 members)
-- [unil-empl-g](groups/unil-empl-g.md) (6 members)
-- [unil-epr-a-m-i-g](groups/unil-epr-a-m-i-g.md) (2 members)
-- [unil-etu-g](groups/unil-etu-g.md) (15 members)
-- [unil-gen-p-m-g](groups/unil-gen-p-m-g.md) (1 members)
-- [unilogo-g](groups/unilogo-g.md) (199 members)
-- [unisciences-admin-g](groups/unisciences-admin-g.md) (4 members)
-- [unit_100-g](groups/unit_100-g.md) (1 members)
-- [unit_100_a-g](groups/unit_100_a-g.md) (3 members)
-- [unit_101_a-g](groups/unit_101_a-g.md) (4 members)
-- [unit_104_a-g](groups/unit_104_a-g.md) (3 members)
-- [unit_105_a-g](groups/unit_105_a-g.md) (3 members)
-- [unit_107_a-g](groups/unit_107_a-g.md) (4 members)
-- [unit_108_a-g](groups/unit_108_a-g.md) (4 members)
-- [unit_110_a-g](groups/unit_110_a-g.md) (4 members)
-- [unit_114_a-g](groups/unit_114_a-g.md) (3 members)
-- [unit_117_a-g](groups/unit_117_a-g.md) (3 members)
-- [unit_11_a-g](groups/unit_11_a-g.md) (3 members)
-- [unit_129_a-g](groups/unit_129_a-g.md) (4 members)
-- [unit_131_a-g](groups/unit_131_a-g.md) (3 members)
-- [unit_131_v-g](groups/unit_131_v-g.md) (2 members)
-- [unit_133_a-g](groups/unit_133_a-g.md) (4 members)
-- [unit_134_a-g](groups/unit_134_a-g.md) (4 members)
-- [unit_135_a-g](groups/unit_135_a-g.md) (4 members)
-- [unit_136_a-g](groups/unit_136_a-g.md) (4 members)
-- [unit_137_a-g](groups/unit_137_a-g.md) (3 members)
-- [unit_137_v-g](groups/unit_137_v-g.md) (1 members)
-- [unit_142_a-g](groups/unit_142_a-g.md) (3 members)
-- [unit_144_a-g](groups/unit_144_a-g.md) (3 members)
-- [unit_147_a-g](groups/unit_147_a-g.md) (4 members)
-- [unit_149_a-g](groups/unit_149_a-g.md) (4 members)
-- [unit_151_a-g](groups/unit_151_a-g.md) (4 members)
-- [unit_156_a-g](groups/unit_156_a-g.md) (3 members)
-- [unit_157_a-g](groups/unit_157_a-g.md) (4 members)
-- [unit_161_a-g](groups/unit_161_a-g.md) (4 members)
-- [unit_166_a-g](groups/unit_166_a-g.md) (3 members)
-- [unit_168_a-g](groups/unit_168_a-g.md) (4 members)
-- [unit_169_a-g](groups/unit_169_a-g.md) (4 members)
-- [unit_16_a-g](groups/unit_16_a-g.md) (4 members)
-- [unit_170_a-g](groups/unit_170_a-g.md) (4 members)
-- [unit_173_a-g](groups/unit_173_a-g.md) (4 members)
-- [unit_176_a-g](groups/unit_176_a-g.md) (3 members)
-- [unit_179_a-g](groups/unit_179_a-g.md) (4 members)
-- [unit_17_a-g](groups/unit_17_a-g.md) (4 members)
-- [unit_180_a-g](groups/unit_180_a-g.md) (4 members)
-- [unit_181_a-g](groups/unit_181_a-g.md) (4 members)
-- [unit_183_a-g](groups/unit_183_a-g.md) (4 members)
-- [unit_184_a-g](groups/unit_184_a-g.md) (4 members)
-- [unit_185_a-g](groups/unit_185_a-g.md) (4 members)
-- [unit_188_a-g](groups/unit_188_a-g.md) (4 members)
-- [unit_193_a-g](groups/unit_193_a-g.md) (3 members)
-- [unit_195-g](groups/unit_195-g.md) (1 members)
-- [unit_195_a-g](groups/unit_195_a-g.md) (4 members)
-- [unit_196_a-g](groups/unit_196_a-g.md) (3 members)
-- [unit_197_v-g](groups/unit_197_v-g.md) (1 members)
-- [unit_198_a-g](groups/unit_198_a-g.md) (4 members)
-- [unit_199_a-g](groups/unit_199_a-g.md) (4 members)
-- [unit_200_a-g](groups/unit_200_a-g.md) (4 members)
-- [unit_202_a-g](groups/unit_202_a-g.md) (4 members)
-- [unit_203_a-g](groups/unit_203_a-g.md) (4 members)
-- [unit_204_a-g](groups/unit_204_a-g.md) (4 members)
-- [unit_205_a-g](groups/unit_205_a-g.md) (4 members)
-- [unit_206_a-g](groups/unit_206_a-g.md) (4 members)
-- [unit_208_a-g](groups/unit_208_a-g.md) (4 members)
-- [unit_209_a-g](groups/unit_209_a-g.md) (4 members)
-- [unit_211_a-g](groups/unit_211_a-g.md) (4 members)
-- [unit_212_a-g](groups/unit_212_a-g.md) (4 members)
-- [unit_215_a-g](groups/unit_215_a-g.md) (4 members)
-- [unit_217_a-g](groups/unit_217_a-g.md) (4 members)
-- [unit_218_a-g](groups/unit_218_a-g.md) (4 members)
-- [unit_221_a-g](groups/unit_221_a-g.md) (4 members)
-- [unit_223_a-g](groups/unit_223_a-g.md) (4 members)
-- [unit_224_a-g](groups/unit_224_a-g.md) (4 members)
-- [unit_225_a-g](groups/unit_225_a-g.md) (4 members)
-- [unit_226_a-g](groups/unit_226_a-g.md) (4 members)
-- [unit_227_a-g](groups/unit_227_a-g.md) (4 members)
-- [unit_22_a-g](groups/unit_22_a-g.md) (4 members)
-- [unit_235_a-g](groups/unit_235_a-g.md) (3 members)
-- [unit_235_v-g](groups/unit_235_v-g.md) (1 members)
-- [unit_237_a-g](groups/unit_237_a-g.md) (3 members)
-- [unit_237_v-g](groups/unit_237_v-g.md) (1 members)
-- [unit_239_a-g](groups/unit_239_a-g.md) (3 members)
-- [unit_23_a-g](groups/unit_23_a-g.md) (3 members)
-- [unit_240_a-g](groups/unit_240_a-g.md) (3 members)
-- [unit_241_a-g](groups/unit_241_a-g.md) (3 members)
-- [unit_242_a-g](groups/unit_242_a-g.md) (3 members)
-- [unit_243_a-g](groups/unit_243_a-g.md) (3 members)
-- [unit_244_a-g](groups/unit_244_a-g.md) (3 members)
-- [unit_245_a-g](groups/unit_245_a-g.md) (3 members)
-- [unit_246_a-g](groups/unit_246_a-g.md) (3 members)
-- [unit_248_a-g](groups/unit_248_a-g.md) (3 members)
-- [unit_248_v-g](groups/unit_248_v-g.md) (1 members)
-- [unit_24_a-g](groups/unit_24_a-g.md) (3 members)
-- [unit_251_a-g](groups/unit_251_a-g.md) (3 members)
-- [unit_254_a-g](groups/unit_254_a-g.md) (3 members)
-- [unit_256_a-g](groups/unit_256_a-g.md) (3 members)
-- [unit_256_v-g](groups/unit_256_v-g.md) (1 members)
-- [unit_258_a-g](groups/unit_258_a-g.md) (3 members)
-- [unit_25_a-g](groups/unit_25_a-g.md) (4 members)
-- [unit_261_v-g](groups/unit_261_v-g.md) (1 members)
-- [unit_262_a-g](groups/unit_262_a-g.md) (3 members)
-- [unit_263_a-g](groups/unit_263_a-g.md) (3 members)
-- [unit_268_a-g](groups/unit_268_a-g.md) (3 members)
-- [unit_269_a-g](groups/unit_269_a-g.md) (3 members)
-- [unit_26_a-g](groups/unit_26_a-g.md) (4 members)
-- [unit_270_a-g](groups/unit_270_a-g.md) (4 members)
-- [unit_271_a-g](groups/unit_271_a-g.md) (3 members)
-- [unit_273_a-g](groups/unit_273_a-g.md) (3 members)
-- [unit_274_a-g](groups/unit_274_a-g.md) (3 members)
-- [unit_276_a-g](groups/unit_276_a-g.md) (3 members)
-- [unit_276_v-g](groups/unit_276_v-g.md) (1 members)
-- [unit_278_a-g](groups/unit_278_a-g.md) (3 members)
-- [unit_27_a-g](groups/unit_27_a-g.md) (4 members)
-- [unit_280_a-g](groups/unit_280_a-g.md) (3 members)
-- [unit_281_a-g](groups/unit_281_a-g.md) (4 members)
-- [unit_284_a-g](groups/unit_284_a-g.md) (4 members)
-- [unit_285_a-g](groups/unit_285_a-g.md) (4 members)
-- [unit_286_a-g](groups/unit_286_a-g.md) (4 members)
-- [unit_287_a-g](groups/unit_287_a-g.md) (4 members)
-- [unit_289_a-g](groups/unit_289_a-g.md) (4 members)
-- [unit_291_a-g](groups/unit_291_a-g.md) (3 members)
-- [unit_292_a-g](groups/unit_292_a-g.md) (3 members)
-- [unit_293_a-g](groups/unit_293_a-g.md) (3 members)
-- [unit_294_a-g](groups/unit_294_a-g.md) (4 members)
-- [unit_299_a-g](groups/unit_299_a-g.md) (4 members)
-- [unit_29_a-g](groups/unit_29_a-g.md) (3 members)
-- [unit_302_a-g](groups/unit_302_a-g.md) (4 members)
-- [unit_303_a-g](groups/unit_303_a-g.md) (4 members)
-- [unit_304_a-g](groups/unit_304_a-g.md) (4 members)
-- [unit_305_a-g](groups/unit_305_a-g.md) (4 members)
-- [unit_306_a-g](groups/unit_306_a-g.md) (3 members)
-- [unit_306_v-g](groups/unit_306_v-g.md) (1 members)
-- [unit_307_a-g](groups/unit_307_a-g.md) (3 members)
-- [unit_308_a-g](groups/unit_308_a-g.md) (3 members)
-- [unit_309_a-g](groups/unit_309_a-g.md) (3 members)
-- [unit_30_a-g](groups/unit_30_a-g.md) (4 members)
-- [unit_310_a-g](groups/unit_310_a-g.md) (3 members)
-- [unit_311_a-g](groups/unit_311_a-g.md) (3 members)
-- [unit_312_a-g](groups/unit_312_a-g.md) (4 members)
-- [unit_313_a-g](groups/unit_313_a-g.md) (4 members)
-- [unit_314_a-g](groups/unit_314_a-g.md) (4 members)
-- [unit_315_a-g](groups/unit_315_a-g.md) (4 members)
-- [unit_316_a-g](groups/unit_316_a-g.md) (4 members)
-- [unit_318_a-g](groups/unit_318_a-g.md) (3 members)
-- [unit_319_a-g](groups/unit_319_a-g.md) (3 members)
-- [unit_320_a-g](groups/unit_320_a-g.md) (3 members)
-- [unit_322_a-g](groups/unit_322_a-g.md) (4 members)
-- [unit_323_a-g](groups/unit_323_a-g.md) (4 members)
-- [unit_324_a-g](groups/unit_324_a-g.md) (4 members)
-- [unit_326_a-g](groups/unit_326_a-g.md) (3 members)
-- [unit_327_a-g](groups/unit_327_a-g.md) (3 members)
-- [unit_328_a-g](groups/unit_328_a-g.md) (3 members)
-- [unit_329_a-g](groups/unit_329_a-g.md) (3 members)
-- [unit_330_a-g](groups/unit_330_a-g.md) (4 members)
-- [unit_331_a-g](groups/unit_331_a-g.md) (3 members)
-- [unit_332_a-g](groups/unit_332_a-g.md) (3 members)
-- [unit_333_a-g](groups/unit_333_a-g.md) (4 members)
-- [unit_334_a-g](groups/unit_334_a-g.md) (4 members)
-- [unit_335_a-g](groups/unit_335_a-g.md) (4 members)
-- [unit_336_a-g](groups/unit_336_a-g.md) (3 members)
-- [unit_347_a-g](groups/unit_347_a-g.md) (4 members)
-- [unit_348_a-g](groups/unit_348_a-g.md) (4 members)
-- [unit_349_a-g](groups/unit_349_a-g.md) (4 members)
-- [unit_350_a-g](groups/unit_350_a-g.md) (3 members)
-- [unit_353_a-g](groups/unit_353_a-g.md) (3 members)
-- [unit_356_a-g](groups/unit_356_a-g.md) (3 members)
-- [unit_357_a-g](groups/unit_357_a-g.md) (3 members)
-- [unit_35_a-g](groups/unit_35_a-g.md) (4 members)
-- [unit_360_a-g](groups/unit_360_a-g.md) (4 members)
-- [unit_361_a-g](groups/unit_361_a-g.md) (4 members)
-- [unit_362_a-g](groups/unit_362_a-g.md) (3 members)
-- [unit_363_a-g](groups/unit_363_a-g.md) (3 members)
-- [unit_364_a-g](groups/unit_364_a-g.md) (4 members)
-- [unit_365-g](groups/unit_365-g.md) (2 members)
-- [unit_365_a-g](groups/unit_365_a-g.md) (4 members)
-- [unit_367_a-g](groups/unit_367_a-g.md) (3 members)
-- [unit_368_a-g](groups/unit_368_a-g.md) (3 members)
-- [unit_369_a-g](groups/unit_369_a-g.md) (3 members)
-- [unit_370_a-g](groups/unit_370_a-g.md) (3 members)
-- [unit_371_a-g](groups/unit_371_a-g.md) (3 members)
-- [unit_372_a-g](groups/unit_372_a-g.md) (3 members)
-- [unit_373_a-g](groups/unit_373_a-g.md) (4 members)
-- [unit_374-g](groups/unit_374-g.md) (1 members)
-- [unit_374_a-g](groups/unit_374_a-g.md) (3 members)
-- [unit_375_a-g](groups/unit_375_a-g.md) (4 members)
-- [unit_376_a-g](groups/unit_376_a-g.md) (4 members)
-- [unit_377_a-g](groups/unit_377_a-g.md) (4 members)
-- [unit_378_a-g](groups/unit_378_a-g.md) (3 members)
-- [unit_379_a-g](groups/unit_379_a-g.md) (3 members)
-- [unit_37_a-g](groups/unit_37_a-g.md) (4 members)
-- [unit_383_a-g](groups/unit_383_a-g.md) (4 members)
-- [unit_384_a-g](groups/unit_384_a-g.md) (3 members)
-- [unit_385_a-g](groups/unit_385_a-g.md) (4 members)
-- [unit_386_a-g](groups/unit_386_a-g.md) (4 members)
-- [unit_387_a-g](groups/unit_387_a-g.md) (3 members)
-- [unit_388_a-g](groups/unit_388_a-g.md) (3 members)
-- [unit_389_a-g](groups/unit_389_a-g.md) (4 members)
-- [unit_391_a-g](groups/unit_391_a-g.md) (4 members)
-- [unit_392_a-g](groups/unit_392_a-g.md) (4 members)
-- [unit_393_a-g](groups/unit_393_a-g.md) (4 members)
-- [unit_394_a-g](groups/unit_394_a-g.md) (3 members)
-- [unit_395_a-g](groups/unit_395_a-g.md) (4 members)
-- [unit_398_a-g](groups/unit_398_a-g.md) (4 members)
-- [unit_399_a-g](groups/unit_399_a-g.md) (4 members)
-- [unit_39_a-g](groups/unit_39_a-g.md) (4 members)
-- [unit_44_a-g](groups/unit_44_a-g.md) (3 members)
-- [unit_45_a-g](groups/unit_45_a-g.md) (4 members)
-- [unit_46_a-g](groups/unit_46_a-g.md) (4 members)
-- [unit_50_a-g](groups/unit_50_a-g.md) (3 members)
-- [unit_51_a-g](groups/unit_51_a-g.md) (3 members)
-- [unit_52_a-g](groups/unit_52_a-g.md) (4 members)
-- [unit_53_a-g](groups/unit_53_a-g.md) (3 members)
-- [unit_55_a-g](groups/unit_55_a-g.md) (4 members)
-- [unit_57_a-g](groups/unit_57_a-g.md) (4 members)
-- [unit_58_a-g](groups/unit_58_a-g.md) (4 members)
-- [unit_59_a-g](groups/unit_59_a-g.md) (4 members)
-- [unit_62_a-g](groups/unit_62_a-g.md) (4 members)
-- [unit_63_a-g](groups/unit_63_a-g.md) (3 members)
-- [unit_6_a-g](groups/unit_6_a-g.md) (3 members)
-- [unit_71_a-g](groups/unit_71_a-g.md) (4 members)
-- [unit_73_a-g](groups/unit_73_a-g.md) (4 members)
-- [unit_74_a-g](groups/unit_74_a-g.md) (3 members)
-- [unit_76_a-g](groups/unit_76_a-g.md) (4 members)
-- [unit_78_a-g](groups/unit_78_a-g.md) (4 members)
-- [unit_7_a-g](groups/unit_7_a-g.md) (3 members)
-- [unit_80_a-g](groups/unit_80_a-g.md) (3 members)
-- [unit_85_a-g](groups/unit_85_a-g.md) (4 members)
-- [unit_87_a-g](groups/unit_87_a-g.md) (3 members)
-- [unit_8_a-g](groups/unit_8_a-g.md) (4 members)
-- [unit_91_a-g](groups/unit_91_a-g.md) (3 members)
-- [unit_96_a-g](groups/unit_96_a-g.md) (3 members)
-- [unit_98_a-g](groups/unit_98_a-g.md) (3 members)
-- [unit_99_a-g](groups/unit_99_a-g.md) (4 members)
-- [uniteam-bcu-g](groups/uniteam-bcu-g.md) (10 members)
-- [users-exchange-online-1-g](groups/users-exchange-online-1-g.md) (8 members)
-- [users-exchange-online-g](groups/users-exchange-online-g.md) (171 members)
-- [users_hec_mobilite-g](groups/users_hec_mobilite-g.md) (2 members)
-- [visio-users-g](groups/visio-users-g.md) (6 members)
-- [vmwareconsole-g](groups/vmwareconsole-g.md) (8 members)
+| Group Name | Members |
+|------------|----------|
+| [tous-bcu-g](groups/tous-bcu-g.md) | 225 |
+| [printunil-staff-g](groups/printunil-staff-g.md) | 225 |
+| [ms365-licence-a5-bcul-g](groups/ms365-licence-a5-bcul-g.md) | 225 |
+| [printoffice-bcul-tous-g](groups/printoffice-bcul-tous-g.md) | 225 |
+| [mailbox-g](groups/mailbox-g.md) | 219 |
+| [acces-soft-g](groups/acces-soft-g.md) | 214 |
+| [eliot-g](groups/eliot-g.md) | 210 |
+| [tous-unil-autres-g](groups/tous-unil-autres-g.md) | 210 |
+| [unilogo-g](groups/unilogo-g.md) | 199 |
+| [users-exchange-online-g](groups/users-exchange-online-g.md) | 171 |
+| [gedbcul-bcu-g](groups/gedbcul-bcu-g.md) | 166 |
+| [ms365-licence-a5-staff-exchange-g](groups/ms365-licence-a5-staff-exchange-g.md) | 153 |
+| [No_Skype](groups/No_Skype.md) | 143 |
+| [ms365-comptes-externes-g](groups/ms365-comptes-externes-g.md) | 139 |
+| [sitedorigny-bcu-g](groups/sitedorigny-bcu-g.md) | 126 |
+| [Activeusers](groups/Activeusers.md) | 123 |
+| [ext-bcu-g](groups/ext-bcu-g.md) | 117 |
+| [ext-invit-a-m-g](groups/ext-invit-a-m-g.md) | 109 |
+| [ci-distr-adobeacrobat-g](groups/ci-distr-adobeacrobat-g.md) | 100 |
+| [ci-distr-microsoftvoip-g](groups/ci-distr-microsoftvoip-g.md) | 85 |
+| [ext-bcu-riponne-g](groups/ext-bcu-riponne-g.md) | 61 |
+| [siteriponne-bcu-g](groups/siteriponne-bcu-g.md) | 57 |
+| [servicespublics-utq-bcu-g](groups/servicespublics-utq-bcu-g.md) | 55 |
+| [intranet-g](groups/intranet-g.md) | 47 |
+| [python-club-bcul-g](groups/python-club-bcul-g.md) | 39 |
+| [conservation-bcu-g](groups/conservation-bcu-g.md) | 37 |
+| [ext-bcu-intranet-g](groups/ext-bcu-intranet-g.md) | 34 |
+| [unidoc-r-bcu-g](groups/unidoc-r-bcu-g.md) | 33 |
+| [ext-invit-a-m-i-g](groups/ext-invit-a-m-i-g.md) | 30 |
+| [gedsu-bcu-g](groups/gedsu-bcu-g.md) | 27 |
+| [pret-d-bcu-g](groups/pret-d-bcu-g.md) | 27 |
+| [pret.unitheque-g](groups/pret_unitheque-g.md) | 25 |
+| [rnv-bcu-g](groups/rnv-bcu-g.md) | 24 |
+| [pret-r-bcu-g](groups/pret-r-bcu-g.md) | 23 |
+| [pret.riponne-g](groups/pret_riponne-g.md) | 23 |
+| [all-users-portail-g](groups/all-users-portail-g.md) | 23 |
+| [ci-distr-cometbackup-g](groups/ci-distr-cometbackup-g.md) | 22 |
+| [cirdoc-bcu-g](groups/cirdoc-bcu-g.md) | 21 |
+| [infoplus-bcu-g](groups/infoplus-bcu-g.md) | 21 |
+| [acces-otobo-bas-g](groups/acces-otobo-bas-g.md) | 21 |
+| [otobo-roleid-69-g](groups/otobo-roleid-69-g.md) | 21 |
+| [otobo-roleid-356-g](groups/otobo-roleid-356-g.md) | 21 |
+| [renseignements-r-bcu-g](groups/renseignements-r-bcu-g.md) | 20 |
+| [tous-unil-g](groups/tous-unil-g.md) | 19 |
+| [patrinum-bcu-g](groups/patrinum-bcu-g.md) | 19 |
+| [etu-sem-semanc-g](groups/etu-sem-semanc-g.md) | 19 |
+| [all-etu-portail-g](groups/all-etu-portail-g.md) | 19 |
+| [unidoc-bcu-g](groups/unidoc-bcu-g.md) | 18 |
+| [res-elec-bcu-g](groups/res-elec-bcu-g.md) | 18 |
+| [cirdoc-r-bcu-g](groups/cirdoc-r-bcu-g.md) | 17 |
+| [extutq-gt-bcu-g](groups/extutq-gt-bcu-g.md) | 17 |
+| [manuscrits-bcu-g](groups/manuscrits-bcu-g.md) | 17 |
+| [bib-acces-portal-g](groups/bib-acces-portal-g.md) | 17 |
+| [ci-distr-affinity-g](groups/ci-distr-affinity-g.md) | 17 |
+| [gedrnv-bcu-g](groups/gedrnv-bcu-g.md) | 16 |
+| [polyrightg-g](groups/polyrightg-g.md) | 16 |
+| [acces-emplois-g](groups/acces-emplois-g.md) | 16 |
+| [copat-g](groups/copat-g.md) | 15 |
+| [cd-bcu-g](groups/cd-bcu-g.md) | 15 |
+| [unil-etu-g](groups/unil-etu-g.md) | 15 |
+| [etudiants-unil-g](groups/etudiants-unil-g.md) | 15 |
+| [polyrightg_bcu-g](groups/polyrightg_bcu-g.md) | 15 |
+| [otobo-roleid-358-g](groups/otobo-roleid-358-g.md) | 15 |
+| [hepvd-bcu-g](groups/hepvd-bcu-g.md) | 14 |
+| [coord-bs-bcu-g](groups/coord-bs-bcu-g.md) | 14 |
+| [acquisitions.riponne-g](groups/acquisitions_riponne-g.md) | 14 |
+| [finances-bcu-g](groups/finances-bcu-g.md) | 13 |
+| [legacyaacollaborateur-g](groups/legacyaacollaborateur-g.md) | 13 |
+| [bib-validateur-g](groups/bib-validateur-g.md) | 12 |
+| [otobo-roleid-383-g](groups/otobo-roleid-383-g.md) | 11 |
+| [formation.riponne-g](groups/formation_riponne-g.md) | 11 |
+| [ms365-comptes-moraux-g](groups/ms365-comptes-moraux-g.md) | 11 |
+| [ci-distr-filemakeradv-g](groups/ci-distr-filemakeradv-g.md) | 11 |
+| [reb-g](groups/reb-g.md) | 10 |
+| [fp-bcu-g](groups/fp-bcu-g.md) | 10 |
+| [rh-bcu-g](groups/rh-bcu-g.md) | 10 |
+| [uniteam-bcu-g](groups/uniteam-bcu-g.md) | 10 |
+| [bcul.internef-g](groups/bcul_internef-g.md) | 10 |
+| [periodiques-bcu-g](groups/periodiques-bcu-g.md) | 10 |
+| [numerisations-bcu-g](groups/numerisations-bcu-g.md) | 10 |
+| [ext-bcu-generiques-g](groups/ext-bcu-generiques-g.md) | 10 |
+| [infrastructure-bcu-g](groups/infrastructure-bcu-g.md) | 10 |
+| [periodiques.dorigny-g](groups/periodiques_dorigny-g.md) | 10 |
+| [c-rnv-bcu-g](groups/c-rnv-bcu-g.md) | 9 |
+| [bcujbmmanager-bcu-g](groups/bcujbmmanager-bcu-g.md) | 9 |
+| [gestion-ressource-bcu-g-g](groups/gestion-ressource-bcu-g-g.md) | 9 |
+| [avis-g](groups/avis-g.md) | 8 |
+| [si-bcu-g](groups/si-bcu-g.md) | 8 |
+| [mobatime-g](groups/mobatime-g.md) | 8 |
+| [recrute1-g](groups/recrute1-g.md) | 8 |
+| [tous-lett-g](groups/tous-lett-g.md) | 8 |
+| [bcul.hepvd-g](groups/bcul_hepvd-g.md) | 8 |
+| [sitehep-bcu-g](groups/sitehep-bcu-g.md) | 8 |
+| [vmwareconsole-g](groups/vmwareconsole-g.md) | 8 |
+| [formation-bcul-g](groups/formation-bcul-g.md) | 8 |
+| [jahia_redactors-g](groups/jahia_redactors-g.md) | 8 |
+| [print-sites-bcu-g](groups/print-sites-bcu-g.md) | 8 |
+| [pers-unil-couranc-g](groups/pers-unil-couranc-g.md) | 8 |
+| [ressources.humaines-g](groups/ressources_humaines-g.md) | 8 |
+| [users-exchange-online-1-g](groups/users-exchange-online-1-g.md) | 8 |
+| [lett_acces_nas_numerisations-g](groups/lett_acces_nas_numerisations-g.md) | 8 |
+| [gedbs-bcu-g](groups/gedbs-bcu-g.md) | 7 |
+| [formgym-bcu-g](groups/formgym-bcu-g.md) | 7 |
+| [ci-vmware-bcul-g](groups/ci-vmware-bcul-g.md) | 7 |
+| [etudiants-lett-g](groups/etudiants-lett-g.md) | 7 |
+| [membres-ur_unil-g](groups/membres-ur_unil-g.md) | 7 |
+| [siteinternef-bcu-g](groups/siteinternef-bcu-g.md) | 7 |
+| [communication-bcu-g](groups/communication-bcu-g.md) | 7 |
+| [ci-distr-arcgispro-g](groups/ci-distr-arcgispro-g.md) | 7 |
+| [ci-distr-adobeallapps-g](groups/ci-distr-adobeallapps-g.md) | 7 |
+| [cores-bcu-g](groups/cores-bcu-g.md) | 6 |
+| [unil-empl-g](groups/unil-empl-g.md) | 6 |
+| [portail-sap-g](groups/portail-sap-g.md) | 6 |
+| [visio-users-g](groups/visio-users-g.md) | 6 |
+| [comptabilite-g](groups/comptabilite-g.md) | 6 |
+| [sysadmin-bcu-g](groups/sysadmin-bcu-g.md) | 6 |
+| [eprh-val-unite-g](groups/eprh-val-unite-g.md) | 6 |
+| [otobo-roleid-5-g](groups/otobo-roleid-5-g.md) | 6 |
+| [personnel-unil-g](groups/personnel-unil-g.md) | 6 |
+| [bcul.civilistes-g](groups/bcul_civilistes-g.md) | 6 |
+| [gedcontrats-bcu-g](groups/gedcontrats-bcu-g.md) | 6 |
+| [ci-distr-endnote-g](groups/ci-distr-endnote-g.md) | 6 |
+| [ci-infra-vra-bcul-users-g](groups/ci-infra-vra-bcul-users-g.md) | 6 |
+| [peb-g](groups/peb-g.md) | 5 |
+| [lac1-g](groups/lac1-g.md) | 5 |
+| [lac2-g](groups/lac2-g.md) | 5 |
+| [kabag-g](groups/kabag-g.md) | 5 |
+| [rn-bcu-g](groups/rn-bcu-g.md) | 5 |
+| [endnote-7-g](groups/endnote-7-g.md) | 5 |
+| [guest-mgrs-g](groups/guest-mgrs-g.md) | 5 |
+| [manuscrits-g](groups/manuscrits-g.md) | 5 |
+| [bib-pub-lv1-g](groups/bib-pub-lv1-g.md) | 5 |
+| [cirdoc.bcud-g](groups/cirdoc_bcud-g.md) | 5 |
+| [reserve-bcu-g](groups/reserve-bcu-g.md) | 5 |
+| [anti-plagiat-g](groups/anti-plagiat-g.md) | 5 |
+| [depotlegalvd-g](groups/depotlegalvd-g.md) | 5 |
+| [faculty_83_a-g](groups/faculty_83_a-g.md) | 5 |
+| [faculty_90_v-g](groups/faculty_90_v-g.md) | 5 |
+| [info.riponne-g](groups/info_riponne-g.md) | 5 |
+| [internef-bcu-g](groups/internef-bcu-g.md) | 5 |
+| [ci-distr-spss-g](groups/ci-distr-spss-g.md) | 5 |
+| [cinespace-bcu-g](groups/cinespace-bcu-g.md) | 5 |
+| [uem-admin-bcu-g](groups/uem-admin-bcu-g.md) | 5 |
+| [pret-inter-bcu-g](groups/pret-inter-bcu-g.md) | 5 |
+| [siterenens-bcu-g](groups/siterenens-bcu-g.md) | 5 |
+| [bcujbmadmin-bcu-g](groups/bcujbmadmin-bcu-g.md) | 5 |
+| [etu-examens-unil-g](groups/etu-examens-unil-g.md) | 5 |
+| [consultation.bcul-g](groups/consultation_bcul-g.md) | 5 |
+| [info-parents-unil-g](groups/info-parents-unil-g.md) | 5 |
+| [periodiques.riponne-g](groups/periodiques_riponne-g.md) | 5 |
+| [comptabilite.lecteur-g](groups/comptabilite_lecteur-g.md) | 5 |
+| [coordbs-g](groups/coordbs-g.md) | 4 |
+| [adirbcul-g](groups/adirbcul-g.md) | 4 |
+| [prog-rnv-g](groups/prog-rnv-g.md) | 4 |
+| [unit_8_a-g](groups/unit_8_a-g.md) | 4 |
+| [unit_16_a-g](groups/unit_16_a-g.md) | 4 |
+| [unit_17_a-g](groups/unit_17_a-g.md) | 4 |
+| [unit_22_a-g](groups/unit_22_a-g.md) | 4 |
+| [unit_25_a-g](groups/unit_25_a-g.md) | 4 |
+| [unit_26_a-g](groups/unit_26_a-g.md) | 4 |
+| [unit_27_a-g](groups/unit_27_a-g.md) | 4 |
+| [unit_30_a-g](groups/unit_30_a-g.md) | 4 |
+| [unit_35_a-g](groups/unit_35_a-g.md) | 4 |
+| [unit_37_a-g](groups/unit_37_a-g.md) | 4 |
+| [unit_39_a-g](groups/unit_39_a-g.md) | 4 |
+| [unit_45_a-g](groups/unit_45_a-g.md) | 4 |
+| [unit_46_a-g](groups/unit_46_a-g.md) | 4 |
+| [unit_52_a-g](groups/unit_52_a-g.md) | 4 |
+| [unit_55_a-g](groups/unit_55_a-g.md) | 4 |
+| [unit_57_a-g](groups/unit_57_a-g.md) | 4 |
+| [unit_58_a-g](groups/unit_58_a-g.md) | 4 |
+| [unit_59_a-g](groups/unit_59_a-g.md) | 4 |
+| [unit_62_a-g](groups/unit_62_a-g.md) | 4 |
+| [unit_71_a-g](groups/unit_71_a-g.md) | 4 |
+| [unit_73_a-g](groups/unit_73_a-g.md) | 4 |
+| [unit_76_a-g](groups/unit_76_a-g.md) | 4 |
+| [unit_78_a-g](groups/unit_78_a-g.md) | 4 |
+| [unit_85_a-g](groups/unit_85_a-g.md) | 4 |
+| [unit_99_a-g](groups/unit_99_a-g.md) | 4 |
+| [unit_101_a-g](groups/unit_101_a-g.md) | 4 |
+| [unit_107_a-g](groups/unit_107_a-g.md) | 4 |
+| [unit_108_a-g](groups/unit_108_a-g.md) | 4 |
+| [unit_110_a-g](groups/unit_110_a-g.md) | 4 |
+| [unit_129_a-g](groups/unit_129_a-g.md) | 4 |
+| [unit_133_a-g](groups/unit_133_a-g.md) | 4 |
+| [unit_134_a-g](groups/unit_134_a-g.md) | 4 |
+| [unit_135_a-g](groups/unit_135_a-g.md) | 4 |
+| [unit_136_a-g](groups/unit_136_a-g.md) | 4 |
+| [unit_147_a-g](groups/unit_147_a-g.md) | 4 |
+| [unit_149_a-g](groups/unit_149_a-g.md) | 4 |
+| [unit_151_a-g](groups/unit_151_a-g.md) | 4 |
+| [unit_157_a-g](groups/unit_157_a-g.md) | 4 |
+| [unit_161_a-g](groups/unit_161_a-g.md) | 4 |
+| [unit_168_a-g](groups/unit_168_a-g.md) | 4 |
+| [unit_169_a-g](groups/unit_169_a-g.md) | 4 |
+| [unit_170_a-g](groups/unit_170_a-g.md) | 4 |
+| [unit_173_a-g](groups/unit_173_a-g.md) | 4 |
+| [unit_179_a-g](groups/unit_179_a-g.md) | 4 |
+| [unit_180_a-g](groups/unit_180_a-g.md) | 4 |
+| [unit_181_a-g](groups/unit_181_a-g.md) | 4 |
+| [unit_183_a-g](groups/unit_183_a-g.md) | 4 |
+| [unit_184_a-g](groups/unit_184_a-g.md) | 4 |
+| [unit_185_a-g](groups/unit_185_a-g.md) | 4 |
+| [unit_188_a-g](groups/unit_188_a-g.md) | 4 |
+| [unit_195_a-g](groups/unit_195_a-g.md) | 4 |
+| [unit_198_a-g](groups/unit_198_a-g.md) | 4 |
+| [unit_199_a-g](groups/unit_199_a-g.md) | 4 |
+| [unit_200_a-g](groups/unit_200_a-g.md) | 4 |
+| [unit_202_a-g](groups/unit_202_a-g.md) | 4 |
+| [unit_203_a-g](groups/unit_203_a-g.md) | 4 |
+| [unit_204_a-g](groups/unit_204_a-g.md) | 4 |
+| [unit_205_a-g](groups/unit_205_a-g.md) | 4 |
+| [unit_206_a-g](groups/unit_206_a-g.md) | 4 |
+| [unit_208_a-g](groups/unit_208_a-g.md) | 4 |
+| [unit_209_a-g](groups/unit_209_a-g.md) | 4 |
+| [unit_211_a-g](groups/unit_211_a-g.md) | 4 |
+| [unit_212_a-g](groups/unit_212_a-g.md) | 4 |
+| [unit_215_a-g](groups/unit_215_a-g.md) | 4 |
+| [unit_217_a-g](groups/unit_217_a-g.md) | 4 |
+| [unit_218_a-g](groups/unit_218_a-g.md) | 4 |
+| [unit_221_a-g](groups/unit_221_a-g.md) | 4 |
+| [unit_223_a-g](groups/unit_223_a-g.md) | 4 |
+| [unit_224_a-g](groups/unit_224_a-g.md) | 4 |
+| [unit_225_a-g](groups/unit_225_a-g.md) | 4 |
+| [unit_226_a-g](groups/unit_226_a-g.md) | 4 |
+| [unit_227_a-g](groups/unit_227_a-g.md) | 4 |
+| [unit_270_a-g](groups/unit_270_a-g.md) | 4 |
+| [unit_281_a-g](groups/unit_281_a-g.md) | 4 |
+| [unit_284_a-g](groups/unit_284_a-g.md) | 4 |
+| [unit_285_a-g](groups/unit_285_a-g.md) | 4 |
+| [unit_286_a-g](groups/unit_286_a-g.md) | 4 |
+| [unit_287_a-g](groups/unit_287_a-g.md) | 4 |
+| [unit_289_a-g](groups/unit_289_a-g.md) | 4 |
+| [unit_294_a-g](groups/unit_294_a-g.md) | 4 |
+| [unit_299_a-g](groups/unit_299_a-g.md) | 4 |
+| [unit_302_a-g](groups/unit_302_a-g.md) | 4 |
+| [unit_303_a-g](groups/unit_303_a-g.md) | 4 |
+| [unit_304_a-g](groups/unit_304_a-g.md) | 4 |
+| [unit_305_a-g](groups/unit_305_a-g.md) | 4 |
+| [unit_312_a-g](groups/unit_312_a-g.md) | 4 |
+| [unit_313_a-g](groups/unit_313_a-g.md) | 4 |
+| [unit_314_a-g](groups/unit_314_a-g.md) | 4 |
+| [unit_315_a-g](groups/unit_315_a-g.md) | 4 |
+| [unit_316_a-g](groups/unit_316_a-g.md) | 4 |
+| [unit_322_a-g](groups/unit_322_a-g.md) | 4 |
+| [unit_323_a-g](groups/unit_323_a-g.md) | 4 |
+| [unit_324_a-g](groups/unit_324_a-g.md) | 4 |
+| [unit_330_a-g](groups/unit_330_a-g.md) | 4 |
+| [unit_333_a-g](groups/unit_333_a-g.md) | 4 |
+| [unit_334_a-g](groups/unit_334_a-g.md) | 4 |
+| [unit_335_a-g](groups/unit_335_a-g.md) | 4 |
+| [unit_347_a-g](groups/unit_347_a-g.md) | 4 |
+| [unit_348_a-g](groups/unit_348_a-g.md) | 4 |
+| [unit_349_a-g](groups/unit_349_a-g.md) | 4 |
+| [unit_360_a-g](groups/unit_360_a-g.md) | 4 |
+| [unit_361_a-g](groups/unit_361_a-g.md) | 4 |
+| [unit_364_a-g](groups/unit_364_a-g.md) | 4 |
+| [unit_365_a-g](groups/unit_365_a-g.md) | 4 |
+| [unit_373_a-g](groups/unit_373_a-g.md) | 4 |
+| [unit_375_a-g](groups/unit_375_a-g.md) | 4 |
+| [unit_376_a-g](groups/unit_376_a-g.md) | 4 |
+| [unit_377_a-g](groups/unit_377_a-g.md) | 4 |
+| [unit_383_a-g](groups/unit_383_a-g.md) | 4 |
+| [unit_385_a-g](groups/unit_385_a-g.md) | 4 |
+| [unit_386_a-g](groups/unit_386_a-g.md) | 4 |
+| [unit_389_a-g](groups/unit_389_a-g.md) | 4 |
+| [unit_391_a-g](groups/unit_391_a-g.md) | 4 |
+| [unit_392_a-g](groups/unit_392_a-g.md) | 4 |
+| [unit_393_a-g](groups/unit_393_a-g.md) | 4 |
+| [unit_395_a-g](groups/unit_395_a-g.md) | 4 |
+| [unit_398_a-g](groups/unit_398_a-g.md) | 4 |
+| [unit_399_a-g](groups/unit_399_a-g.md) | 4 |
+| [bcul.renens-g](groups/bcul_renens-g.md) | 4 |
+| [faculty_75_a-g](groups/faculty_75_a-g.md) | 4 |
+| [faculty_88_a-g](groups/faculty_88_a-g.md) | 4 |
+| [faculty_89_a-g](groups/faculty_89_a-g.md) | 4 |
+| [faculty_90_a-g](groups/faculty_90_a-g.md) | 4 |
+| [faculty_106_a-g](groups/faculty_106_a-g.md) | 4 |
+| [faculty_174_a-g](groups/faculty_174_a-g.md) | 4 |
+| [tenable-console-g](groups/tenable-console-g.md) | 4 |
+| [bib-unil-these_v-g](groups/bib-unil-these_v-g.md) | 4 |
+| [commande.internet-g](groups/commande_internet-g.md) | 4 |
+| [servalr_bib-admin-g](groups/servalr_bib-admin-g.md) | 4 |
+| [unisciences-admin-g](groups/unisciences-admin-g.md) | 4 |
+| [ressources.numeriques-g](groups/ressources_numeriques-g.md) | 4 |
+| [comptabilite.fournisseur-g](groups/comptabilite_fournisseur-g.md) | 4 |
+| [ext-bcu-riponne-intranet-g](groups/ext-bcu-riponne-intranet-g.md) | 4 |
+| [pat-unil-g](groups/pat-unil-g.md) | 3 |
+| [patrinum-g](groups/patrinum-g.md) | 3 |
+| [unit_6_a-g](groups/unit_6_a-g.md) | 3 |
+| [unit_7_a-g](groups/unit_7_a-g.md) | 3 |
+| [kabag_bcu-g](groups/kabag_bcu-g.md) | 3 |
+| [kube-dev4-g](groups/kube-dev4-g.md) | 3 |
+| [kube-devs-g](groups/kube-devs-g.md) | 3 |
+| [unit_11_a-g](groups/unit_11_a-g.md) | 3 |
+| [unit_23_a-g](groups/unit_23_a-g.md) | 3 |
+| [unit_24_a-g](groups/unit_24_a-g.md) | 3 |
+| [unit_29_a-g](groups/unit_29_a-g.md) | 3 |
+| [unit_44_a-g](groups/unit_44_a-g.md) | 3 |
+| [unit_50_a-g](groups/unit_50_a-g.md) | 3 |
+| [unit_51_a-g](groups/unit_51_a-g.md) | 3 |
+| [unit_53_a-g](groups/unit_53_a-g.md) | 3 |
+| [unit_63_a-g](groups/unit_63_a-g.md) | 3 |
+| [unit_74_a-g](groups/unit_74_a-g.md) | 3 |
+| [unit_80_a-g](groups/unit_80_a-g.md) | 3 |
+| [unit_87_a-g](groups/unit_87_a-g.md) | 3 |
+| [unit_91_a-g](groups/unit_91_a-g.md) | 3 |
+| [unit_96_a-g](groups/unit_96_a-g.md) | 3 |
+| [unit_98_a-g](groups/unit_98_a-g.md) | 3 |
+| [extutq-bcu-g](groups/extutq-bcu-g.md) | 3 |
+| [unit_100_a-g](groups/unit_100_a-g.md) | 3 |
+| [unit_104_a-g](groups/unit_104_a-g.md) | 3 |
+| [unit_105_a-g](groups/unit_105_a-g.md) | 3 |
+| [unit_114_a-g](groups/unit_114_a-g.md) | 3 |
+| [unit_117_a-g](groups/unit_117_a-g.md) | 3 |
+| [unit_131_a-g](groups/unit_131_a-g.md) | 3 |
+| [unit_137_a-g](groups/unit_137_a-g.md) | 3 |
+| [unit_142_a-g](groups/unit_142_a-g.md) | 3 |
+| [unit_144_a-g](groups/unit_144_a-g.md) | 3 |
+| [unit_156_a-g](groups/unit_156_a-g.md) | 3 |
+| [unit_166_a-g](groups/unit_166_a-g.md) | 3 |
+| [unit_176_a-g](groups/unit_176_a-g.md) | 3 |
+| [unit_193_a-g](groups/unit_193_a-g.md) | 3 |
+| [unit_196_a-g](groups/unit_196_a-g.md) | 3 |
+| [unit_235_a-g](groups/unit_235_a-g.md) | 3 |
+| [unit_237_a-g](groups/unit_237_a-g.md) | 3 |
+| [unit_239_a-g](groups/unit_239_a-g.md) | 3 |
+| [unit_240_a-g](groups/unit_240_a-g.md) | 3 |
+| [unit_241_a-g](groups/unit_241_a-g.md) | 3 |
+| [unit_242_a-g](groups/unit_242_a-g.md) | 3 |
+| [unit_243_a-g](groups/unit_243_a-g.md) | 3 |
+| [unit_244_a-g](groups/unit_244_a-g.md) | 3 |
+| [unit_245_a-g](groups/unit_245_a-g.md) | 3 |
+| [unit_246_a-g](groups/unit_246_a-g.md) | 3 |
+| [unit_248_a-g](groups/unit_248_a-g.md) | 3 |
+| [unit_251_a-g](groups/unit_251_a-g.md) | 3 |
+| [unit_254_a-g](groups/unit_254_a-g.md) | 3 |
+| [unit_256_a-g](groups/unit_256_a-g.md) | 3 |
+| [unit_258_a-g](groups/unit_258_a-g.md) | 3 |
+| [unit_262_a-g](groups/unit_262_a-g.md) | 3 |
+| [unit_263_a-g](groups/unit_263_a-g.md) | 3 |
+| [unit_268_a-g](groups/unit_268_a-g.md) | 3 |
+| [unit_269_a-g](groups/unit_269_a-g.md) | 3 |
+| [unit_271_a-g](groups/unit_271_a-g.md) | 3 |
+| [unit_273_a-g](groups/unit_273_a-g.md) | 3 |
+| [unit_274_a-g](groups/unit_274_a-g.md) | 3 |
+| [unit_276_a-g](groups/unit_276_a-g.md) | 3 |
+| [unit_278_a-g](groups/unit_278_a-g.md) | 3 |
+| [unit_280_a-g](groups/unit_280_a-g.md) | 3 |
+| [unit_291_a-g](groups/unit_291_a-g.md) | 3 |
+| [unit_292_a-g](groups/unit_292_a-g.md) | 3 |
+| [unit_293_a-g](groups/unit_293_a-g.md) | 3 |
+| [unit_306_a-g](groups/unit_306_a-g.md) | 3 |
+| [unit_307_a-g](groups/unit_307_a-g.md) | 3 |
+| [unit_308_a-g](groups/unit_308_a-g.md) | 3 |
+| [unit_309_a-g](groups/unit_309_a-g.md) | 3 |
+| [unit_310_a-g](groups/unit_310_a-g.md) | 3 |
+| [unit_311_a-g](groups/unit_311_a-g.md) | 3 |
+| [unit_318_a-g](groups/unit_318_a-g.md) | 3 |
+| [unit_319_a-g](groups/unit_319_a-g.md) | 3 |
+| [unit_320_a-g](groups/unit_320_a-g.md) | 3 |
+| [unit_326_a-g](groups/unit_326_a-g.md) | 3 |
+| [unit_327_a-g](groups/unit_327_a-g.md) | 3 |
+| [unit_328_a-g](groups/unit_328_a-g.md) | 3 |
+| [unit_329_a-g](groups/unit_329_a-g.md) | 3 |
+| [unit_331_a-g](groups/unit_331_a-g.md) | 3 |
+| [unit_332_a-g](groups/unit_332_a-g.md) | 3 |
+| [unit_336_a-g](groups/unit_336_a-g.md) | 3 |
+| [unit_350_a-g](groups/unit_350_a-g.md) | 3 |
+| [unit_353_a-g](groups/unit_353_a-g.md) | 3 |
+| [unit_356_a-g](groups/unit_356_a-g.md) | 3 |
+| [unit_357_a-g](groups/unit_357_a-g.md) | 3 |
+| [unit_362_a-g](groups/unit_362_a-g.md) | 3 |
+| [unit_363_a-g](groups/unit_363_a-g.md) | 3 |
+| [unit_367_a-g](groups/unit_367_a-g.md) | 3 |
+| [unit_368_a-g](groups/unit_368_a-g.md) | 3 |
+| [unit_369_a-g](groups/unit_369_a-g.md) | 3 |
+| [unit_370_a-g](groups/unit_370_a-g.md) | 3 |
+| [unit_371_a-g](groups/unit_371_a-g.md) | 3 |
+| [unit_372_a-g](groups/unit_372_a-g.md) | 3 |
+| [unit_374_a-g](groups/unit_374_a-g.md) | 3 |
+| [unit_378_a-g](groups/unit_378_a-g.md) | 3 |
+| [unit_379_a-g](groups/unit_379_a-g.md) | 3 |
+| [unit_384_a-g](groups/unit_384_a-g.md) | 3 |
+| [unit_387_a-g](groups/unit_387_a-g.md) | 3 |
+| [unit_388_a-g](groups/unit_388_a-g.md) | 3 |
+| [unit_394_a-g](groups/unit_394_a-g.md) | 3 |
+| [school_56_a-g](groups/school_56_a-g.md) | 3 |
+| [scriptorium-g](groups/scriptorium-g.md) | 3 |
+| [dl-numerique-g](groups/dl-numerique-g.md) | 3 |
+| [faculty_75_v-g](groups/faculty_75_v-g.md) | 3 |
+| [faculty_88_v-g](groups/faculty_88_v-g.md) | 3 |
+| [iconographie-g](groups/iconographie-g.md) | 3 |
+| [provence-bcu-g](groups/provence-bcu-g.md) | 3 |
+| [communication-g](groups/communication-g.md) | 3 |
+| [faculty_106_v-g](groups/faculty_106_v-g.md) | 3 |
+| [doct-semc-sema-g](groups/doct-semc-sema-g.md) | 3 |
+| [cnlr-wwwlettres-g](groups/cnlr-wwwlettres-g.md) | 3 |
+| [doctorants-unil-g](groups/doctorants-unil-g.md) | 3 |
+| [otobo-roleid-58-g](groups/otobo-roleid-58-g.md) | 3 |
+| [sffonddemandeur-g](groups/sffonddemandeur-g.md) | 3 |
+| [aftereffects2018-g](groups/aftereffects2018-g.md) | 3 |
+| [otobo-roleid-238-g](groups/otobo-roleid-238-g.md) | 3 |
+| [secretariat.bcud-g](groups/secretariat_bcud-g.md) | 3 |
+| [accueil-info-d-bcu-g](groups/accueil-info-d-bcu-g.md) | 3 |
+| [formation.unitheque-g](groups/formation_unitheque-g.md) | 3 |
+| [support.scriptorium-g](groups/support_scriptorium-g.md) | 3 |
+| [cnlv-wwwbcul-annonce-g](groups/cnlv-wwwbcul-annonce-g.md) | 3 |
+| [collection.gymnasiale-g](groups/collection_gymnasiale-g.md) | 3 |
+| [bib-unil-masterthese_v-g](groups/bib-unil-masterthese_v-g.md) | 3 |
+| [enseignants-chercheurs-unil-g](groups/enseignants-chercheurs-unil-g.md) | 3 |
+| [phdthesis_fonds_unil_chuv_v-g](groups/phdthesis_fonds_unil_chuv_v-g.md) | 3 |
+| [ext-a-g](groups/ext-a-g.md) | 2 |
+| [adifac-g](groups/adifac-g.md) | 2 |
+| [ca_bcu-g](groups/ca_bcu-g.md) | 2 |
+| [cinema-g](groups/cinema-g.md) | 2 |
+| [musique-g](groups/musique-g.md) | 2 |
+| [cp-17255-g](groups/cp-17255-g.md) | 2 |
+| [iris-tst-g](groups/iris-tst-g.md) | 2 |
+| [tous-gse-g](groups/tous-gse-g.md) | 2 |
+| [tous-hec-g](groups/tous-hec-g.md) | 2 |
+| [tous-ssp-g](groups/tous-ssp-g.md) | 2 |
+| [unit_365-g](groups/unit_365-g.md) | 2 |
+| [antiquite-g](groups/antiquite-g.md) | 2 |
+| [gedrm-bcu-g](groups/gedrm-bcu-g.md) | 2 |
+| [pedagogie-g](groups/pedagogie-g.md) | 2 |
+| [tous-ftsr-g](groups/tous-ftsr-g.md) | 2 |
+| [corrinfoca-g](groups/corrinfoca-g.md) | 2 |
+| [cours_secr-g](groups/cours_secr-g.md) | 2 |
+| [hart-dilps-g](groups/hart-dilps-g.md) | 2 |
+| [scmsperhor-g](groups/scmsperhor-g.md) | 2 |
+| [unit_131_v-g](groups/unit_131_v-g.md) | 2 |
+| [faculty_0_v-g](groups/faculty_0_v-g.md) | 2 |
+| [gisdata-all-g](groups/gisdata-all-g.md) | 2 |
+| [pu-etu-scms-g](groups/pu-etu-scms-g.md) | 2 |
+| [cnlr-wwwangl-g](groups/cnlr-wwwangl-g.md) | 2 |
+| [cnlr-wwwiasa-g](groups/cnlr-wwwiasa-g.md) | 2 |
+| [cnlr-wwwslas-g](groups/cnlr-wwwslas-g.md) | 2 |
+| [faculty_83_v-g](groups/faculty_83_v-g.md) | 2 |
+| [faculty_89_v-g](groups/faculty_89_v-g.md) | 2 |
+| [hw-acces-bcu-g](groups/hw-acces-bcu-g.md) | 2 |
+| [unil-empl-12-g](groups/unil-empl-12-g.md) | 2 |
+| [bcul.crissier-g](groups/bcul_crissier-g.md) | 2 |
+| [bcul.provence-g](groups/bcul_provence-g.md) | 2 |
+| [captivate2018-g](groups/captivate2018-g.md) | 2 |
+| [etudiants-gse-g](groups/etudiants-gse-g.md) | 2 |
+| [etudiants-hec-g](groups/etudiants-hec-g.md) | 2 |
+| [etudiants-ssp-g](groups/etudiants-ssp-g.md) | 2 |
+| [faculty_160_v-g](groups/faculty_160_v-g.md) | 2 |
+| [faculty_174_v-g](groups/faculty_174_v-g.md) | 2 |
+| [lett_sect_asa-g](groups/lett_sect_asa-g.md) | 2 |
+| [lightroom2018-g](groups/lightroom2018-g.md) | 2 |
+| [pu-etu-exclus-g](groups/pu-etu-exclus-g.md) | 2 |
+| [kabag_bcu_bdse-g](groups/kabag_bcu_bdse-g.md) | 2 |
+| [manifestations-g](groups/manifestations-g.md) | 2 |
+| [unil-epr-a-m-i-g](groups/unil-epr-a-m-i-g.md) | 2 |
+| [all-ens-portail-g](groups/all-ens-portail-g.md) | 2 |
+| [etu-examens-gse-g](groups/etu-examens-gse-g.md) | 2 |
+| [acces-secubat-hw-g](groups/acces-secubat-hw-g.md) | 2 |
+| [infotravaux-bcud-g](groups/infotravaux-bcud-g.md) | 2 |
+| [otobo-roleid-345-g](groups/otobo-roleid-345-g.md) | 2 |
+| [otobo-roleid-361-g](groups/otobo-roleid-361-g.md) | 2 |
+| [otobo-roleid-365-g](groups/otobo-roleid-365-g.md) | 2 |
+| [siteprovence-bcu-g](groups/siteprovence-bcu-g.md) | 2 |
+| [etu-sem-semanc-ssp-g](groups/etu-sem-semanc-ssp-g.md) | 2 |
+| [formation.internef-g](groups/formation_internef-g.md) | 2 |
+| [fournisseurs.hepvd-g](groups/fournisseurs_hepvd-g.md) | 2 |
+| [lett_acces_nas_asa-g](groups/lett_acces_nas_asa-g.md) | 2 |
+| [users_hec_mobilite-g](groups/users_hec_mobilite-g.md) | 2 |
+| [polyright_infor_bcu-g](groups/polyright_infor_bcu-g.md) | 2 |
+| [serval_super_admins-g](groups/serval_super_admins-g.md) | 2 |
+| [myunil-3-portal-test-g](groups/myunil-3-portal-test-g.md) | 2 |
+| [pat-services-centraux-g](groups/pat-services-centraux-g.md) | 2 |
+| [collection.grandpublic-g](groups/collection_grandpublic-g.md) | 2 |
+| [documentation.vaudoise-g](groups/documentation_vaudoise-g.md) | 2 |
+| [masterthesis_faculty_88_v-g](groups/masterthesis_faculty_88_v-g.md) | 2 |
+| [masterthesis_faculty_89_v-g](groups/masterthesis_faculty_89_v-g.md) | 2 |
+| [masterthesis_faculty_90_v-g](groups/masterthesis_faculty_90_v-g.md) | 2 |
+| [masterthesis_faculty_174_v-g](groups/masterthesis_faculty_174_v-g.md) | 2 |
+| [ci-dcsr-infra-hpc-curentuser-u-g](groups/ci-dcsr-infra-hpc-curentuser-u-g.md) | 2 |
+| [ci-distr-microsoftendpointdefender-g](groups/ci-distr-microsoftendpointdefender-g.md) | 2 |
+| [ciel-g](groups/ciel-g.md) | 1 |
+| [scms-g](groups/scms-g.md) | 1 |
+| [sport-g](groups/sport-g.md) | 1 |
+| [sn-bcu-g](groups/sn-bcu-g.md) | 1 |
+| [theses-g](groups/theses-g.md) | 1 |
+| [ce-9393-g](groups/ce-9393-g.md) | 1 |
+| [cp-9938-g](groups/cp-9938-g.md) | 1 |
+| [reserve-g](groups/reserve-g.md) | 1 |
+| [biologie-g](groups/biologie-g.md) | 1 |
+| [boutique-g](groups/boutique-g.md) | 1 |
+| [cineread-g](groups/cineread-g.md) | 1 |
+| [cp-49707-g](groups/cp-49707-g.md) | 1 |
+| [cp-80951-g](groups/cp-80951-g.md) | 1 |
+| [doc.vaud-g](groups/doc_vaud-g.md) | 1 |
+| [histoire-g](groups/histoire-g.md) | 1 |
+| [pat-lett-g](groups/pat-lett-g.md) | 1 |
+| [tous-cif-g](groups/tous-cif-g.md) | 1 |
+| [tous-fbm-g](groups/tous-fbm-g.md) | 1 |
+| [unit_100-g](groups/unit_100-g.md) | 1 |
+| [unit_195-g](groups/unit_195-g.md) | 1 |
+| [unit_374-g](groups/unit_374-g.md) | 1 |
+| [coper-bcu-g](groups/coper-bcu-g.md) | 1 |
+| [education-g](groups/education-g.md) | 1 |
+| [endnote-8-g](groups/endnote-8-g.md) | 1 |
+| [group_557-g](groups/group_557-g.md) | 1 |
+| [religions-g](groups/religions-g.md) | 1 |
+| [theologie-g](groups/theologie-g.md) | 1 |
+| [sociologie-g](groups/sociologie-g.md) | 1 |
+| [unit_137_v-g](groups/unit_137_v-g.md) | 1 |
+| [unit_197_v-g](groups/unit_197_v-g.md) | 1 |
+| [unit_235_v-g](groups/unit_235_v-g.md) | 1 |
+| [unit_237_v-g](groups/unit_237_v-g.md) | 1 |
+| [unit_248_v-g](groups/unit_248_v-g.md) | 1 |
+| [unit_256_v-g](groups/unit_256_v-g.md) | 1 |
+| [unit_261_v-g](groups/unit_261_v-g.md) | 1 |
+| [unit_276_v-g](groups/unit_276_v-g.md) | 1 |
+| [unit_306_v-g](groups/unit_306_v-g.md) | 1 |
+| [cnlr-wwwall-g](groups/cnlr-wwwall-g.md) | 1 |
+| [cnlr-wwwcec-g](groups/cnlr-wwwcec-g.md) | 1 |
+| [cnlr-wwwcet-g](groups/cnlr-wwwcet-g.md) | 1 |
+| [cnlr-wwwctl-g](groups/cnlr-wwwctl-g.md) | 1 |
+| [cnlr-wwwedl-g](groups/cnlr-wwwedl-g.md) | 1 |
+| [cnlr-wwwesp-g](groups/cnlr-wwwesp-g.md) | 1 |
+| [cnlr-wwwfdi-g](groups/cnlr-wwwfdi-g.md) | 1 |
+| [cnlr-wwwfle-g](groups/cnlr-wwwfle-g.md) | 1 |
+| [cnlr-wwwfra-g](groups/cnlr-wwwfra-g.md) | 1 |
+| [cnlr-wwwshc-g](groups/cnlr-wwwshc-g.md) | 1 |
+| [cnlr-wwwssp-g](groups/cnlr-wwwssp-g.md) | 1 |
+| [lucens-bcul-g](groups/lucens-bcul-g.md) | 1 |
+| [philosophie-g](groups/philosophie-g.md) | 1 |
+| [phonotheque-g](groups/phonotheque-g.md) | 1 |
+| [psychologie-g](groups/psychologie-g.md) | 1 |
+| [slavistique-g](groups/slavistique-g.md) | 1 |
+| [sports_unil-g](groups/sports_unil-g.md) | 1 |
+| [cnlr-wwwclsl-g](groups/cnlr-wwwclsl-g.md) | 1 |
+| [cnlr-wwwclsr-g](groups/cnlr-wwwclsr-g.md) | 1 |
+| [cnlr-wwwftsr-g](groups/cnlr-wwwftsr-g.md) | 1 |
+| [cnlr-wwwhist-g](groups/cnlr-wwwhist-g.md) | 1 |
+| [cnlr-wwwihar-g](groups/cnlr-wwwihar-g.md) | 1 |
+| [cnlr-wwwissr-g](groups/cnlr-wwwissr-g.md) | 1 |
+| [cnlr-wwwital-g](groups/cnlr-wwwital-g.md) | 1 |
+| [cnlr-wwwlacs-g](groups/cnlr-wwwlacs-g.md) | 1 |
+| [cnlv-wwwciel-g](groups/cnlv-wwwciel-g.md) | 1 |
+| [histoire.art-g](groups/histoire_art-g.md) | 1 |
+| [linguistique-g](groups/linguistique-g.md) | 1 |
+| [unil-gen-p-m-g](groups/unil-gen-p-m-g.md) | 1 |
+| [anthropologie-g](groups/anthropologie-g.md) | 1 |
+| [cnlr-wwwacces-g](groups/cnlr-wwwacces-g.md) | 1 |
+| [cnlr-wwwcemep-g](groups/cnlr-wwwcemep-g.md) | 1 |
+| [cnlr-wwwlleuc-g](groups/cnlr-wwwlleuc-g.md) | 1 |
+| [cnlr-wwwphilo-g](groups/cnlr-wwwphilo-g.md) | 1 |
+| [cnlr-wwwplage-g](groups/cnlr-wwwplage-g.md) | 1 |
+| [cnlr-wwwsasme-g](groups/cnlr-wwwsasme-g.md) | 1 |
+| [cnlv-wwwcphsr-g](groups/cnlv-wwwcphsr-g.md) | 1 |
+| [corrinfocaweb-g](groups/corrinfocaweb-g.md) | 1 |
+| [etudiants-fbm-g](groups/etudiants-fbm-g.md) | 1 |
+| [noreply-repro-g](groups/noreply-repro-g.md) | 1 |
+| [cnlr-wwwcopers-g](groups/cnlr-wwwcopers-g.md) | 1 |
+| [cnlr-wwwmyunil-g](groups/cnlr-wwwmyunil-g.md) | 1 |
+| [cohesity_admin-g](groups/cohesity_admin-g.md) | 1 |
+| [etudiants-ftsr-g](groups/etudiants-ftsr-g.md) | 1 |
+| [histoire.livre-g](groups/histoire_livre-g.md) | 1 |
+| [lett_sect_hist-g](groups/lett_sect_hist-g.md) | 1 |
+| [cnlr-wwwdurable-g](groups/cnlr-wwwdurable-g.md) | 1 |
+| [etu-examens-ssp-g](groups/etu-examens-ssp-g.md) | 1 |
+| [prot-images-lpc-g](groups/prot-images-lpc-g.md) | 1 |
+| [tous-fbm-autres-g](groups/tous-fbm-autres-g.md) | 1 |
+| [bibliotheconomie-g](groups/bibliotheconomie-g.md) | 1 |
+| [enseignants-lett-g](groups/enseignants-lett-g.md) | 1 |
+| [enseignants-unil-g](groups/enseignants-unil-g.md) | 1 |
+| [info_web_lettres-g](groups/info_web_lettres-g.md) | 1 |
+| [labdoc_100529-pr-g](groups/labdoc_100529-pr-g.md) | 1 |
+| [lett_section_sli-g](groups/lett_section_sli-g.md) | 1 |
+| [scms-temporaires-g](groups/scms-temporaires-g.md) | 1 |
+| [cifdata_100793-pr-g](groups/cifdata_100793-pr-g.md) | 1 |
+| [science.politique-g](groups/science_politique-g.md) | 1 |
+| [archives.musicales-g](groups/archives_musicales-g.md) | 1 |
+| [cnlr-wwwcampuscard-g](groups/cnlr-wwwcampuscard-g.md) | 1 |
+| [cnlr-wwwci-annonce-g](groups/cnlr-wwwci-annonce-g.md) | 1 |
+| [cnlv-wwwformations-g](groups/cnlv-wwwformations-g.md) | 1 |
+| [etudiants-fbm-biol-g](groups/etudiants-fbm-biol-g.md) | 1 |
+| [int-resp-cours-sem-g](groups/int-resp-cours-sem-g.md) | 1 |
+| [langues.orientales-g](groups/langues_orientales-g.md) | 1 |
+| [documents.reference-g](groups/documents_reference-g.md) | 1 |
+| [patrimoine.scolaire-g](groups/patrimoine_scolaire-g.md) | 1 |
+| [secretariat.riponne-g](groups/secretariat_riponne-g.md) | 1 |
+| [sports_surveillants-g](groups/sports_surveillants-g.md) | 1 |
+| [bib-recherche-portal-g](groups/bib-recherche-portal-g.md) | 1 |
+| [collection.juridique-g](groups/collection_juridique-g.md) | 1 |
+| [etudiants-gse-master-g](groups/etudiants-gse-master-g.md) | 1 |
+| [sciences.economiques-g](groups/sciences_economiques-g.md) | 1 |
+| [snfproject_100531-pr-g](groups/snfproject_100531-pr-g.md) | 1 |
+| [ci-vmware-bcul-viewer-g](groups/ci-vmware-bcul-viewer-g.md) | 1 |
+| [geographie.durabilite-g](groups/geographie_durabilite-g.md) | 1 |
+| [litteratures.modernes-g](groups/litteratures_modernes-g.md) | 1 |
+| [recher-stslab-iss-ssp-g](groups/recher-stslab-iss-ssp-g.md) | 1 |
+| [serval_projet_contrib-g](groups/serval_projet_contrib-g.md) | 1 |
+| [litteratures.comparees-g](groups/litteratures_comparees-g.md) | 1 |
+| [etudiants-gse-1-part-ba-g](groups/etudiants-gse-1-part-ba-g.md) | 1 |
+| [lett_acces_nas_hist_doc-g](groups/lett_acces_nas_hist_doc-g.md) | 1 |
+| [ci-infra-vra-bcul-admins-g](groups/ci-infra-vra-bcul-admins-g.md) | 1 |
+| [ma-recher-stslab-iss-ssp-g](groups/ma-recher-stslab-iss-ssp-g.md) | 1 |
+| [cnlr-wwwcentre-durabilite-g](groups/cnlr-wwwcentre-durabilite-g.md) | 1 |
+| [collart-palmyre_100513-pr-g](groups/collart-palmyre_100513-pr-g.md) | 1 |
+| [int-resp-cours-anacad-fbm-g](groups/int-resp-cours-anacad-fbm-g.md) | 1 |
+| [enseignants-assistants-lett-g](groups/enseignants-assistants-lett-g.md) | 1 |
+| [enseignants-assistants-unil-g](groups/enseignants-assistants-unil-g.md) | 1 |
+| [fbm-cal-bu7-setup-vibratome-g](groups/fbm-cal-bu7-setup-vibratome-g.md) | 1 |

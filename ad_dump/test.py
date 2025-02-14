@@ -270,26 +270,28 @@ class LDAPGroupAnalyzer:
             shutil.rmtree(subfolder)
         os.makedirs(subfolder)
 
-        # Create main README with a giant list of all groups
+        # Create main README with a table of all groups
         with open(main_file, "w", encoding="utf-8") as main_f:
             main_f.write("# Active Directory Group Analysis\n\n")
             main_f.write("## Groups Summary\n\n")
-            main_f.write(
-                "The following is a list of all analyzed groups. Click a group name for a detailed report.\n\n"
+            main_f.write("| Group Name | Members |\n")
+            main_f.write("|------------|----------|\n")
+
+            # Sort groups by member count (descending)
+            sorted_groups = sorted(
+                self.groups.values(), key=lambda g: g.member_count, reverse=True
             )
 
-            # Sort groups alphabetically by name
-            sorted_groups = sorted(self.groups.values(), key=lambda g: g.name)
             for group in sorted_groups:
-                # Sanitize group name for a safe filename (allowing only alphanumerics, underscore, and dash)
+                # Sanitize group name for filename
                 safe_name = re.sub(r"[^\w\-]", "_", group.name)
                 filename = f"{safe_name}.md"
-                # Write the link in the main README
+                # Write table row with link
                 main_f.write(
-                    f"- [{group.name}]({subfolder}/{filename}) ({group.member_count} members)\n"
+                    f"| [{group.name}]({subfolder}/{filename}) | {group.member_count} |\n"
                 )
 
-                # Generate an individual markdown file for the group in the subfolder
+                # Generate individual group file
                 group_file_path = os.path.join(subfolder, filename)
                 with open(group_file_path, "w", encoding="utf-8") as group_f:
                     group_f.write(f"# Group: {group.name}\n\n")
@@ -314,7 +316,7 @@ class LDAPGroupAnalyzer:
                         group_f.write("No members found in this group.\n")
 
         print(
-            f"Main README and individual group reports generated in folder '{subfolder}' and file '{main_file}'."
+            f"Main report with table and individual group reports generated in folder '{subfolder}' and file '{main_file}'."
         )
 
     def generate_visual_report(self):
