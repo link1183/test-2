@@ -3,7 +3,7 @@
 ## Properties
 
 - **Distinguished Name:** `CN=gedrnv-bcu-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
-- **Member Count:** 15
+- **Member Count:** 16
 - **Mail Enabled:** ❌
 - **Hidden from GAL:** ❌
 
@@ -13,6 +13,7 @@
 - aschicke
 - clecosse
 - croger3
+- dleboule
 - emanisca
 - jrudaz6
 - mhertig

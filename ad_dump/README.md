@@ -18,8 +18,8 @@ This tool analyzes Active Directory groups and their memberships, providing deta
 - **memberCount**: Number of members in the group (including nested group members)
 
 ## Statistics
-Total number of analyzed groups: 796
-- Mail-enabled groups: 113
+Total number of analyzed groups: 609
+- Mail-enabled groups: 103
 - Groups hidden from GAL: 1
 
 ## Understanding Group Types

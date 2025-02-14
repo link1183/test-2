@@ -160,7 +160,9 @@ class LDAPGroupAnalyzer:
             print(f"Error in batch get members: {e}")
             return {}
 
-    def analyze_target_group(self, target_group: str):
+    def analyze_target_group(
+        self, target_group: str, exclude_single_member: str | None = None
+    ):
         """Analyze target group and all related groups"""
         if self.conn is None:
             return
@@ -231,8 +233,14 @@ class LDAPGroupAnalyzer:
             for group_name, properties in group_properties.items():
                 group_dn = properties["distinguishedName"]
                 members = all_group_members.get(group_dn, set())
+
                 if members and target_members:
                     member_count = len(members.intersection(target_members))
+                    common_members = members.intersection(target_members)
+
+                    if exclude_single_member and len(common_members) == 1:
+                        if exclude_single_member.lower() in common_members:
+                            continue
                 else:
                     member_count = 0
 
@@ -245,6 +253,8 @@ class LDAPGroupAnalyzer:
                     print(f"Processed {processed_count}/{total_groups} groups")
 
             print(f"Analysis complete. Processed {total_groups} groups in total.")
+            if exclude_single_member:
+                print(f"Excluded groups with only {exclude_single_member} as member")
 
         except Exception as e:
             print(f"Error analyzing target group: {e}")
@@ -275,7 +285,9 @@ class LDAPGroupAnalyzer:
                 safe_name = re.sub(r"[^\w\-]", "_", group.name)
                 filename = f"{safe_name}.md"
                 # Write the link in the main README
-                main_f.write(f"- [{group.name}]({subfolder}/{filename})\n")
+                main_f.write(
+                    f"- [{group.name}]({subfolder}/{filename}) ({group.member_count} members)\n"
+                )
 
                 # Generate an individual markdown file for the group in the subfolder
                 group_file_path = os.path.join(subfolder, filename)
@@ -441,6 +453,7 @@ def main():
     LDAP_URL = "ldaps://dc1.ad.unil.ch:636"
     BASE_DN = "DC=ad,DC=unil,DC=ch"
     TARGET_GROUP = "tous-bcu-g"
+    EXCLUDE_MEMBER = "lpernot"
 
     username = input("Username: ")
     password = getpass.getpass("Password: ")
@@ -449,7 +462,9 @@ def main():
 
     try:
         analyzer.connect(username, password)
-        analyzer.analyze_target_group(TARGET_GROUP)
+        analyzer.analyze_target_group(
+            TARGET_GROUP, exclude_single_member=EXCLUDE_MEMBER
+        )
         analyzer.generate_group_reports()
         analyzer.generate_visual_report()
         analyzer.generate_readme()

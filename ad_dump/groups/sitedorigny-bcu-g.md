@@ -3,7 +3,7 @@
 ## Properties
 
 - **Distinguished Name:** `CN=sitedorigny-bcu-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
-- **Member Count:** 125
+- **Member Count:** 126
 - **Mail Enabled:** ❌
 - **Hidden from GAL:** ❌
 
@@ -43,6 +43,7 @@
 - dbinotto
 - dcanton
 - disliker
+- dleboule
 - ebarmanc
 - eboudema
 - eburkha1

@@ -3,7 +3,7 @@
 ## Properties
 
 - **Distinguished Name:** `CN=python-club-bcul-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
-- **Member Count:** 38
+- **Member Count:** 39
 - **Mail Enabled:** ❌
 - **Hidden from GAL:** ❌
 
@@ -20,6 +20,7 @@
 - clecosse
 - crenna
 - dcanton
+- dleboule
 - ejoudie
 - flovis1
 - jchammar

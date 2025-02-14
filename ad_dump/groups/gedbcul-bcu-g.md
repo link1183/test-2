@@ -3,7 +3,7 @@
 ## Properties
 
 - **Distinguished Name:** `CN=gedbcul-bcu-g,OU=unil-groups,OU=gesu,DC=ad,DC=unil,DC=ch`
-- **Member Count:** 165
+- **Member Count:** 166
 - **Mail Enabled:** ❌
 - **Hidden from GAL:** ❌
 
@@ -49,6 +49,7 @@
 - dbinotto
 - dcanton
 - disliker
+- dleboule
 - dnaef2
 - drod2
 - ebarmanc
