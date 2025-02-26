@@ -35,12 +35,12 @@ class Api {
           return Response(400, body: 'Refresh token required');
         }
 
-        if (!authService.verifyRefreshToken(refreshToken, request)) {
+        final username = authService.getUsernameFromRefreshToken(refreshToken);
+        if (username == null) {
           return Response(401, body: 'Invalid refresh token');
         }
 
-        final username = authService.getUsernameFromRefreshToken(refreshToken);
-        if (username == null) {
+        if (!authService.verifyRefreshToken(refreshToken, request)) {
           return Response(401, body: 'Invalid refresh token');
         }
 
@@ -60,7 +60,7 @@ class Api {
           headers: {'content-type': 'application/json'},
         );
       } catch (e) {
-        return Response.internalServerError(body: 'Server error');
+        return Response.internalServerError(body: 'Server error: $e');
       }
     });
 
@@ -242,7 +242,7 @@ class Api {
           headers: {'content-type': 'application/json'},
         );
       } catch (e) {
-        return Response.internalServerError(body: 'Server error');
+        return Response.internalServerError(body: 'Server error: $e');
       }
     });
 

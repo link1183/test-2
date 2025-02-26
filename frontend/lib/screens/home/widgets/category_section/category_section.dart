@@ -69,11 +69,11 @@ class _CategorySectionState extends State<CategorySection>
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 12.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(8.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 8.0,
                       offset: const Offset(0, 2),
                     ),

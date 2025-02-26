@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portail_it/theme/theme.dart';
 import 'package:portail_it/utils/input_validator.dart';
 
 class LoginForm extends StatefulWidget {
@@ -37,7 +38,9 @@ class _LoginFormState extends State<LoginForm> {
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Color(0xFFEEEEEE), width: 0.5),
         ),
+        shadowColor: AppTheme.shadowColor,
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Form(

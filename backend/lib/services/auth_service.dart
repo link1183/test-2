@@ -34,7 +34,11 @@ class AuthService {
       await ldap.open();
       return ldap;
     } catch (e) {
-      await ldap.close();
+      if (!ldap.isReady) {
+        try {
+          await ldap.close();
+        } catch (_) {}
+      }
       throw Exception('Failed to connect to LDAP server: $e');
     }
   }
@@ -47,10 +51,18 @@ class AuthService {
     try {
       ldap = await _getLdapConnection();
 
-      final serviceAccountDN =
-          InputSanitizer.sanitizeLdapDN('$serviceAccountUsername@ad.unil.ch');
-      await ldap.bind(
-          dn: DN(serviceAccountDN), password: serviceAccountPassword);
+      String serviceAccountDN =
+          InputSanitizer.sanitizeLdapDN(serviceAccountUsername);
+
+      serviceAccountDN = '$serviceAccountDN@ad.unil.ch';
+
+      try {
+        await ldap.bind(
+            dn: DN(serviceAccountDN), password: serviceAccountPassword);
+      } catch (e) {
+        print('Service account bind failed: $e');
+        rethrow;
+      }
 
       final searchResult = await ldap.search(
         DN(baseDN),
@@ -135,6 +147,9 @@ class AuthService {
         'email': userEntry.attributes['mail']?.values.first,
         'groups': groups,
       };
+    } on LdapResultInvalidCredentialsException catch (_) {
+      print('Invalid credentials');
+      return null;
     } on LdapException catch (e) {
       print('Unexpected error during authentication: $e');
       return null;

@@ -23,7 +23,18 @@ RUN flutter build web --profile --dart-define=Dart2jsOptimization=O0
 
 # Production stage
 FROM nginx:alpine
+
+RUN echo 'events { worker_connections 1024; }' > /etc/nginx/nginx.conf
+RUN echo 'http {' >> /etc/nginx/nginx.conf
+RUN echo '    include /etc/nginx/mime.types;' >> /etc/nginx/nginx.conf
+RUN echo '    include /etc/nginx/conf.d/*.conf;' >> /etc/nginx/nginx.conf
+RUN echo '}' >> /etc/nginx/nginx.conf
+
 COPY --from=build /app/build/web /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN mkdir -p /etc/nginx/ssl/
+
+COPY ./ssl/cert.pem /etc/nginx/ssl/
+COPY ./ssl/key.pem /etc/nginx/ssl/
 
 LABEL build_type="debug"
