@@ -11,6 +11,8 @@ class AppTheme {
   static const Color scaffoldBackground = Color(0xfff8f9fa);
   static const Color cardBackground = Color(0xFFFFFFFF);
 
+  static const Color searchFieldBackground = Color(0xFFFFFFFF);
+
   static const Color categoryHeader = Color(0xffe9ecef);
 
   // Text colors

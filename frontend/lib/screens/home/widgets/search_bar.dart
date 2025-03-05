@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:portail_it/screens/home/widgets/filter_tag_chip.dart';
 import 'package:portail_it/screens/home/widgets/search_filter.dart';
+import 'package:portail_it/theme/theme.dart';
 
 import 'highlighted_text.dart';
 
@@ -71,7 +72,7 @@ class _SearchBarState extends State<SearchBar> {
                 if (widget.availableFilters?['category'] != null)
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.searchFieldBackground,
                       borderRadius: BorderRadius.circular(12.0),
                       boxShadow: [
                         BoxShadow(
@@ -116,7 +117,7 @@ class _SearchBarState extends State<SearchBar> {
                     link: _historyLayerLink,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.searchFieldBackground,
                         borderRadius: BorderRadius.circular(12.0),
                         boxShadow: [
                           BoxShadow(
@@ -479,7 +480,7 @@ class _SearchBarState extends State<SearchBar> {
                 maxHeight: 250,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.searchFieldBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ClipRRect(
@@ -592,7 +593,7 @@ class _SearchBarState extends State<SearchBar> {
                 maxHeight: 200,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.searchFieldBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ClipRRect(
