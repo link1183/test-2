@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'category_section/category_section.dart';
 import 'search_bar.dart' as search_bar;
@@ -25,6 +26,71 @@ class _MainState extends State<Main> {
   final FocusNode _searchFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
+  List<String> _recentSearches = [];
+  List<String> _allKeywords = [];
+  static const String _recentSearchesKey = 'recent_searches';
+  static const int _maxRecentSearches = 10;
+
+  Future<void> _loadRecentSearches() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _recentSearches = prefs.getStringList(_recentSearchesKey) ?? [];
+      });
+    } catch (e) {
+      print('Error loading recent searches: $e');
+    }
+  }
+
+  Future<void> _saveRecentSearches(String query) async {
+    if (query.isEmpty) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      List<String> updatedSearches = [query];
+
+      updatedSearches.addAll(_recentSearches.where((term) => term != query));
+
+      if (updatedSearches.length > _maxRecentSearches) {
+        updatedSearches = updatedSearches.sublist(0, _maxRecentSearches);
+      }
+
+      setState(() {
+        _recentSearches = updatedSearches;
+      });
+
+      await prefs.setStringList(_recentSearchesKey, updatedSearches);
+    } catch (e) {
+      print('Error saving recent search: $e');
+    }
+  }
+
+  void _extractKeywords() {
+    Set<String> keywordSet = {};
+
+    for (var category in categories) {
+      final links = category['links'] as List;
+      for (var link in links) {
+        final titleWords = link['title']
+            .toString()
+            .split(' ')
+            .where((word) => word.length > 3)
+            .toList();
+        keywordSet.addAll(titleWords);
+
+        final keywords = link['keywords'] as List;
+        for (var keywordObj in keywords) {
+          keywordSet.add(keywordObj['keyword'].toString());
+        }
+      }
+    }
+
+    setState(() {
+      _allKeywords = keywordSet.toList();
+    });
+  }
+
   void toggleCategory(String categoryId) {
     setState(() {
       if (searchText.isEmpty) {
@@ -40,8 +106,14 @@ class _MainState extends State<Main> {
   }
 
   void handleSearch(String query) {
+    final trimmedQuery = query.trim();
+
+    if (trimmedQuery.isNotEmpty && trimmedQuery != searchText) {
+      _saveRecentSearches(trimmedQuery);
+    }
+
     setState(() {
-      searchText = query.trim();
+      searchText = trimmedQuery;
       if (searchText.isEmpty) {
         filteredCategories = categories
             .map((category) => FilteredCategory(
@@ -154,6 +226,8 @@ class _MainState extends State<Main> {
                 onSearch: handleSearch,
                 focusNode: _searchFocusNode,
                 parentFocusNode: _keyboardListenerFocusNode,
+                recentSearches: _recentSearches,
+                availableKeywords: _allKeywords,
               ),
               if (filteredCategories.isEmpty && searchText.isNotEmpty)
                 Padding(
@@ -198,8 +272,9 @@ class _MainState extends State<Main> {
   void initState() {
     super.initState();
     _keyboardListenerFocusNode.requestFocus();
+    _loadRecentSearches();
 
-    Future.delayed(const Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 10), () {
       _loadCategories();
     });
   }
@@ -236,6 +311,8 @@ class _MainState extends State<Main> {
               .toList();
           _isLoading = false;
         });
+
+        _extractKeywords();
       } else if (response.statusCode == 401) {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         await authProvider.logout();
