@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:portail_it/theme/theme.dart';
 import 'package:portail_it/screens/home/widgets/category_section/link_card/doc_link.dart';
 import 'package:portail_it/screens/home/widgets/category_section/link_card/managers_list/managers_list.dart';
+import 'package:portail_it/theme/theme.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'keyword_tag.dart';
+
 import 'highlighted_text.dart';
+import 'keyword_tag.dart';
 
 class LinkCard extends StatelessWidget {
   final Map<String, dynamic> link;
@@ -17,16 +18,6 @@ class LinkCard extends StatelessWidget {
     required this.link,
     required this.searchQuery,
   });
-
-  Future<void> _launchURL(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(
-      url,
-      webOnlyWindowName: '_blank',
-    )) {
-      throw Exception('Could not launch $urlString');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,5 +130,15 @@ class LinkCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(
+      url,
+      webOnlyWindowName: '_blank',
+    )) {
+      throw Exception('Could not launch $urlString');
+    }
   }
 }
