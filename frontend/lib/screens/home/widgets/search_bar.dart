@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:portail_it/screens/home/widgets/filter_tag_chip.dart';
+import 'package:portail_it/screens/home/widgets/search_filter.dart';
+
 import 'highlighted_text.dart';
-import 'dart:async';
 
 class SearchBar extends StatefulWidget {
   final ValueChanged<String> onSearch;
@@ -10,15 +14,18 @@ class SearchBar extends StatefulWidget {
   final FocusNode? parentFocusNode;
   final List<String> recentSearches;
   final List<String> availableKeywords;
+  final Map<String, List<String>>? availableFilters;
 
-  const SearchBar(
-      {super.key,
-      required this.onSearch,
-      required this.searchText,
-      required this.focusNode,
-      this.parentFocusNode,
-      this.recentSearches = const <String>[],
-      this.availableKeywords = const <String>[]});
+  const SearchBar({
+    super.key,
+    required this.onSearch,
+    required this.searchText,
+    required this.focusNode,
+    this.parentFocusNode,
+    this.recentSearches = const <String>[],
+    this.availableKeywords = const <String>[],
+    this.availableFilters,
+  });
 
   @override
   State<SearchBar> createState() => _SearchBarState();
@@ -35,12 +42,20 @@ class _SearchBarState extends State<SearchBar> {
   Timer? _debounceTimer;
   static const Duration _debounceTime = Duration(milliseconds: 300);
 
+  String _plainSearchText = '';
+  List<SearchFilter> _activeFilters = [];
+  bool _showFilterSuggestions = false;
+  String? _currentFilterType;
+  bool _showSearchHints = false;
+
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.searchText);
     widget.focusNode.addListener(_onFocusChange);
     _controller.addListener(_onSearchTextChanged);
+
+    _parseInitialSearchText();
   }
 
   @override
@@ -60,6 +75,15 @@ class _SearchBarState extends State<SearchBar> {
       _controller.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.searchText.length),
       );
+      _parseInitialSearchText();
+    }
+  }
+
+  void _parseInitialSearchText() {
+    if (widget.searchText.isNotEmpty) {
+      final parsed = SearchParser.parseQuery(widget.searchText);
+      _plainSearchText = parsed['text'] as String;
+      _activeFilters = parsed['filters'] as List<SearchFilter>;
     }
   }
 
@@ -80,10 +104,18 @@ class _SearchBarState extends State<SearchBar> {
 
     if (originalQuery.isEmpty) {
       _removeOverlay();
+      _plainSearchText = '';
+      _activeFilters = [];
       return;
     }
 
-    _updateSuggestions(query);
+    _detectFilterTyping(originalQuery);
+
+    if (_showFilterSuggestions && _currentFilterType != null) {
+      _updateFilterSuggestions(query);
+    } else {
+      _updateSuggestions(query);
+    }
 
     if (_suggestions.isNotEmpty && widget.focusNode.hasFocus) {
       if (_overlayEntry == null) {
@@ -97,8 +129,66 @@ class _SearchBarState extends State<SearchBar> {
 
     _debounceTimer?.cancel();
     _debounceTimer = Timer(_debounceTime, () {
+      final parsed = SearchParser.parseQuery(originalQuery);
+      _plainSearchText = parsed['text'] as String;
+      _activeFilters = parsed['filters'] as List<SearchFilter>;
+
       widget.onSearch(originalQuery);
     });
+  }
+
+  void _detectFilterTyping(String query) {
+    final filterTypeRegex = RegExp(r'(\w+):$');
+    final match = filterTypeRegex.firstMatch(query);
+
+    if (match != null) {
+      final filterType = match.group(1)!.toLowerCase();
+      if (widget.availableFilters?.containsKey(filterType) ?? false) {
+        _showFilterSuggestions = true;
+        _currentFilterType = filterType;
+        return;
+      }
+    }
+
+    final filterValueRegex = RegExp(r'(\w+):(\w*)$');
+    final valueMatch = filterValueRegex.firstMatch(query);
+
+    if (valueMatch != null) {
+      final filterType = valueMatch.group(1)!.toLowerCase();
+      if (widget.availableFilters?.containsKey(filterType) ?? false) {
+        _showFilterSuggestions = true;
+        _currentFilterType = filterType;
+        return;
+      }
+    }
+
+    _showFilterSuggestions = false;
+    _currentFilterType = null;
+  }
+
+  void _updateFilterSuggestions(String query) {
+    if (_currentFilterType == null ||
+        !(widget.availableFilters?.containsKey(_currentFilterType!) ?? false)) {
+      _suggestions = [];
+      return;
+    }
+
+    final filterValueRegex = RegExp('${_currentFilterType!}:(\\w*)');
+    final match = filterValueRegex.firstMatch(query);
+    final partialValue = match?.group(1) ?? '';
+
+    final availableValues = widget.availableFilters![_currentFilterType!] ?? [];
+
+    _suggestions = availableValues
+        .where(
+            (value) => value.toLowerCase().contains(partialValue.toLowerCase()))
+        .take(5)
+        .toList();
+
+    _originalCasingSuggestions = {};
+    for (final suggestion in _suggestions) {
+      _originalCasingSuggestions[suggestion.toLowerCase()] = suggestion;
+    }
   }
 
   void _updateSuggestions(String query) {
@@ -128,6 +218,60 @@ class _SearchBarState extends State<SearchBar> {
     _suggestions = combinedSuggestions.map((s) => s.toLowerCase()).toList();
   }
 
+  void _removeFilter(SearchFilter filter) {
+    setState(() {
+      _activeFilters.remove(filter);
+
+      final newQuery =
+          SearchParser.buildQuery(_plainSearchText, _activeFilters);
+      _controller.text = newQuery;
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: newQuery.length),
+      );
+
+      widget.onSearch(newQuery);
+    });
+  }
+
+  void _applyFilterSuggestion(String suggestion) {
+    if (_currentFilterType == null) return;
+
+    final currentText = _controller.text;
+    final filterTypeIndex = currentText.lastIndexOf('${_currentFilterType!}:');
+
+    if (filterTypeIndex >= 0) {
+      final beforeFilter = currentText.substring(0, filterTypeIndex);
+      final afterFilter = _getTextAfterFilter(currentText, filterTypeIndex);
+
+      final completeFilter = '${_currentFilterType!}:$suggestion';
+      final newText = beforeFilter + completeFilter + afterFilter;
+
+      _controller.text = newText;
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: (beforeFilter + completeFilter).length),
+      );
+
+      _showFilterSuggestions = false;
+      _currentFilterType = null;
+
+      _debounceTimer?.cancel();
+      widget.onSearch(newText);
+      _removeOverlay();
+    }
+  }
+
+  String _getTextAfterFilter(String text, int filterStartIndex) {
+    final match =
+        RegExp(r'\w+:\w*').firstMatch(text.substring(filterStartIndex));
+    if (match != null) {
+      final endIndex = filterStartIndex + match.end;
+      if (endIndex < text.length) {
+        return text.substring(endIndex);
+      }
+    }
+    return '';
+  }
+
   void _showOverlay() {
     if (_overlayEntry != null || _suggestions.isEmpty) return;
 
@@ -154,7 +298,6 @@ class _SearchBarState extends State<SearchBar> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ClipRRect(
-                // Add this to clip the list items to the container's border radius
                 borderRadius: BorderRadius.circular(8),
                 child: ListView.builder(
                   padding: EdgeInsets.zero,
@@ -162,24 +305,36 @@ class _SearchBarState extends State<SearchBar> {
                   itemCount: _suggestions.length,
                   itemBuilder: (context, index) {
                     final suggestion = _suggestions[index];
-                    final isRecentSearch =
-                        widget.recentSearches.contains(suggestion);
+                    final isRecentSearch = !_showFilterSuggestions &&
+                        widget.recentSearches
+                            .map((e) => e.toLowerCase())
+                            .contains(suggestion);
                     final isSelected = index == _selectedSuggestionIndex;
 
-                    // 2. Use a Container with InkWell instead of ListTile for better border control
                     return Material(
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          final originalCaseSuggestion =
-                              _originalCasingSuggestions[suggestion] ??
-                                  suggestion;
-                          widget.onSearch(originalCaseSuggestion);
-                          _controller.text = originalCaseSuggestion;
-                          _controller.selection = TextSelection.fromPosition(
-                            TextPosition(offset: originalCaseSuggestion.length),
-                          );
-                          _removeOverlay();
+                          if (_showFilterSuggestions &&
+                              _currentFilterType != null) {
+                            // Apply filter suggestion
+                            final originalCaseSuggestion =
+                                _originalCasingSuggestions[suggestion] ??
+                                    suggestion;
+                            _applyFilterSuggestion(originalCaseSuggestion);
+                          } else {
+                            // Apply regular suggestion
+                            final originalCaseSuggestion =
+                                _originalCasingSuggestions[suggestion] ??
+                                    suggestion;
+                            widget.onSearch(originalCaseSuggestion);
+                            _controller.text = originalCaseSuggestion;
+                            _controller.selection = TextSelection.fromPosition(
+                              TextPosition(
+                                  offset: originalCaseSuggestion.length),
+                            );
+                            _removeOverlay();
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -198,25 +353,56 @@ class _SearchBarState extends State<SearchBar> {
                           child: Row(
                             children: [
                               Icon(
-                                isRecentSearch ? Icons.history : Icons.search,
+                                _showFilterSuggestions
+                                    ? Icons.label_outline
+                                    : (isRecentSearch
+                                        ? Icons.history
+                                        : Icons.search),
                                 color: Colors.grey,
                                 size: 18,
                               ),
                               SizedBox(width: 16),
                               Expanded(
-                                child: HighlightedText(
-                                  text:
-                                      _originalCasingSuggestions[suggestion] ??
-                                          suggestion,
-                                  highlight: _controller.text.trim(),
-                                  style: TextStyle(fontSize: 14),
-                                  highlightStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    backgroundColor:
-                                        Colors.yellow.withValues(alpha: 0.3),
-                                  ),
-                                ),
+                                child: _showFilterSuggestions
+                                    ? RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black,
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text: '${_currentFilterType!}:',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade700,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: _originalCasingSuggestions[
+                                                      suggestion] ??
+                                                  suggestion,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : HighlightedText(
+                                        text: _originalCasingSuggestions[
+                                                suggestion] ??
+                                            suggestion,
+                                        highlight: _controller.text.trim(),
+                                        style: TextStyle(fontSize: 14),
+                                        highlightStyle: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          backgroundColor: Colors.yellow
+                                              .withValues(alpha: 0.3),
+                                        ),
+                                      ),
                               ),
                             ],
                           ),
@@ -278,14 +464,23 @@ class _SearchBarState extends State<SearchBar> {
             _selectedSuggestionIndex >= 0 &&
             _selectedSuggestionIndex < _suggestions.length) {
           final suggestion = _suggestions[_selectedSuggestionIndex];
-          final originalCaseSuggestion =
-              _originalCasingSuggestions[suggestion] ?? suggestion;
-          widget.onSearch(originalCaseSuggestion);
-          _controller.text = originalCaseSuggestion;
-          _controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: originalCaseSuggestion.length),
-          );
-          _removeOverlay();
+
+          if (_showFilterSuggestions && _currentFilterType != null) {
+            // Apply filter suggestion
+            final originalCaseSuggestion =
+                _originalCasingSuggestions[suggestion] ?? suggestion;
+            _applyFilterSuggestion(originalCaseSuggestion);
+          } else {
+            // Apply regular suggestion
+            final originalCaseSuggestion =
+                _originalCasingSuggestions[suggestion] ?? suggestion;
+            widget.onSearch(originalCaseSuggestion);
+            _controller.text = originalCaseSuggestion;
+            _controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: originalCaseSuggestion.length),
+            );
+            _removeOverlay();
+          }
         }
       }
     }
@@ -298,57 +493,100 @@ class _SearchBarState extends State<SearchBar> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: CompositedTransformTarget(
         link: _layerLink,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8.0,
-                offset: const Offset(0, 2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 8.0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: KeyboardListener(
-            focusNode: FocusNode(),
-            onKeyEvent: _handleKeyEvent,
-            child: TextField(
-              controller: _controller,
-              focusNode: widget.focusNode,
-              decoration: InputDecoration(
-                hintText: 'Rechercher par mot clé, description, titre, ...',
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Color(0xFF2C3E50),
-                ),
-                suffixIcon: widget.searchText.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _controller.text = '';
-                          _debounceTimer?.cancel();
-                          widget.onSearch('');
-                          _removeOverlay();
-                          if (widget.parentFocusNode != null) {
-                            widget.parentFocusNode!.requestFocus();
-                          }
-                        },
-                        color: const Color(0xFF2C3E50),
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 14.0,
+              child: KeyboardListener(
+                focusNode: FocusNode(),
+                onKeyEvent: _handleKeyEvent,
+                child: TextField(
+                  controller: _controller,
+                  focusNode: widget.focusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher par mot clé, description, titre, ...',
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF2C3E50),
+                    ),
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Add search help button
+                        if (widget.availableFilters != null)
+                          IconButton(
+                            icon: Icon(
+                              Icons.help_outline,
+                              size: 20,
+                              color: Color(0xFF2C3E50),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showSearchHints = !_showSearchHints;
+                              });
+                            },
+                            tooltip: 'Search syntax help',
+                            splashRadius: 20,
+                          ),
+                        // Clear button
+                        if (widget.searchText.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _controller.text = '';
+                              _debounceTimer?.cancel();
+                              widget.onSearch('');
+                              _removeOverlay();
+                              if (widget.parentFocusNode != null) {
+                                widget.parentFocusNode!.requestFocus();
+                              }
+                            },
+                            color: const Color(0xFF2C3E50),
+                          ),
+                      ],
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 14.0,
+                    ),
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  onChanged: (_) {
+                    // Don't call widget.onSearch - it will be called after debounce
+                  },
                 ),
               ),
-              style: Theme.of(context).textTheme.bodyLarge,
-              onChanged: (_) {
-                // Don't call widget.onSearch - it will be called after debounce
-              },
             ),
-          ),
+            if (_activeFilters.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: _activeFilters.map((filter) {
+                    return FilterTagChip(
+                      filter: filter,
+                      onRemove: () {
+                        _removeFilter(filter);
+                      },
+                    );
+                  }).toList(),
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -31,7 +31,6 @@ class HighlightedText extends StatelessWidget {
     int lastMatchEnd = 0;
 
     for (final match in matches) {
-      // Add non-matching text before this match
       if (match.start > lastMatchEnd) {
         spans.add(TextSpan(
           text: text.substring(lastMatchEnd, match.start),
@@ -39,7 +38,6 @@ class HighlightedText extends StatelessWidget {
         ));
       }
 
-      // Add matching text with highlight style
       spans.add(TextSpan(
         text: text.substring(match.start, match.end),
         style: highlightStyle ??
@@ -52,7 +50,6 @@ class HighlightedText extends StatelessWidget {
       lastMatchEnd = match.end;
     }
 
-    // Add any remaining text after the last match
     if (lastMatchEnd < text.length) {
       spans.add(TextSpan(
         text: text.substring(lastMatchEnd),

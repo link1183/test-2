@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'category_section/category_section.dart';
 import 'search_bar.dart' as search_bar;
+import 'search_filter.dart';
 import 'package:portail_it/services/api_client.dart';
 
 class Main extends StatefulWidget {
@@ -30,6 +31,20 @@ class _MainState extends State<Main> {
   List<String> _allKeywords = [];
   static const String _recentSearchesKey = 'recent_searches';
   static const int _maxRecentSearches = 10;
+
+  final Map<String, List<String>> _availableFilters = {
+    'category': [],
+    'type': [
+      'document',
+      'tool',
+      'video',
+      'tutorial',
+      'reference',
+      'application',
+      'library'
+    ],
+    'status': ['active', 'archived', 'draft'],
+  };
 
   Future<void> _loadRecentSearches() async {
     try {
@@ -68,8 +83,12 @@ class _MainState extends State<Main> {
 
   void _extractKeywords() {
     Set<String> keywordSet = {};
+    Set<String> categorySet = {};
 
     for (var category in categories) {
+      if (category['category_name'] != null) {
+        categorySet.add(category['category_name'].toString());
+      }
       final links = category['links'] as List;
       for (var link in links) {
         final titleWords = link['title']
@@ -88,6 +107,7 @@ class _MainState extends State<Main> {
 
     setState(() {
       _allKeywords = keywordSet.toList();
+      _availableFilters['category'] = categorySet.toList();
     });
   }
 
@@ -126,11 +146,52 @@ class _MainState extends State<Main> {
         return;
       }
 
+      final parsedQuery = SearchParser.parseQuery(searchText);
+      final plainText = parsedQuery['text'] as String;
+      final filters = parsedQuery['filters'] as List<SearchFilter>;
+
       filteredCategories = [];
-      final searchLower = searchText.toLowerCase();
+      final searchLower = plainText.toLowerCase();
 
       for (var category in categories) {
+        bool categoryMatches = true;
+        for (final filter in filters) {
+          if (filter.type.toLowerCase() == 'category') {
+            final categoryName =
+                category['category_name']?.toString().toLowerCase() ?? '';
+            if (!categoryName.contains(filter.value.toLowerCase())) {
+              categoryMatches = false;
+              break;
+            }
+          }
+        }
+
+        if (!categoryMatches) {
+          continue;
+        }
+
         final links = (category['links'] as List).where((link) {
+          for (final filter in filters) {
+            if (filter.type.toLowerCase() == 'category') {
+              continue;
+            } else if (filter.type.toLowerCase() == 'type') {
+              final typeValue = link['type']?.toString().toLowerCase() ?? '';
+              if (!typeValue.contains(filter.value.toLowerCase())) {
+                return false;
+              }
+            } else if (filter.type.toLowerCase() == 'status') {
+              final statusValue =
+                  link['status']?.toString().toLowerCase() ?? '';
+              if (!statusValue.contains(filter.value.toLowerCase())) {
+                return false;
+              }
+            }
+          }
+
+          if (searchLower.isEmpty) {
+            return true;
+          }
+
           final title = link['title'].toString().toLowerCase();
           final description = link['description'].toString().toLowerCase();
 
@@ -228,6 +289,7 @@ class _MainState extends State<Main> {
                 parentFocusNode: _keyboardListenerFocusNode,
                 recentSearches: _recentSearches,
                 availableKeywords: _allKeywords,
+                availableFilters: _availableFilters,
               ),
               if (filteredCategories.isEmpty && searchText.isNotEmpty)
                 Padding(
