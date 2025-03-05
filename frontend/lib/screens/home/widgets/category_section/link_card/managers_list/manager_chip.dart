@@ -33,6 +33,7 @@ class ManagerChip extends StatelessWidget {
           } else {
             toastification.show(
               context: context,
+              closeOnClick: true,
               type: ToastificationType.info,
               style: ToastificationStyle.flatColored,
               title: Text("Information"),

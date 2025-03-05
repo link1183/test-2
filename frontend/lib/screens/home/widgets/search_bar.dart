@@ -15,6 +15,8 @@ class SearchBar extends StatefulWidget {
   final List<String> recentSearches;
   final List<String> availableKeywords;
   final Map<String, List<String>>? availableFilters;
+  final ValueChanged<String?>? onSearchScopeChanged;
+  final String? selectedScope;
 
   const SearchBar({
     super.key,
@@ -25,6 +27,8 @@ class SearchBar extends StatefulWidget {
     this.recentSearches = const <String>[],
     this.availableKeywords = const <String>[],
     this.availableFilters,
+    this.onSearchScopeChanged,
+    this.selectedScope,
   });
 
   @override
@@ -38,6 +42,9 @@ class _SearchBarState extends State<SearchBar> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   int _selectedSuggestionIndex = -1;
+  bool _isHistoryMenuOpen = false;
+  final LayerLink _historyLayerLink = LayerLink();
+  OverlayEntry? _historyOverlayEntry;
 
   Timer? _debounceTimer;
   static const Duration _debounceTime = Duration(milliseconds: 300);
@@ -46,7 +53,6 @@ class _SearchBarState extends State<SearchBar> {
   List<SearchFilter> _activeFilters = [];
   bool _showFilterSuggestions = false;
   String? _currentFilterType;
-  bool _showSearchHints = false;
 
   @override
   void initState() {
@@ -64,6 +70,7 @@ class _SearchBarState extends State<SearchBar> {
     _controller.removeListener(_onSearchTextChanged);
     _controller.dispose();
     _debounceTimer?.cancel();
+    _removeHistoryOverlay();
     super.dispose();
   }
 
@@ -428,10 +435,144 @@ class _SearchBarState extends State<SearchBar> {
     }
   }
 
+  // History dropdown methods
+  void _toggleHistoryMenu() {
+    if (_historyOverlayEntry != null) {
+      _removeHistoryOverlay();
+    } else {
+      _showHistoryOverlay();
+    }
+
+    setState(() {
+      _isHistoryMenuOpen = !_isHistoryMenuOpen;
+    });
+  }
+
+  void _showHistoryOverlay() {
+    if (_historyOverlayEntry != null || widget.recentSearches.isEmpty) return;
+
+    final overlay = Overlay.of(context);
+    final renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+
+    _historyOverlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: size.width,
+        child: CompositedTransformFollower(
+          link: _historyLayerLink,
+          showWhenUnlinked: false,
+          offset: Offset(0, size.height),
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: 250,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Recent Searches',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                    ),
+                    if (widget.recentSearches.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'No recent searches',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      )
+                    else
+                      Flexible(
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemCount: widget.recentSearches.length,
+                          itemBuilder: (context, index) {
+                            final search = widget.recentSearches[index];
+                            return InkWell(
+                              onTap: () {
+                                widget.onSearch(search);
+                                _controller.text = search;
+                                _controller.selection =
+                                    TextSelection.fromPosition(
+                                  TextPosition(offset: search.length),
+                                );
+                                _removeHistoryOverlay();
+                                setState(() {
+                                  _isHistoryMenuOpen = false;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 12.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.history,
+                                      size: 18,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        search,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(_historyOverlayEntry!);
+  }
+
+  void _removeHistoryOverlay() {
+    if (_historyOverlayEntry != null) {
+      _historyOverlayEntry!.remove();
+      _historyOverlayEntry = null;
+    }
+  }
+
   void _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.escape) {
         _removeOverlay();
+        _removeHistoryOverlay();
         widget.onSearch('');
         widget.focusNode.unfocus();
 
@@ -497,78 +638,129 @@ class _SearchBarState extends State<SearchBar> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8.0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: KeyboardListener(
-                focusNode: FocusNode(),
-                onKeyEvent: _handleKeyEvent,
-                child: TextField(
-                  controller: _controller,
-                  focusNode: widget.focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher par mot clé, description, titre, ...',
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFF2C3E50),
-                    ),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Add search help button
-                        if (widget.availableFilters != null)
-                          IconButton(
-                            icon: Icon(
-                              Icons.help_outline,
-                              size: 20,
-                              color: Color(0xFF2C3E50),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _showSearchHints = !_showSearchHints;
-                              });
-                            },
-                            tooltip: 'Search syntax help',
-                            splashRadius: 20,
-                          ),
-                        // Clear button
-                        if (widget.searchText.isNotEmpty)
-                          IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _controller.text = '';
-                              _debounceTimer?.cancel();
-                              widget.onSearch('');
-                              _removeOverlay();
-                              if (widget.parentFocusNode != null) {
-                                widget.parentFocusNode!.requestFocus();
-                              }
-                            },
-                            color: const Color(0xFF2C3E50),
-                          ),
+            Row(
+              children: [
+                // Search Scope Selector
+                if (widget.availableFilters?['category'] != null)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8.0,
+                          offset: const Offset(0, 2),
+                        ),
                       ],
                     ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 14.0,
+                    margin: const EdgeInsets.only(right: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: widget.selectedScope,
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Color(0xFF2C3E50)),
+                        borderRadius: BorderRadius.circular(8.0),
+                        hint: Text('Toutes les catégories',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
+                            )),
+                        items: [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text('Toutes les catégories'),
+                          ),
+                          ...widget.availableFilters!['category']!.map(
+                            (category) => DropdownMenuItem<String>(
+                              value: category,
+                              child: Text(category),
+                            ),
+                          ),
+                        ],
+                        onChanged: widget.onSearchScopeChanged,
+                      ),
                     ),
                   ),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  onChanged: (_) {
-                    // Don't call widget.onSearch - it will be called after debounce
-                  },
+                // Search Bar
+                Expanded(
+                  child: CompositedTransformTarget(
+                    link: _historyLayerLink,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8.0,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: KeyboardListener(
+                        focusNode: FocusNode(),
+                        onKeyEvent: _handleKeyEvent,
+                        child: TextField(
+                          controller: _controller,
+                          focusNode: widget.focusNode,
+                          decoration: InputDecoration(
+                            hintText:
+                                'Rechercher par mot clé, description, titre, ...',
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Color(0xFF2C3E50),
+                            ),
+                            suffixIcon: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // History button
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.history,
+                                    color: _isHistoryMenuOpen
+                                        ? Theme.of(context).primaryColor
+                                        : const Color(0xFF2C3E50),
+                                  ),
+                                  onPressed: widget.recentSearches.isNotEmpty
+                                      ? _toggleHistoryMenu
+                                      : null,
+                                  tooltip: 'Recent Searches',
+                                ),
+                                // Clear button
+                                if (widget.searchText.isNotEmpty)
+                                  IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _controller.text = '';
+                                      _debounceTimer?.cancel();
+                                      widget.onSearch('');
+                                      _removeOverlay();
+                                      if (widget.parentFocusNode != null) {
+                                        widget.parentFocusNode!.requestFocus();
+                                      }
+                                    },
+                                    color: const Color(0xFF2C3E50),
+                                  ),
+                              ],
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 14.0,
+                            ),
+                          ),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          onChanged: (_) {
+                            // Don't call widget.onSearch - it will be called after debounce
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
             if (_activeFilters.isNotEmpty)
               Padding(

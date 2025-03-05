@@ -31,6 +31,7 @@ class _MainState extends State<Main> {
   List<String> _allKeywords = [];
   static const String _recentSearchesKey = 'recent_searches';
   static const int _maxRecentSearches = 10;
+  String? _selectedSearchScope;
 
   final Map<String, List<String>> _availableFilters = {
     'category': [],
@@ -134,87 +135,109 @@ class _MainState extends State<Main> {
 
     setState(() {
       searchText = trimmedQuery;
-      if (searchText.isEmpty) {
-        filteredCategories = categories
-            .map((category) => FilteredCategory(
-                  originalCategory: category,
-                  filteredLinks: category['links'],
-                ))
-            .toList();
-        expandedIds.clear();
-        expandedId = null;
-        return;
+      _filterCategories();
+    });
+  }
+
+  void _filterCategories() {
+    if (searchText.isEmpty && _selectedSearchScope == null) {
+      // No search query and no scope filter - show all categories
+      filteredCategories = categories
+          .map((category) => FilteredCategory(
+                originalCategory: category,
+                filteredLinks: category['links'],
+              ))
+          .toList();
+      expandedIds.clear();
+      expandedId = null;
+      return;
+    }
+
+    final parsedQuery = SearchParser.parseQuery(searchText);
+    final plainText = parsedQuery['text'] as String;
+    final filters = parsedQuery['filters'] as List<SearchFilter>;
+
+    filteredCategories = [];
+    final searchLower = plainText.toLowerCase();
+
+    for (var category in categories) {
+      bool categoryMatches = true;
+
+      // Check if this category matches the selected scope
+      if (_selectedSearchScope != null) {
+        final categoryName = category['category_name']?.toString() ?? '';
+        if (categoryName != _selectedSearchScope) {
+          categoryMatches = false;
+        }
       }
 
-      final parsedQuery = SearchParser.parseQuery(searchText);
-      final plainText = parsedQuery['text'] as String;
-      final filters = parsedQuery['filters'] as List<SearchFilter>;
+      // Check if this category matches any category filters
+      for (final filter in filters) {
+        if (filter.type.toLowerCase() == 'category') {
+          final categoryName =
+              category['category_name']?.toString().toLowerCase() ?? '';
+          if (!categoryName.contains(filter.value.toLowerCase())) {
+            categoryMatches = false;
+            break;
+          }
+        }
+      }
 
-      filteredCategories = [];
-      final searchLower = plainText.toLowerCase();
+      if (!categoryMatches) {
+        continue;
+      }
 
-      for (var category in categories) {
-        bool categoryMatches = true;
+      final links = (category['links'] as List).where((link) {
+        // Check if the link matches all other filters
         for (final filter in filters) {
           if (filter.type.toLowerCase() == 'category') {
-            final categoryName =
-                category['category_name']?.toString().toLowerCase() ?? '';
-            if (!categoryName.contains(filter.value.toLowerCase())) {
-              categoryMatches = false;
-              break;
+            continue;
+          } else if (filter.type.toLowerCase() == 'type') {
+            final typeValue = link['type']?.toString().toLowerCase() ?? '';
+            if (!typeValue.contains(filter.value.toLowerCase())) {
+              return false;
+            }
+          } else if (filter.type.toLowerCase() == 'status') {
+            final statusValue = link['status']?.toString().toLowerCase() ?? '';
+            if (!statusValue.contains(filter.value.toLowerCase())) {
+              return false;
             }
           }
         }
 
-        if (!categoryMatches) {
-          continue;
+        // If there's no search text, include all links that passed the filters
+        if (searchLower.isEmpty) {
+          return true;
         }
 
-        final links = (category['links'] as List).where((link) {
-          for (final filter in filters) {
-            if (filter.type.toLowerCase() == 'category') {
-              continue;
-            } else if (filter.type.toLowerCase() == 'type') {
-              final typeValue = link['type']?.toString().toLowerCase() ?? '';
-              if (!typeValue.contains(filter.value.toLowerCase())) {
-                return false;
-              }
-            } else if (filter.type.toLowerCase() == 'status') {
-              final statusValue =
-                  link['status']?.toString().toLowerCase() ?? '';
-              if (!statusValue.contains(filter.value.toLowerCase())) {
-                return false;
-              }
-            }
-          }
+        // Search in title and description
+        final title = link['title'].toString().toLowerCase();
+        final description = link['description'].toString().toLowerCase();
 
-          if (searchLower.isEmpty) {
-            return true;
-          }
-
-          final title = link['title'].toString().toLowerCase();
-          final description = link['description'].toString().toLowerCase();
-
-          if (title.contains(searchLower) ||
-              description.contains(searchLower)) {
-            return true;
-          }
-
-          final keywords = link['keywords'] as List;
-          return keywords.any((keyword) => keyword['keyword']
-              .toString()
-              .toLowerCase()
-              .contains(searchLower));
-        }).toList();
-
-        if (links.isNotEmpty) {
-          filteredCategories.add(FilteredCategory(
-            originalCategory: category,
-            filteredLinks: links,
-          ));
-          expandedIds.add(category['category_id'].toString());
+        if (title.contains(searchLower) || description.contains(searchLower)) {
+          return true;
         }
+
+        // Search in keywords
+        final keywords = link['keywords'] as List;
+        return keywords.any((keyword) =>
+            keyword['keyword'].toString().toLowerCase().contains(searchLower));
+      }).toList();
+
+      if (links.isNotEmpty) {
+        filteredCategories.add(FilteredCategory(
+          originalCategory: category,
+          filteredLinks: links,
+        ));
+        expandedIds.add(category['category_id'].toString());
       }
+    }
+  }
+
+  void _handleSearchScopeChanged(String? newScope) {
+    setState(() {
+      _selectedSearchScope = newScope;
+      _filterCategories();
     });
   }
 
@@ -290,8 +313,11 @@ class _MainState extends State<Main> {
                 recentSearches: _recentSearches,
                 availableKeywords: _allKeywords,
                 availableFilters: _availableFilters,
+                onSearchScopeChanged: _handleSearchScopeChanged,
+                selectedScope: _selectedSearchScope,
               ),
-              if (filteredCategories.isEmpty && searchText.isNotEmpty)
+              if (filteredCategories.isEmpty &&
+                  (searchText.isNotEmpty || _selectedSearchScope != null))
                 Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Text(
@@ -314,9 +340,10 @@ class _MainState extends State<Main> {
                       return CategorySection(
                         key: ValueKey(categoryId),
                         category: category,
-                        isExpanded: searchText.isEmpty
-                            ? expandedId == categoryId
-                            : expandedIds.contains(categoryId),
+                        isExpanded:
+                            searchText.isEmpty && _selectedSearchScope == null
+                                ? expandedId == categoryId
+                                : expandedIds.contains(categoryId),
                         onToggle: () => toggleCategory(categoryId),
                         searchQuery: searchText,
                       );
