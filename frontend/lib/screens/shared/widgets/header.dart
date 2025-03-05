@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:portail_it/screens/shared/widgets/user_info.dart';
 import 'package:portail_it/theme/theme.dart';
-import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});

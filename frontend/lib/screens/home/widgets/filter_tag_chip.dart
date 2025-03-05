@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'search_filter.dart';
 
 /// A chip widget that displays a filter tag

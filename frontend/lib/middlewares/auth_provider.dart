@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:portail_it/services/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,12 +13,34 @@ class AuthProvider extends ChangeNotifier {
   Timer? _refreshTimer;
   Map<String, dynamic>? _userData;
 
-  bool get isAuthenticated => _isAuthenticated;
   String? get accessToken => _accessToken;
-  Map<String, dynamic>? get userData => _userData;
   String? get displayName => _userData?['displayName'];
   String? get email => _userData?['email'];
+  bool get isAuthenticated => _isAuthenticated;
+  Map<String, dynamic>? get userData => _userData;
   String? get username => _userData?['username'];
+
+  Future<void> checkAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString('refresh_token');
+
+    if (_refreshToken != null) {
+      _refreshToken = refreshToken;
+      if (await _refreshAccessToken()) {
+        return;
+      }
+    }
+
+    await setAuthenticated(false);
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    _userData = null;
+    _isAuthenticated = false;
+    notifyListeners();
+  }
 
   Future<void> setAuthenticated(
     bool value, {
@@ -54,13 +76,6 @@ class AuthProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-  }
-
-  void _setupRefreshTimer() {
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(const Duration(minutes: 14), (_) {
-      _refreshAccessToken();
-    });
   }
 
   Future<bool> _refreshAccessToken() async {
@@ -102,25 +117,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAuth() async {
-    final prefs = await SharedPreferences.getInstance();
-    final refreshToken = prefs.getString('refresh_token');
-
-    if (_refreshToken != null) {
-      _refreshToken = refreshToken;
-      if (await _refreshAccessToken()) {
-        return;
-      }
-    }
-
-    await setAuthenticated(false);
-  }
-
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    _userData = null;
-    _isAuthenticated = false;
-    notifyListeners();
+  void _setupRefreshTimer() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(minutes: 14), (_) {
+      _refreshAccessToken();
+    });
   }
 }

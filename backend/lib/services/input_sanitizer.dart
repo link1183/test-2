@@ -17,17 +17,14 @@ class InputSanitizer {
 
   static final RegExp _dangerousChars = RegExp(r'[;`$]');
 
-  static bool isValidUsername(String username) {
-    if (username.isEmpty || username.length > 50) return false;
+  static bool isValidEmail(String email) {
+    if (email.isEmpty || email.length > 254) return false;
 
-    final validChars = RegExp(r'^[a-zA-Z0-9@._-]+$');
-    if (!validChars.hasMatch(username)) return false;
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
+    );
 
-    if (_ldapInjectionPattern.hasMatch(username)) return false;
-
-    if (_sqlInjectionPattern.hasMatch(username)) return false;
-
-    return true;
+    return emailRegex.hasMatch(email);
   }
 
   static bool isValidPassword(String password) {
@@ -41,25 +38,39 @@ class InputSanitizer {
     return true;
   }
 
-  static bool _isBase64(String str) {
+  static bool isValidUrl(String url) {
     try {
-      base64.decode(str);
+      final uri = Uri.parse(url);
+
+      if (!['http', 'https'].contains(uri.scheme)) return false;
+
+      if (_xssPattern.hasMatch(url)) return false;
+
+      //if (uri.host == 'localhost' ||
+      //    uri.host == '127.0.0.1' ||
+      //    uri.host.startsWith('192.168.') ||
+      //    uri.host.startsWith('10.') ||
+      //    uri.host.startsWith('172.')) {
+      //  return false;
+      //}
+
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  static String sanitizeText(String input) {
-    var sanitized = input.replaceAll(_dangerousChars, '');
+  static bool isValidUsername(String username) {
+    if (username.isEmpty || username.length > 50) return false;
 
-    sanitized = htmlEscape.convert(sanitized);
+    final validChars = RegExp(r'^[a-zA-Z0-9@._-]+$');
+    if (!validChars.hasMatch(username)) return false;
 
-    return sanitized.trim();
-  }
+    if (_ldapInjectionPattern.hasMatch(username)) return false;
 
-  static String sanitizeLdapDN(String dn) {
-    return dn.replaceAll(_ldapInjectionPattern, '');
+    if (_sqlInjectionPattern.hasMatch(username)) return false;
+
+    return true;
   }
 
   static dynamic sanitizeJson(dynamic input) {
@@ -74,6 +85,10 @@ class InputSanitizer {
       return _isBase64(input) ? input : sanitizeText(input);
     }
     return input;
+  }
+
+  static String sanitizeLdapDN(String dn) {
+    return dn.replaceAll(_ldapInjectionPattern, '');
   }
 
   static Map<String, dynamic>? sanitizeRequestBody(String body) {
@@ -93,32 +108,17 @@ class InputSanitizer {
     }
   }
 
-  static bool isValidEmail(String email) {
-    if (email.isEmpty || email.length > 254) return false;
+  static String sanitizeText(String input) {
+    var sanitized = input.replaceAll(_dangerousChars, '');
 
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$',
-    );
+    sanitized = htmlEscape.convert(sanitized);
 
-    return emailRegex.hasMatch(email);
+    return sanitized.trim();
   }
 
-  static bool isValidUrl(String url) {
+  static bool _isBase64(String str) {
     try {
-      final uri = Uri.parse(url);
-
-      if (!['http', 'https'].contains(uri.scheme)) return false;
-
-      if (_xssPattern.hasMatch(url)) return false;
-
-      //if (uri.host == 'localhost' ||
-      //    uri.host == '127.0.0.1' ||
-      //    uri.host.startsWith('192.168.') ||
-      //    uri.host.startsWith('10.') ||
-      //    uri.host.startsWith('172.')) {
-      //  return false;
-      //}
-
+      base64.decode(str);
       return true;
     } catch (e) {
       return false;

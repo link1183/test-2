@@ -65,4 +65,3 @@ class HighlightedText extends StatelessWidget {
     );
   }
 }
-

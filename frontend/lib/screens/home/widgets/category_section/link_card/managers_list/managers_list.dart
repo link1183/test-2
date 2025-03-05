@@ -14,8 +14,6 @@ class Manager {
     required this.link,
   });
 
-  String get fullName => '$name $surname';
-
   factory Manager.fromJson(Map<String, dynamic> json) {
     return Manager(
       id: json['id'] as int,
@@ -24,6 +22,8 @@ class Manager {
       link: json['link'] as String,
     );
   }
+
+  String get fullName => '$name $surname';
 }
 
 class ManagersList extends StatelessWidget {

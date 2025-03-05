@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:portail_it/middlewares/auth_middleware.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:portail_it/screens/home/home.dart';
 import 'package:portail_it/screens/login/login.dart';
 import 'package:portail_it/theme/theme.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   setUrlStrategy(PathUrlStrategy());

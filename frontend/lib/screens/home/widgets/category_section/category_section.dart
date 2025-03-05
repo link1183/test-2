@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portail_it/theme/theme.dart';
+
 import 'link_card/link_card.dart';
 
 class CategorySection extends StatefulWidget {
@@ -23,36 +24,6 @@ class CategorySection extends StatefulWidget {
 class _CategorySectionState extends State<CategorySection>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    if (widget.isExpanded) {
-      _controller.value = 1.0;
-    }
-  }
-
-  @override
-  void didUpdateWidget(CategorySection oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isExpanded != oldWidget.isExpanded) {
-      if (widget.isExpanded) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,5 +104,35 @@ class _CategorySectionState extends State<CategorySection>
         ],
       ),
     );
+  }
+
+  @override
+  void didUpdateWidget(CategorySection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isExpanded != oldWidget.isExpanded) {
+      if (widget.isExpanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    if (widget.isExpanded) {
+      _controller.value = 1.0;
+    }
   }
 }

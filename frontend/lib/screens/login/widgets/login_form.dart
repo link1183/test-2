@@ -63,54 +63,6 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  Widget _buildUsernameField() {
-    return TextFormField(
-      controller: widget.usernameController,
-      decoration: InputDecoration(
-        labelText: 'Nom d\'utilisateur',
-        prefixIcon: const Icon(Icons.person_outline),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        filled: true,
-        fillColor: Colors.grey[50],
-      ),
-      validator: InputValidator.validateUsername,
-      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: widget.passwordController,
-      focusNode: widget.passwordFocusNode,
-      obscureText: _obscurePassword,
-      decoration: InputDecoration(
-        labelText: 'Mot de passe',
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-          ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        filled: true,
-        fillColor: Colors.grey[50],
-      ),
-      validator: InputValidator.validatePassword,
-      onFieldSubmitted: (_) {
-        if (!widget.isLoading) {
-          widget.onLogin();
-        }
-      },
-    );
-  }
-
   Widget _buildErrorMessage() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -151,6 +103,54 @@ class _LoginFormState extends State<LoginForm> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: widget.passwordController,
+      focusNode: widget.passwordFocusNode,
+      obscureText: _obscurePassword,
+      decoration: InputDecoration(
+        labelText: 'Mot de passe',
+        prefixIcon: const Icon(Icons.lock_outline),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+          ),
+          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: Colors.grey[50],
+      ),
+      validator: InputValidator.validatePassword,
+      onFieldSubmitted: (_) {
+        if (!widget.isLoading) {
+          widget.onLogin();
+        }
+      },
+    );
+  }
+
+  Widget _buildUsernameField() {
+    return TextFormField(
+      controller: widget.usernameController,
+      decoration: InputDecoration(
+        labelText: 'Nom d\'utilisateur',
+        prefixIcon: const Icon(Icons.person_outline),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
+        fillColor: Colors.grey[50],
+      ),
+      validator: InputValidator.validateUsername,
+      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
     );
   }
 }

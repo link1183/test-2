@@ -6,16 +6,6 @@ class DocLink extends StatelessWidget {
   final String docLink;
   const DocLink({super.key, required this.docLink});
 
-  Future<void> _launchURL(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(
-      url,
-      webOnlyWindowName: '_blank',
-    )) {
-      throw Exception('Could not launch $urlString');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -59,5 +49,15 @@ class DocLink extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(
+      url,
+      webOnlyWindowName: '_blank',
+    )) {
+      throw Exception('Could not launch $urlString');
+    }
   }
 }

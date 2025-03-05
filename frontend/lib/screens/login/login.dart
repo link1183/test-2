@@ -1,15 +1,16 @@
 import 'dart:convert';
+
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
-import 'package:portail_it/services/api_client.dart';
-import 'package:provider/provider.dart';
-import 'package:portail_it/middlewares/auth_provider.dart';
-import 'package:portail_it/routes.dart';
-import 'package:portail_it/screens/shared/widgets/loading_screen.dart';
-import 'package:portail_it/screens/login/widgets/login_form.dart';
-import 'package:portail_it/screens/login/widgets/login_layout.dart';
 import 'package:http/http.dart' as http;
 import 'package:pointycastle/asymmetric/api.dart';
-import 'package:encrypt/encrypt.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:portail_it/routes.dart';
+import 'package:portail_it/screens/login/widgets/login_form.dart';
+import 'package:portail_it/screens/login/widgets/login_layout.dart';
+import 'package:portail_it/screens/shared/widgets/loading_screen.dart';
+import 'package:portail_it/services/api_client.dart';
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -27,6 +28,32 @@ class _Login extends State<Login> {
   final _passwordFocusNode = FocusNode();
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: !_isEncrypterReady
+          ? const LoadingScreen()
+          : LoginLayout(
+              loginForm: LoginForm(
+                formKey: _formKey,
+                usernameController: _usernameController,
+                passwordController: _passwordController,
+                passwordFocusNode: _passwordFocusNode,
+                isLoading: _isLoading,
+                errorMessage: _errorMessage,
+                onLogin: _login,
+              ),
+            ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -125,31 +152,5 @@ class _Login extends State<Login> {
     if (mounted) {
       setState(() => _isLoading = false);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: !_isEncrypterReady
-          ? const LoadingScreen()
-          : LoginLayout(
-              loginForm: LoginForm(
-                formKey: _formKey,
-                usernameController: _usernameController,
-                passwordController: _passwordController,
-                passwordFocusNode: _passwordFocusNode,
-                isLoading: _isLoading,
-                errorMessage: _errorMessage,
-                onLogin: _login,
-              ),
-            ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

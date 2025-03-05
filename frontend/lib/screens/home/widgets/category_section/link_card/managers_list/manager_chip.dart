@@ -11,16 +11,6 @@ class ManagerChip extends StatelessWidget {
     required this.manager,
   });
 
-  Future<void> _launchURL(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(
-      url,
-      webOnlyWindowName: '_blank',
-    )) {
-      throw Exception('Could not launch $urlString');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -67,5 +57,15 @@ class ManagerChip extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _launchURL(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(
+      url,
+      webOnlyWindowName: '_blank',
+    )) {
+      throw Exception('Could not launch $urlString');
+    }
   }
 }

@@ -1,8 +1,9 @@
+import 'dart:math' show Random;
 import 'dart:typed_data';
+
+import 'package:basic_utils/basic_utils.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:pointycastle/export.dart';
-import 'dart:math' show Random;
-import 'package:basic_utils/basic_utils.dart';
 
 class EncryptionService {
   late final Encrypter _encrypter;

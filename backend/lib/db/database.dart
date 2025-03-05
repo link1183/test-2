@@ -9,19 +9,6 @@ class AppDatabase {
     _initializeDatabase();
   }
 
-  void _initializeDatabase() {
-    final tables = _db.select('''
-    SELECT name FROM sqlite_master 
-    WHERE type='table' 
-    AND name IN ('link', 'categories', 'status', 'keyword', 'view', 'link_manager');
-  ''');
-
-    if (tables.isEmpty) {
-      _createTables();
-      _insertMockData();
-    }
-  }
-
   void _createTables() {
     _db.execute('''
 CREATE TABLE IF NOT EXISTS `link` (
@@ -76,6 +63,19 @@ FOREIGN KEY(`link_id`) REFERENCES `link`(`id`),
 FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
 );
     ''');
+  }
+
+  void _initializeDatabase() {
+    final tables = _db.select('''
+    SELECT name FROM sqlite_master 
+    WHERE type='table' 
+    AND name IN ('link', 'categories', 'status', 'keyword', 'view', 'link_manager');
+  ''');
+
+    if (tables.isEmpty) {
+      _createTables();
+      _insertMockData();
+    }
   }
 
   void _insertMockData() {

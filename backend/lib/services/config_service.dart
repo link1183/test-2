@@ -3,19 +3,24 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 class ConfigService {
-  late final Map<String, dynamic> _config;
   static ConfigService? _instance;
+  late final Map<String, dynamic> _config;
 
   ConfigService._();
 
-  static Future<ConfigService> getInstance() async {
-    if (_instance == null) {
-      _instance = ConfigService._();
-      await _instance!._initialize();
-    }
-    return _instance!;
-  }
+  String get jwtSecret => _config['auth']['jwt_secret'];
 
+  String get ldapBaseDN => _config['ldap']['base_dn'];
+
+  int get ldapPort => _config['ldap']['port'];
+
+  String get ldapUrl => _config['ldap']['url'];
+  int get maxAttempts => _config['rate_limit']['max_attempts'];
+  String get serviceAccountPassword =>
+      _config['auth']['service_account']['password'];
+  String get serviceAccountUsername =>
+      _config['auth']['service_account']['username'];
+  int get windowMinutes => _config['rate_limit']['windows_minutes'];
   Future<void> _initialize() async {
     if (Platform.environment.containsKey('JWT_SECRET')) {
       _config = {
@@ -70,14 +75,11 @@ class ConfigService {
     }
   }
 
-  String get jwtSecret => _config['auth']['jwt_secret'];
-  String get serviceAccountUsername =>
-      _config['auth']['service_account']['username'];
-  String get serviceAccountPassword =>
-      _config['auth']['service_account']['password'];
-  String get ldapUrl => _config['ldap']['url'];
-  int get ldapPort => _config['ldap']['port'];
-  String get ldapBaseDN => _config['ldap']['base_dn'];
-  int get maxAttempts => _config['rate_limit']['max_attempts'];
-  int get windowMinutes => _config['rate_limit']['windows_minutes'];
+  static Future<ConfigService> getInstance() async {
+    if (_instance == null) {
+      _instance = ConfigService._();
+      await _instance!._initialize();
+    }
+    return _instance!;
+  }
 }

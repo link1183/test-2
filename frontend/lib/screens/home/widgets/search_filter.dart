@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
 class SearchFilter {
+  static Map<String, Color> defaultColors = {
+    'category': Colors.blue.shade700,
+    'type': Colors.purple.shade700,
+    'tag': Colors.teal.shade700,
+    'keyword': Colors.orange.shade700,
+    'status': Colors.green.shade700,
+  };
   final String type;
   final String value;
+
   final Color color;
 
   const SearchFilter({
@@ -11,19 +19,6 @@ class SearchFilter {
     this.color = const Color(0xFF2C3E50),
   });
 
-  @override
-  String toString() {
-    return '$type:$value';
-  }
-
-  static Map<String, Color> defaultColors = {
-    'category': Colors.blue.shade700,
-    'type': Colors.purple.shade700,
-    'tag': Colors.teal.shade700,
-    'keyword': Colors.orange.shade700,
-    'status': Colors.green.shade700,
-  };
-
   factory SearchFilter.fromTypeValue(String type, String value) {
     return SearchFilter(
       type: type,
@@ -31,10 +26,29 @@ class SearchFilter {
       color: defaultColors[type.toLowerCase()] ?? const Color(0xFF2C3E50),
     );
   }
+
+  @override
+  String toString() {
+    return '$type:$value';
+  }
 }
 
 /// Parses a search query into regular text and filter tags
 class SearchParser {
+  static String buildQuery(String text, List<SearchFilter> filters) {
+    final parts = <String>[];
+
+    if (text.isNotEmpty) {
+      parts.add(text);
+    }
+
+    for (final filter in filters) {
+      parts.add('${filter.type}:${filter.value}');
+    }
+
+    return parts.join(' ');
+  }
+
   /// Parse a search query into regular text and filter tags
   /// Example input: "vmware type:document category: network"
   /// Output: {
@@ -87,19 +101,5 @@ class SearchParser {
       'text': textParts.join(' '),
       'filters': filters,
     };
-  }
-
-  static String buildQuery(String text, List<SearchFilter> filters) {
-    final parts = <String>[];
-
-    if (text.isNotEmpty) {
-      parts.add(text);
-    }
-
-    for (final filter in filters) {
-      parts.add('${filter.type}:${filter.value}');
-    }
-
-    return parts.join(' ');
   }
 }

@@ -1,13 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:portail_it/services/api_client.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+
 import 'category_section/category_section.dart';
 import 'search_bar.dart' as search_bar;
 import 'search_filter.dart';
-import 'package:portail_it/services/api_client.dart';
+
+class FilteredCategory {
+  final Map<String, dynamic> originalCategory;
+  final List<dynamic> filteredLinks;
+
+  FilteredCategory({
+    required this.originalCategory,
+    required this.filteredLinks,
+  });
+}
 
 class Main extends StatefulWidget {
   const Main({super.key});
@@ -17,6 +29,8 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
+  static const String _recentSearchesKey = 'recent_searches';
+  static const int _maxRecentSearches = 10;
   bool _isLoading = true;
   String? _error;
   List<dynamic> categories = [];
@@ -24,13 +38,11 @@ class _MainState extends State<Main> {
   Set<String> expandedIds = {};
   String? expandedId;
   String searchText = '';
+
   final FocusNode _searchFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
-
   List<String> _recentSearches = [];
   List<String> _allKeywords = [];
-  static const String _recentSearchesKey = 'recent_searches';
-  static const int _maxRecentSearches = 10;
   String? _selectedSearchScope;
 
   final Map<String, List<String>> _availableFilters = {
@@ -46,214 +58,6 @@ class _MainState extends State<Main> {
     ],
     'status': ['active', 'archived', 'draft'],
   };
-
-  Future<void> _loadRecentSearches() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        _recentSearches = prefs.getStringList(_recentSearchesKey) ?? [];
-      });
-    } catch (e) {
-      print('Error loading recent searches: $e');
-    }
-  }
-
-  Future<void> _saveRecentSearches(String query) async {
-    if (query.isEmpty) return;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      List<String> updatedSearches = [query];
-
-      updatedSearches.addAll(_recentSearches.where((term) => term != query));
-
-      if (updatedSearches.length > _maxRecentSearches) {
-        updatedSearches = updatedSearches.sublist(0, _maxRecentSearches);
-      }
-
-      setState(() {
-        _recentSearches = updatedSearches;
-      });
-
-      await prefs.setStringList(_recentSearchesKey, updatedSearches);
-    } catch (e) {
-      print('Error saving recent search: $e');
-    }
-  }
-
-  void _extractKeywords() {
-    Set<String> keywordSet = {};
-    Set<String> categorySet = {};
-
-    for (var category in categories) {
-      if (category['category_name'] != null) {
-        categorySet.add(category['category_name'].toString());
-      }
-      final links = category['links'] as List;
-      for (var link in links) {
-        final titleWords = link['title']
-            .toString()
-            .split(' ')
-            .where((word) => word.length > 3)
-            .toList();
-        keywordSet.addAll(titleWords);
-
-        final keywords = link['keywords'] as List;
-        for (var keywordObj in keywords) {
-          keywordSet.add(keywordObj['keyword'].toString());
-        }
-      }
-    }
-
-    setState(() {
-      _allKeywords = keywordSet.toList();
-      _availableFilters['category'] = categorySet.toList();
-    });
-  }
-
-  void toggleCategory(String categoryId) {
-    setState(() {
-      if (searchText.isEmpty) {
-        expandedId = expandedId == categoryId ? null : categoryId;
-      } else {
-        if (expandedIds.contains(categoryId)) {
-          expandedIds.remove(categoryId);
-        } else {
-          expandedIds.add(categoryId);
-        }
-      }
-    });
-  }
-
-  void handleSearch(String query) {
-    final trimmedQuery = query.trim();
-
-    if (trimmedQuery.isNotEmpty && trimmedQuery != searchText) {
-      _saveRecentSearches(trimmedQuery);
-    }
-
-    setState(() {
-      searchText = trimmedQuery;
-      _filterCategories();
-    });
-  }
-
-  void _filterCategories() {
-    if (searchText.isEmpty && _selectedSearchScope == null) {
-      // No search query and no scope filter - show all categories
-      filteredCategories = categories
-          .map((category) => FilteredCategory(
-                originalCategory: category,
-                filteredLinks: category['links'],
-              ))
-          .toList();
-      expandedIds.clear();
-      expandedId = null;
-      return;
-    }
-
-    final parsedQuery = SearchParser.parseQuery(searchText);
-    final plainText = parsedQuery['text'] as String;
-    final filters = parsedQuery['filters'] as List<SearchFilter>;
-
-    filteredCategories = [];
-    final searchLower = plainText.toLowerCase();
-
-    for (var category in categories) {
-      bool categoryMatches = true;
-
-      // Check if this category matches the selected scope
-      if (_selectedSearchScope != null) {
-        final categoryName = category['category_name']?.toString() ?? '';
-        if (categoryName != _selectedSearchScope) {
-          categoryMatches = false;
-        }
-      }
-
-      // Check if this category matches any category filters
-      for (final filter in filters) {
-        if (filter.type.toLowerCase() == 'category') {
-          final categoryName =
-              category['category_name']?.toString().toLowerCase() ?? '';
-          if (!categoryName.contains(filter.value.toLowerCase())) {
-            categoryMatches = false;
-            break;
-          }
-        }
-      }
-
-      if (!categoryMatches) {
-        continue;
-      }
-
-      final links = (category['links'] as List).where((link) {
-        // Check if the link matches all other filters
-        for (final filter in filters) {
-          if (filter.type.toLowerCase() == 'category') {
-            continue;
-          } else if (filter.type.toLowerCase() == 'type') {
-            final typeValue = link['type']?.toString().toLowerCase() ?? '';
-            if (!typeValue.contains(filter.value.toLowerCase())) {
-              return false;
-            }
-          } else if (filter.type.toLowerCase() == 'status') {
-            final statusValue = link['status']?.toString().toLowerCase() ?? '';
-            if (!statusValue.contains(filter.value.toLowerCase())) {
-              return false;
-            }
-          }
-        }
-
-        // If there's no search text, include all links that passed the filters
-        if (searchLower.isEmpty) {
-          return true;
-        }
-
-        // Search in title and description
-        final title = link['title'].toString().toLowerCase();
-        final description = link['description'].toString().toLowerCase();
-
-        if (title.contains(searchLower) || description.contains(searchLower)) {
-          return true;
-        }
-
-        // Search in keywords
-        final keywords = link['keywords'] as List;
-        return keywords.any((keyword) =>
-            keyword['keyword'].toString().toLowerCase().contains(searchLower));
-      }).toList();
-
-      if (links.isNotEmpty) {
-        filteredCategories.add(FilteredCategory(
-          originalCategory: category,
-          filteredLinks: links,
-        ));
-        expandedIds.add(category['category_id'].toString());
-      }
-    }
-  }
-
-  void _handleSearchScopeChanged(String? newScope) {
-    setState(() {
-      _selectedSearchScope = newScope;
-      _filterCategories();
-    });
-  }
-
-  void _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      final isCtrlPressed = HardwareKeyboard.instance.logicalKeysPressed
-              .contains(LogicalKeyboardKey.controlLeft) ||
-          HardwareKeyboard.instance.logicalKeysPressed
-              .contains(LogicalKeyboardKey.controlRight);
-
-      if (isCtrlPressed && event.logicalKey == LogicalKeyboardKey.keyF) {
-        event.logicalKey.debugFillProperties(DiagnosticPropertiesBuilder());
-        _searchFocusNode.requestFocus();
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -358,6 +162,26 @@ class _MainState extends State<Main> {
   }
 
   @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _keyboardListenerFocusNode.dispose();
+    super.dispose();
+  }
+
+  void handleSearch(String query) {
+    final trimmedQuery = query.trim();
+
+    if (trimmedQuery.isNotEmpty && trimmedQuery != searchText) {
+      _saveRecentSearches(trimmedQuery);
+    }
+
+    setState(() {
+      searchText = trimmedQuery;
+      _filterCategories();
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
     _keyboardListenerFocusNode.requestFocus();
@@ -368,11 +192,164 @@ class _MainState extends State<Main> {
     });
   }
 
-  @override
-  void dispose() {
-    _searchFocusNode.dispose();
-    _keyboardListenerFocusNode.dispose();
-    super.dispose();
+  void toggleCategory(String categoryId) {
+    setState(() {
+      if (searchText.isEmpty) {
+        expandedId = expandedId == categoryId ? null : categoryId;
+      } else {
+        if (expandedIds.contains(categoryId)) {
+          expandedIds.remove(categoryId);
+        } else {
+          expandedIds.add(categoryId);
+        }
+      }
+    });
+  }
+
+  void _extractKeywords() {
+    Set<String> keywordSet = {};
+    Set<String> categorySet = {};
+
+    for (var category in categories) {
+      if (category['category_name'] != null) {
+        categorySet.add(category['category_name'].toString());
+      }
+      final links = category['links'] as List;
+      for (var link in links) {
+        final titleWords = link['title']
+            .toString()
+            .split(' ')
+            .where((word) => word.length > 3)
+            .toList();
+        keywordSet.addAll(titleWords);
+
+        final keywords = link['keywords'] as List;
+        for (var keywordObj in keywords) {
+          keywordSet.add(keywordObj['keyword'].toString());
+        }
+      }
+    }
+
+    setState(() {
+      _allKeywords = keywordSet.toList();
+      _availableFilters['category'] = categorySet.toList();
+    });
+  }
+
+  void _filterCategories() {
+    if (searchText.isEmpty && _selectedSearchScope == null) {
+      // No search query and no scope filter - show all categories
+      filteredCategories = categories
+          .map((category) => FilteredCategory(
+                originalCategory: category,
+                filteredLinks: category['links'],
+              ))
+          .toList();
+      expandedIds.clear();
+      expandedId = null;
+      return;
+    }
+
+    final parsedQuery = SearchParser.parseQuery(searchText);
+    final plainText = parsedQuery['text'] as String;
+    final filters = parsedQuery['filters'] as List<SearchFilter>;
+
+    filteredCategories = [];
+    final searchLower = plainText.toLowerCase();
+
+    for (var category in categories) {
+      bool categoryMatches = true;
+
+      // Check if this category matches the selected scope
+      if (_selectedSearchScope != null) {
+        final categoryName = category['category_name']?.toString() ?? '';
+        if (categoryName != _selectedSearchScope) {
+          categoryMatches = false;
+        }
+      }
+
+      // Check if this category matches any category filters
+      for (final filter in filters) {
+        if (filter.type.toLowerCase() == 'category') {
+          final categoryName =
+              category['category_name']?.toString().toLowerCase() ?? '';
+          if (!categoryName.contains(filter.value.toLowerCase())) {
+            categoryMatches = false;
+            break;
+          }
+        }
+      }
+
+      if (!categoryMatches) {
+        continue;
+      }
+
+      final links = (category['links'] as List).where((link) {
+        // Check if the link matches all other filters
+        for (final filter in filters) {
+          if (filter.type.toLowerCase() == 'category') {
+            continue;
+          } else if (filter.type.toLowerCase() == 'type') {
+            final typeValue = link['type']?.toString().toLowerCase() ?? '';
+            if (!typeValue.contains(filter.value.toLowerCase())) {
+              return false;
+            }
+          } else if (filter.type.toLowerCase() == 'status') {
+            final statusValue = link['status']?.toString().toLowerCase() ?? '';
+            if (!statusValue.contains(filter.value.toLowerCase())) {
+              return false;
+            }
+          }
+        }
+
+        // If there's no search text, include all links that passed the filters
+        if (searchLower.isEmpty) {
+          return true;
+        }
+
+        // Search in title and description
+        final title = link['title'].toString().toLowerCase();
+        final description = link['description'].toString().toLowerCase();
+
+        if (title.contains(searchLower) || description.contains(searchLower)) {
+          return true;
+        }
+
+        // Search in keywords
+        final keywords = link['keywords'] as List;
+        return keywords.any((keyword) =>
+            keyword['keyword'].toString().toLowerCase().contains(searchLower));
+      }).toList();
+
+      if (links.isNotEmpty) {
+        filteredCategories.add(FilteredCategory(
+          originalCategory: category,
+          filteredLinks: links,
+        ));
+        expandedIds.add(category['category_id'].toString());
+      }
+    }
+  }
+
+  void _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      final isCtrlPressed = HardwareKeyboard.instance.logicalKeysPressed
+              .contains(LogicalKeyboardKey.controlLeft) ||
+          HardwareKeyboard.instance.logicalKeysPressed
+              .contains(LogicalKeyboardKey.controlRight);
+
+      if (isCtrlPressed && event.logicalKey == LogicalKeyboardKey.keyF) {
+        event.logicalKey.debugFillProperties(DiagnosticPropertiesBuilder());
+        _searchFocusNode.requestFocus();
+      }
+    }
+  }
+
+  void _handleSearchScopeChanged(String? newScope) {
+    setState(() {
+      _selectedSearchScope = newScope;
+      _filterCategories();
+    });
   }
 
   Future<void> _loadCategories() async {
@@ -423,14 +400,39 @@ class _MainState extends State<Main> {
       });
     }
   }
-}
 
-class FilteredCategory {
-  final Map<String, dynamic> originalCategory;
-  final List<dynamic> filteredLinks;
+  Future<void> _loadRecentSearches() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _recentSearches = prefs.getStringList(_recentSearchesKey) ?? [];
+      });
+    } catch (e) {
+      print('Error loading recent searches: $e');
+    }
+  }
 
-  FilteredCategory({
-    required this.originalCategory,
-    required this.filteredLinks,
-  });
+  Future<void> _saveRecentSearches(String query) async {
+    if (query.isEmpty) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      List<String> updatedSearches = [query];
+
+      updatedSearches.addAll(_recentSearches.where((term) => term != query));
+
+      if (updatedSearches.length > _maxRecentSearches) {
+        updatedSearches = updatedSearches.sublist(0, _maxRecentSearches);
+      }
+
+      setState(() {
+        _recentSearches = updatedSearches;
+      });
+
+      await prefs.setStringList(_recentSearchesKey, updatedSearches);
+    } catch (e) {
+      print('Error saving recent search: $e');
+    }
+  }
 }

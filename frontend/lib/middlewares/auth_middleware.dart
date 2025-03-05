@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:portail_it/services/api_client.dart';
 import 'package:portail_it/services/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:portail_it/services/api_client.dart';
 
 class AuthMiddleware extends StatefulWidget {
   final Widget child;
@@ -25,34 +25,22 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
   bool _isLoading = true;
 
   @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return authProvider.isAuthenticated ? widget.child : widget.loginScreen;
+  }
+
+  @override
   void initState() {
     super.initState();
     _checkAuth();
-  }
-
-  Future<bool> _refreshTokens(
-      String refreshToken, AuthProvider authProvider) async {
-    try {
-      final response = await ApiClient.refreshToken(refreshToken);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final accessToken = data['accessToken'];
-        final newRefreshToken = data['refreshToken'];
-        final userData = data['user'];
-
-        await authProvider.setAuthenticated(
-          true,
-          accessToken: accessToken,
-          refreshToken: newRefreshToken,
-          userData: userData,
-        );
-        return true;
-      }
-    } catch (e, stackTrace) {
-      Logger.error('Error refreshing tokens', e, stackTrace);
-    }
-    return false;
   }
 
   Future<void> _checkAuth() async {
@@ -101,16 +89,28 @@ class _AuthMiddlewareState extends State<AuthMiddleware> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+  Future<bool> _refreshTokens(
+      String refreshToken, AuthProvider authProvider) async {
+    try {
+      final response = await ApiClient.refreshToken(refreshToken);
 
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final accessToken = data['accessToken'];
+        final newRefreshToken = data['refreshToken'];
+        final userData = data['user'];
+
+        await authProvider.setAuthenticated(
+          true,
+          accessToken: accessToken,
+          refreshToken: newRefreshToken,
+          userData: userData,
+        );
+        return true;
+      }
+    } catch (e, stackTrace) {
+      Logger.error('Error refreshing tokens', e, stackTrace);
     }
-
-    return authProvider.isAuthenticated ? widget.child : widget.loginScreen;
+    return false;
   }
 }

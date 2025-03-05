@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portail_it/theme/theme.dart';
+
 import 'highlighted_text.dart';
 
 class KeywordsList extends StatelessWidget {
