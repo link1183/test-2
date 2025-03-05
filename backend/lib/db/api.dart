@@ -13,8 +13,8 @@ class Api {
   final EncryptionService encryptionService;
 
   Api({required this.authService})
-      : db = AppDatabase(),
-        encryptionService = EncryptionService() {
+    : db = AppDatabase(),
+      encryptionService = EncryptionService() {
     db.init();
   }
 
@@ -71,8 +71,9 @@ class Api {
           return Response(401, body: 'No token provided');
         }
 
-        final token = authHeader
-            .substring(7); // We remove the "bearer: " part, which is 7 chars
+        final token = authHeader.substring(
+          7,
+        ); // We remove the "bearer: " part, which is 7 chars
         if (!authService.verifyAccessToken(token, request)) {
           return Response(401, body: 'Invalid token');
         }
@@ -88,7 +89,9 @@ class Api {
           );
         }
 
-        final categories = db.db.select('''
+        final categories =
+            db.db
+                .select('''
       WITH LinkData AS (
         SELECT 
           link.*,
@@ -148,29 +151,37 @@ class Api {
       FROM categories c
       LEFT JOIN LinkData ld ON c.id = ld.category_id
       GROUP BY c.id
-    ''').map((row) {
-          var map = Map<String, dynamic>.from(row);
-          var links = jsonDecode(map['links']) as List;
+    ''')
+                .map((row) {
+                  var map = Map<String, dynamic>.from(row);
+                  var links = jsonDecode(map['links']) as List;
 
-          links = links.where((link) => link != null).map((link) {
-            if (link['keywords'] != null) {
-              link['keywords'] = jsonDecode(link['keywords'].toString());
-            }
-            if (link['views'] != null) {
-              link['views'] = jsonDecode(link['views'].toString());
-            }
-            if (link['managers'] != null) {
-              link['managers'] = jsonDecode(link['managers'].toString());
-            }
-            return link;
-          }).toList();
+                  links =
+                      links.where((link) => link != null).map((link) {
+                        if (link['keywords'] != null) {
+                          link['keywords'] = jsonDecode(
+                            link['keywords'].toString(),
+                          );
+                        }
+                        if (link['views'] != null) {
+                          link['views'] = jsonDecode(link['views'].toString());
+                        }
+                        if (link['managers'] != null) {
+                          link['managers'] = jsonDecode(
+                            link['managers'].toString(),
+                          );
+                        }
+                        return link;
+                      }).toList();
 
-          map['links'] = links;
-          return map;
-        }).toList();
+                  map['links'] = links;
+                  return map;
+                })
+                .toList();
 
-        categories
-            .removeWhere((category) => (category['links'] as List).isEmpty);
+        categories.removeWhere(
+          (category) => (category['links'] as List).isEmpty,
+        );
 
         return Response.ok(
           jsonEncode({'categories': categories}),
@@ -224,8 +235,10 @@ class Api {
         }
 
         final sanitizedUsername = InputSanitizer.sanitizeLdapDN(username);
-        final userData =
-            await authService.authenticateUser(sanitizedUsername, password);
+        final userData = await authService.authenticateUser(
+          sanitizedUsername,
+          password,
+        );
 
         if (userData == null) {
           return Response(401, body: 'Invalid credentials');

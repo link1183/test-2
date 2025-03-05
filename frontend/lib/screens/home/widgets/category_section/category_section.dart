@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portail_it/theme/theme.dart';
 import 'link_card/link_card.dart';
 
 class CategorySection extends StatefulWidget {
@@ -69,12 +70,12 @@ class _CategorySectionState extends State<CategorySection>
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 12.0),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(8.0),
+                  color: AppTheme.categoryHeader,
+                  borderRadius: BorderRadius.circular(14.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.12),
-                      blurRadius: 8.0,
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 4.0,
                       offset: const Offset(0, 2),
                     ),
                   ],

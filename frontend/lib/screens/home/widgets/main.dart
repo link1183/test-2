@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -21,6 +22,8 @@ class _MainState extends State<Main> {
   Set<String> expandedIds = {};
   String? expandedId;
   String searchText = '';
+  final FocusNode _searchFocusNode = FocusNode();
+  final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   void toggleCategory(String categoryId) {
     setState(() {
@@ -82,6 +85,20 @@ class _MainState extends State<Main> {
     });
   }
 
+  void _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      final isCtrlPressed = HardwareKeyboard.instance.logicalKeysPressed
+              .contains(LogicalKeyboardKey.controlLeft) ||
+          HardwareKeyboard.instance.logicalKeysPressed
+              .contains(LogicalKeyboardKey.controlRight);
+
+      if (isCtrlPressed && event.logicalKey == LogicalKeyboardKey.keyF) {
+        event.logicalKey.debugFillProperties(DiagnosticPropertiesBuilder());
+        _searchFocusNode.requestFocus();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const double maxContainerWidth = 1140;
@@ -118,46 +135,61 @@ class _MainState extends State<Main> {
       );
     }
 
-    return Container(
-      constraints: const BoxConstraints(maxWidth: maxContainerWidth),
-      margin: const EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        children: [
-          search_bar.SearchBar(
-            searchText: searchText,
-            onSearch: handleSearch,
-          ),
-          if (filteredCategories.isEmpty && searchText.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Text(
-                'No results found',
-                style: Theme.of(context).textTheme.bodyLarge,
+    return KeyboardListener(
+      focusNode: _keyboardListenerFocusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: GestureDetector(
+        onTap: () {
+          if (!_keyboardListenerFocusNode.hasFocus) {
+            _keyboardListenerFocusNode.requestFocus();
+          }
+        },
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: maxContainerWidth),
+          margin: const EdgeInsets.symmetric(horizontal: 50),
+          child: Column(
+            children: [
+              search_bar.SearchBar(
+                searchText: searchText,
+                onSearch: handleSearch,
+                focusNode: _searchFocusNode,
+                parentFocusNode: _keyboardListenerFocusNode,
               ),
-            )
-          else
-            SingleChildScrollView(
-              child: Column(
-                children: filteredCategories.map((filteredCategory) {
-                  final category = {
-                    ...filteredCategory.originalCategory,
-                    'links': filteredCategory.filteredLinks,
-                  };
-                  final categoryId = category['category_id'].toString();
+              if (filteredCategories.isEmpty && searchText.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Text(
+                    'No results found',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                )
+              else
+                SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  child: Column(
+                    children: filteredCategories.map((filteredCategory) {
+                      final category = {
+                        ...filteredCategory.originalCategory,
+                        'links': filteredCategory.filteredLinks,
+                      };
+                      final categoryId = category['category_id'].toString();
 
-                  return CategorySection(
-                    key: ValueKey(categoryId),
-                    category: category,
-                    isExpanded: searchText.isEmpty
-                        ? expandedId == categoryId
-                        : expandedIds.contains(categoryId),
-                    onToggle: () => toggleCategory(categoryId),
-                    searchQuery: searchText,
-                  );
-                }).toList(),
-              ),
-            ),
-        ],
+                      return CategorySection(
+                        key: ValueKey(categoryId),
+                        category: category,
+                        isExpanded: searchText.isEmpty
+                            ? expandedId == categoryId
+                            : expandedIds.contains(categoryId),
+                        onToggle: () => toggleCategory(categoryId),
+                        searchQuery: searchText,
+                      );
+                    }).toList(),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -165,9 +197,18 @@ class _MainState extends State<Main> {
   @override
   void initState() {
     super.initState();
+    _keyboardListenerFocusNode.requestFocus();
+
     Future.delayed(const Duration(milliseconds: 100), () {
       _loadCategories();
     });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _keyboardListenerFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCategories() async {

@@ -4,11 +4,15 @@ import 'package:flutter/services.dart';
 class SearchBar extends StatefulWidget {
   final ValueChanged<String> onSearch;
   final String searchText;
+  final FocusNode focusNode;
+  final FocusNode? parentFocusNode;
 
   const SearchBar({
     super.key,
     required this.onSearch,
     required this.searchText,
+    required this.focusNode,
+    this.parentFocusNode,
   });
 
   @override
@@ -17,18 +21,26 @@ class SearchBar extends StatefulWidget {
 
 class _SearchBarState extends State<SearchBar> {
   late TextEditingController _controller;
-  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.searchText);
+
+    widget.focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    widget.focusNode.removeListener(_onFocusChange);
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(SearchBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.searchText != _controller.text) {
+    if (widget.searchText != _controller.text.trim()) {
       _controller.text = widget.searchText;
       _controller.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.searchText.length),
@@ -36,18 +48,23 @@ class _SearchBarState extends State<SearchBar> {
     }
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  void _onFocusChange() {
+    if (!widget.focusNode.hasFocus) {
+      if (widget.parentFocusNode != null) {
+        widget.parentFocusNode!.requestFocus();
+      }
+    }
   }
 
   void _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.escape) {
         widget.onSearch('');
-        _focusNode.unfocus();
+        widget.focusNode.unfocus();
+
+        if (widget.parentFocusNode != null) {
+          widget.parentFocusNode!.requestFocus();
+        }
       }
     }
   }
@@ -70,10 +87,11 @@ class _SearchBarState extends State<SearchBar> {
           ],
         ),
         child: KeyboardListener(
-          focusNode: _focusNode,
+          focusNode: FocusNode(),
           onKeyEvent: _handleKeyEvent,
           child: TextField(
             controller: _controller,
+            focusNode: widget.focusNode,
             decoration: InputDecoration(
               hintText: 'Rechercher par mot clé, description, titre, ...',
               prefixIcon: const Icon(
@@ -83,7 +101,12 @@ class _SearchBarState extends State<SearchBar> {
               suffixIcon: widget.searchText.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () => widget.onSearch(''),
+                      onPressed: () {
+                        widget.onSearch('');
+                        if (widget.parentFocusNode != null) {
+                          widget.parentFocusNode!.requestFocus();
+                        }
+                      },
                       color: const Color(0xFF2C3E50),
                     )
                   : null,

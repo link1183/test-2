@@ -8,8 +8,10 @@ class AppTheme {
   static const Color accent = Color(0xFF3498DB); // Used in keyword tags
 
   // Background colors
-  static const Color scaffoldBackground = Color(0xFFF8F9FA);
-  static const Color cardBackground = Color(0xFFFFFBF5);
+  static const Color scaffoldBackground = Color(0xfff8f9fa);
+  static const Color cardBackground = Color(0xFFFFFFFF);
+
+  static const Color categoryHeader = Color(0xffe9ecef);
 
   // Text colors
   static const Color textPrimary = Color(0xFF2C3E50);
@@ -19,7 +21,9 @@ class AppTheme {
   // Utility colors
   static const Color highlightYellow = Color.fromRGBO(255, 255, 0, 0.3);
   static const Color dividerColor = Color(0xFFDEE2E6);
-  static const Color shadowColor = Color.fromRGBO(0, 0, 0, 0.12);
+  static const Color shadowColor = Color.fromRGBO(0, 0, 0, 1.0);
+
+  static const Color tagBackground = Color(0xFFE9F7FE);
 
   static ThemeData get theme => ThemeData(
         useMaterial3: true,
@@ -49,7 +53,7 @@ class AppTheme {
         ),
         cardTheme: CardTheme(
           color: cardBackground,
-          elevation: 2,
+          elevation: 0,
           margin: EdgeInsets.symmetric(
             vertical: 8,
             horizontal: 16,
@@ -64,6 +68,11 @@ class AppTheme {
           color: dividerColor,
           thickness: 1,
           space: 16,
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: tagBackground,
+          labelStyle: TextStyle(color: accent),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
       );
 }
