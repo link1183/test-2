@@ -7,6 +7,10 @@ class AppDatabase {
   late final Database _db;
   final String dbPath;
   final bool enableLogging;
+  PreparedStatement? _categoriesStmt;
+  final Map<String, CacheEntry<List<Map<String, dynamic>>>> _categoriesCache =
+      {};
+  final Duration _cacheTtl = Duration(minutes: 10);
 
   AppDatabase({
     this.dbPath = '/data/data.db',
@@ -35,6 +39,8 @@ class AppDatabase {
         print('Source size: ${(sourceSize / 1024).toStringAsFixed(2)} KB');
         print('Backup size: ${(backupSize / 1024).toStringAsFixed(2)} KB');
       }
+
+      invalidateCategoriesCache();
 
       return true;
     } catch (e) {
@@ -75,104 +81,27 @@ class AppDatabase {
       return [];
     }
 
-    // Convert userGroups to SQL placeholders
-    final placeholders = userGroups.map((_) => '?').join(',');
+    // Sort groups for consistent cache key
+    final sortedGroups = List<String>.from(userGroups)..sort();
+    final cacheKey = sortedGroups.join(',');
 
-    // Prepare the SQL statement
-    final stmt = _db.prepare('''
-    WITH LinkData AS (
-      SELECT 
-        link.*,
-        s.name as status_name,
-        json_group_array(DISTINCT json_object(
-          'id', k.id,
-          'keyword', k.keyword
-        )) as keywords,
-        json_group_array(DISTINCT json_object(
-          'id', v.id,
-          'name', v.name
-        )) as views,
-        json_group_array(DISTINCT json_object(
-          'id', m.id,
-          'name', m.name,
-          'surname', m.surname,
-          'link', m.link
-        )) as managers,
-        EXISTS (
-          SELECT 1 
-          FROM links_views lv2
-          JOIN view v2 ON v2.id = lv2.view_id
-          WHERE lv2.link_id = link.id 
-          AND v2.name IN ($placeholders)
-        ) as has_access
-      FROM link
-      LEFT JOIN status s ON s.id = link.status_id
-      LEFT JOIN keywords_links kl ON link.id = kl.link_id
-      LEFT JOIN keyword k ON k.id = kl.keyword_id
-      LEFT JOIN links_views lv ON link.id = lv.link_id
-      LEFT JOIN view v ON v.id = lv.view_id
-      LEFT JOIN link_managers_links lm ON link.id = lm.link_id
-      LEFT JOIN link_manager m ON m.id = lm.manager_id
-      GROUP BY link.id
-    )
-    SELECT 
-      c.id as category_id,
-      c.name as category_name,
-      json_group_array(
-        CASE 
-          WHEN ld.has_access = 1 THEN
-            json_object(
-              'id', ld.id,
-              'link', ld.link,
-              'title', ld.title,
-              'description', ld.description,
-              'doc_link', ld.doc_link,
-              'status_id', ld.status_id,
-              'status_name', ld.status_name,
-              'keywords', ld.keywords,
-              'views', ld.views,
-              'managers', ld.managers
-            )
-          ELSE NULL
-        END
-      ) as links
-    FROM categories c
-    LEFT JOIN LinkData ld ON c.id = ld.category_id
-    GROUP BY c.id
-    ''');
-
-    try {
-      final Stopwatch stopwatch = Stopwatch()..start();
-      final result = stmt.select(userGroups);
-
+    // Check cache
+    final cachedResult = _categoriesCache[cacheKey];
+    if (cachedResult != null && cachedResult.isValid) {
       if (enableLogging) {
-        print(
-            'Category query executed in ${stopwatch.elapsedMilliseconds}ms for ${userGroups.length} groups');
+        print('Category data retrieved from cache for groups: $cacheKey');
       }
-
-      return result.map((row) {
-        var map = Map<String, dynamic>.from(row);
-        var links = jsonDecode(map['links']) as List;
-
-        links = links.where((link) => link != null).map((link) {
-          if (link['keywords'] != null) {
-            link['keywords'] = jsonDecode(link['keywords'].toString());
-          }
-          if (link['views'] != null) {
-            link['views'] = jsonDecode(link['views'].toString());
-          }
-          if (link['managers'] != null) {
-            link['managers'] = jsonDecode(link['managers'].toString());
-          }
-          return link;
-        }).toList();
-
-        map['links'] = links;
-        return map;
-      }).toList();
-    } finally {
-      stmt.dispose(); // Important to dispose the statement
+      return List<Map<String, dynamic>>.from(cachedResult.data);
     }
+
+    // Execute query if not in cache
+    final result = _executeGetCategoriesQuery(userGroups);
+
+    // Cache the result
+    _categoriesCache[cacheKey] =
+        CacheEntry<List<Map<String, dynamic>>>(result, _cacheTtl);
+
+    return result;
   }
 
   Map<String, dynamic> getDatabaseStats() {
@@ -215,6 +144,23 @@ class AppDatabase {
     }
   }
 
+  void invalidateCategoriesCache() {
+    _categoriesCache.clear();
+    if (enableLogging) {
+      print('Categories cache invalidated');
+    }
+  }
+
+  bool isConnected() {
+    try {
+      // Execute a simple query to check if the database is connected
+      _db.execute('SELECT 1');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   bool _checkDatabaseIntegrity() {
     try {
       final result = _db.select("PRAGMA integrity_check;");
@@ -239,6 +185,10 @@ class AppDatabase {
       CREATE INDEX IF NOT EXISTS idx_keywords_links_keyword ON keywords_links(keyword_id);
       CREATE INDEX IF NOT EXISTS idx_link_managers_links_link ON link_managers_links(link_id);
       CREATE INDEX IF NOT EXISTS idx_link_managers_links_manager ON link_managers_links(manager_id);
+      CREATE INDEX IF NOT EXISTS idx_link_title ON link(title);
+      CREATE INDEX IF NOT EXISTS idx_link_description ON link(description);
+      CREATE INDEX IF NOT EXISTS idx_view_name ON view(name);
+      CREATE INDEX IF NOT EXISTS idx_keyword_keyword ON keyword(keyword);
     ''');
   }
 
@@ -296,6 +246,170 @@ FOREIGN KEY(`link_id`) REFERENCES `link`(`id`),
 FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
 );
     ''');
+  }
+
+  List<Map<String, dynamic>> _executeGetCategoriesQuery(
+      List<String> userGroups) {
+    _categoriesStmt ??= _prepareGetCategoriesStatement();
+
+    try {
+      final Stopwatch stopwatch = Stopwatch()..start();
+
+      // Create a parameter list that matches the number of placeholders
+      // Since we used 99 placeholders in the prepared statement, we need to pad with empty values if there are fewer groups
+      final parameters = <String>[...userGroups];
+      if (parameters.length < 99) {
+        parameters.addAll(List.filled(99 - parameters.length, ''));
+      }
+
+      final result = _categoriesStmt!.select(parameters);
+
+      if (enableLogging) {
+        print(
+            'Category query executed in ${stopwatch.elapsedMilliseconds}ms for ${userGroups.length} groups');
+      }
+
+      return result.map((row) {
+        var map = Map<String, dynamic>.from(row);
+        var linksJson = map['links'] as String;
+
+        List links;
+        try {
+          links = jsonDecode(linksJson) as List;
+        } catch (e) {
+          print('Error parsing JSON links data: $e');
+          links = [];
+        }
+
+        links = links.where((link) => link != null).map((link) {
+          if (link is! Map<String, dynamic>) return link;
+
+          // Parse nested JSON strings
+          try {
+            if (link['keywords'] is String) {
+              link['keywords'] = jsonDecode(link['keywords']);
+            }
+          } catch (e) {
+            link['keywords'] = [];
+          }
+
+          try {
+            if (link['views'] is String) {
+              link['views'] = jsonDecode(link['views']);
+            }
+          } catch (e) {
+            link['views'] = [];
+          }
+
+          try {
+            if (link['managers'] is String) {
+              link['managers'] = jsonDecode(link['managers']);
+            }
+          } catch (e) {
+            link['managers'] = [];
+          }
+
+          return link;
+        }).toList();
+
+        map['links'] = links;
+        return map;
+      }).toList();
+    } catch (e) {
+      print('Error executing getCategoriesForUser: $e');
+
+      // If an error occurs, recreate the prepared statement
+      if (_categoriesStmt != null) {
+        try {
+          _categoriesStmt!.dispose();
+        } catch (_) {}
+        _categoriesStmt = null;
+      }
+
+      _categoriesStmt = _prepareGetCategoriesStatement();
+
+      // Fall back to a simpler query if the optimized one fails
+      return _executeSimpleCategoriesQuery(userGroups);
+    }
+  }
+
+  List<Map<String, dynamic>> _executeSimpleCategoriesQuery(
+      List<String> userGroups) {
+    if (enableLogging) {
+      print('Using fallback query for categories');
+    }
+
+    final placeholders = userGroups.map((_) => '?').join(',');
+
+    final sql = '''
+    SELECT 
+      c.id as category_id,
+      c.name as category_name
+    FROM categories c
+  ''';
+
+    final categories = executeQuery(sql);
+
+    // For each category, fetch the links separately
+    for (var category in categories) {
+      final linksSql = '''
+      SELECT 
+        l.id,
+        l.link,
+        l.title,
+        l.description,
+        l.doc_link,
+        l.status_id,
+        s.name as status_name
+      FROM link l
+      LEFT JOIN status s ON s.id = l.status_id
+      WHERE l.category_id = ?
+      AND EXISTS (
+        SELECT 1 
+        FROM links_views lv
+        JOIN view v ON v.id = lv.view_id
+        WHERE lv.link_id = l.id 
+        AND v.name IN ($placeholders)
+      )
+    ''';
+
+      final links =
+          executeQuery(linksSql, [category['category_id'], ...userGroups]);
+
+      // For each link, fetch keywords, views, and managers
+      for (var link in links) {
+        // Get keywords
+        final keywordsSql = '''
+        SELECT k.id, k.keyword
+        FROM keywords_links kl
+        JOIN keyword k ON k.id = kl.keyword_id
+        WHERE kl.link_id = ?
+      ''';
+        link['keywords'] = executeQuery(keywordsSql, [link['id']]);
+
+        // Get views
+        final viewsSql = '''
+        SELECT v.id, v.name
+        FROM links_views lv
+        JOIN view v ON v.id = lv.view_id
+        WHERE lv.link_id = ?
+      ''';
+        link['views'] = executeQuery(viewsSql, [link['id']]);
+
+        // Get managers
+        final managersSql = '''
+        SELECT m.id, m.name, m.surname, m.link
+        FROM link_managers_links lm
+        JOIN link_manager m ON m.id = lm.manager_id
+        WHERE lm.link_id = ?
+      ''';
+        link['managers'] = executeQuery(managersSql, [link['id']]);
+      }
+
+      category['links'] = links;
+    }
+
+    return categories;
   }
 
   void _initializeDatabase() {
@@ -781,4 +895,81 @@ INSERT INTO keywords_links (link_id, keyword_id) VALUES (60, 25);
       rethrow;
     }
   }
+
+  PreparedStatement _prepareGetCategoriesStatement() {
+    return _db.prepare('''
+    WITH LinkData AS (
+      -- Use a simpler subquery for better SQLite performance
+      SELECT 
+        link.*,
+        s.name as status_name,
+        (
+          SELECT json_group_array(json_object(
+            'id', k.id, 'keyword', k.keyword
+          ))
+          FROM keywords_links kl
+          JOIN keyword k ON k.id = kl.keyword_id
+          WHERE kl.link_id = link.id
+        ) as keywords,
+        (
+          SELECT json_group_array(json_object(
+            'id', v.id, 'name', v.name
+          ))
+          FROM links_views lv
+          JOIN view v ON v.id = lv.view_id
+          WHERE lv.link_id = link.id
+        ) as views,
+        (
+          SELECT json_group_array(json_object(
+            'id', m.id, 'name', m.name, 'surname', m.surname, 'link', m.link
+          ))
+          FROM link_managers_links lm
+          JOIN link_manager m ON m.id = lm.manager_id
+          WHERE lm.link_id = link.id
+        ) as managers,
+        EXISTS (
+          SELECT 1 
+          FROM links_views lv2
+          JOIN view v2 ON v2.id = lv2.view_id
+          WHERE lv2.link_id = link.id 
+          AND v2.name IN (${List.filled(99, '?').join(',')})
+        ) as has_access
+      FROM link
+      LEFT JOIN status s ON s.id = link.status_id
+    )
+    SELECT 
+      c.id as category_id,
+      c.name as category_name,
+      json_group_array(
+        CASE 
+          WHEN ld.has_access = 1 THEN
+            json_object(
+              'id', ld.id,
+              'link', ld.link,
+              'title', ld.title,
+              'description', ld.description,
+              'doc_link', ld.doc_link,
+              'status_id', ld.status_id,
+              'status_name', ld.status_name,
+              'keywords', ld.keywords,
+              'views', ld.views,
+              'managers', ld.managers
+            )
+          ELSE NULL
+        END
+      ) as links
+    FROM categories c
+    LEFT JOIN LinkData ld ON c.id = ld.category_id
+    GROUP BY c.id
+  ''');
+  }
+}
+
+class CacheEntry<T> {
+  final T data;
+  final DateTime expiry;
+
+  CacheEntry(this.data, Duration ttl) : expiry = DateTime.now().add(ttl);
+
+  bool get isValid => DateTime.now().isBefore(expiry);
 }

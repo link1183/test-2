@@ -2,16 +2,16 @@ import 'dart:convert';
 
 class InputSanitizer {
   static final RegExp _ldapInjectionPattern = RegExp(
-    r'[()|\&!@<>\\/*\[\]{}=~\r\n]',
+    r'[()|\&!@<>\\/*\[\]{}=~\r\n:;,]|(\*\()|(^=)',
   );
 
   static final RegExp _sqlInjectionPattern = RegExp(
-    r'(\b(union|select|insert|update|delete|drop|alter)\b)|(-{2})|(/\*)|(\b(or|and)\b\s+\d+\s*[=<>])',
+    r'(\b(union|select|insert|update|delete|drop|alter|exec|execute|from|where|order\s+by|group\s+by|having)\b)|(-{2})|(\/\*)|(\b(or|and)\b\s*\d*\s*[=<>])|(\bxp_cmdshell\b)',
     caseSensitive: false,
   );
 
   static final RegExp _xssPattern = RegExp(
-    r'<[^>]*script|javascript:|data:|vbscript:|on\w+\s*=|\b(alert|confirm|prompt|console\.log)\s*\(',
+    r'<[^>]*script|javascript:|data:|vbscript:|on\w+\s*=|\b(alert|confirm|prompt|console\.|eval|setTimeout|setInterval)\s*\(|<\s*img|<\s*iframe|<\s*svg|<\s*object|document\.|window\.|FormData\(',
     caseSensitive: false,
   );
 
@@ -117,8 +117,21 @@ class InputSanitizer {
   }
 
   static bool _isBase64(String str) {
+    if (str.length % 4 != 0 && !str.endsWith('=') && !str.endsWith('==')) {
+      return false;
+    }
+
+    if (!RegExp(r'^[A-Za-z0-9+/=]+$').hasMatch(str)) {
+      return false;
+    }
+
     try {
       base64.decode(str);
+
+      if (str.length < 16) {
+        return false;
+      }
+
       return true;
     } catch (e) {
       return false;

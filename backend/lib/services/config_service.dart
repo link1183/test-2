@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:yaml/yaml.dart';
-
 class ConfigService {
   static ConfigService? _instance;
   late final Map<String, dynamic> _config;
@@ -21,8 +19,11 @@ class ConfigService {
   String get serviceAccountUsername =>
       _config['auth']['service_account']['username'];
   int get windowMinutes => _config['rate_limit']['windows_minutes'];
+
   Future<void> _initialize() async {
     if (Platform.environment.containsKey('JWT_SECRET')) {
+      _validateJwtSecret(Platform.environment['JWT_SECRET']!);
+
       _config = {
         'auth': {
           'jwt_secret': Platform.environment['JWT_SECRET'],
@@ -47,31 +48,27 @@ class ConfigService {
 
       return;
     }
-
-    try {
-      final file = File('${Directory.current.path}/config.yaml');
-      if (!await file.exists()) {
-        throw Exception(
-            'Configuration file not found. Please create the config.yaml file based on the config.yaml.example file.');
-      }
-
-      final yamlString = await file.readAsString();
-      final yamlConfig = loadYaml(yamlString);
-      _config = Map<String, dynamic>.from(yamlConfig);
-    } catch (e) {
-      throw Exception('Failed to load configuration: $e');
-    }
-
-    _validateConfig();
   }
 
-  void _validateConfig() {
-    if (!_config.containsKey('auth') ||
-        !_config['auth'].containsKey('service_account') ||
-        !_config['auth'].containsKey('jwt_secret') ||
-        !_config['auth']['service_account'].containsKey('username') ||
-        !_config['auth']['service_account'].containsKey('password')) {
-      throw Exception('Invalid configuration: Missing required auth settings');
+  void _validateJwtSecret(String secret) {
+    if (secret.length < 32) {
+      throw Exception("JWT secret must be at least 32 characters long");
+    }
+
+    bool hasLowercase = secret.contains(RegExp(r'[a-z]'));
+    bool hasUppercase = secret.contains(RegExp(r'[A-Z]'));
+    bool hasDigits = secret.contains(RegExp(r'[0-9]'));
+    bool hasSpecial = secret.contains(RegExp(r'[^a-zA-Z0-9]'));
+
+    int complexityScore = 0;
+    if (hasLowercase) complexityScore++;
+    if (hasUppercase) complexityScore++;
+    if (hasDigits) complexityScore++;
+    if (hasSpecial) complexityScore++;
+
+    if (complexityScore < 3) {
+      throw Exception(
+          'JWT secret must contain at least 3 of the following: lowercase letters, uppercase letters, numbers, special characters');
     }
   }
 

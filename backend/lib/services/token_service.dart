@@ -4,6 +4,32 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:shelf/shelf.dart';
 import 'package:uuid/uuid.dart';
 
+class ClientIdentifier {
+  final String ip;
+  final String userAgent;
+  final String? username;
+
+  ClientIdentifier({
+    required this.ip,
+    required this.userAgent,
+    this.username,
+  });
+
+  @override
+  int get hashCode => Object.hash(ip, userAgent, username);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! ClientIdentifier) return false;
+    return ip == other.ip &&
+        userAgent == other.userAgent &&
+        username == other.username;
+  }
+
+  @override
+  String toString() => '$ip|$userAgent${username != null ? '|$username' : ''}';
+}
+
 class TokenPair {
   final String accessToken;
   final String refreshToken;
@@ -55,20 +81,34 @@ class TokenService {
     }
   }
 
-  bool checkRateLimit(String ip) {
+  bool checkRateLimit(Request request, [String? username]) {
+    final userAgent = request.headers['user-agent'] ?? 'unknown';
+    final ip = request.headers['x-forwarded-for']?.split(',').first.trim() ??
+        request.headers['x-real-ip'] ??
+        'unknown';
+
+    final identifier = ClientIdentifier(
+      ip: ip,
+      userAgent: userAgent,
+      username: username,
+    ).toString();
+
     final now = DateTime.now();
 
-    _rateLimitAttempts[ip] = _rateLimitAttempts[ip] ?? Queue<DateTime>();
-    while (_rateLimitAttempts[ip]!.isNotEmpty &&
-        now.difference(_rateLimitAttempts[ip]!.first) > _rateLimitWindow) {
-      _rateLimitAttempts[ip]!.removeFirst();
+    _rateLimitAttempts[identifier] =
+        _rateLimitAttempts[identifier] ?? Queue<DateTime>();
+
+    while (_rateLimitAttempts[identifier]!.isNotEmpty &&
+        now.difference(_rateLimitAttempts[identifier]!.first) >
+            _rateLimitWindow) {
+      _rateLimitAttempts[identifier]!.removeFirst();
     }
 
-    if (_rateLimitAttempts[ip]!.length >= _maxAttemptsPerWindow) {
+    if (_rateLimitAttempts[identifier]!.length >= _maxAttemptsPerWindow) {
       return false;
     }
 
-    _rateLimitAttempts[ip]!.add(now);
+    _rateLimitAttempts[identifier]!.add(now);
     return true;
   }
 

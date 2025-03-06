@@ -1,5 +1,6 @@
 import 'package:backend/services/input_sanitizer.dart';
 import 'package:backend/services/token_service.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dartdap/dartdap.dart';
 import 'package:shelf/shelf.dart';
 
@@ -10,85 +11,158 @@ class AuthService {
   final TokenService tokenService;
   final String serviceAccountUsername;
   final String serviceAccountPassword;
+  final String jwtSecret;
+  late final LdapConnectionPool _ldapPool;
 
   AuthService({
     required this.ldapUrl,
     required this.ldapPort,
     required this.baseDN,
-    required String jwtSecret,
+    required this.jwtSecret,
     required this.serviceAccountUsername,
     required this.serviceAccountPassword,
   }) : tokenService = TokenService(
           jwtSecret: jwtSecret,
           maxAttemptsPerWindow: 10,
           rateLimitWindow: Duration(seconds: 30),
-        );
+        ) {
+    _ldapPool = LdapConnectionPool(
+        ldapUrl: ldapUrl, ldapPort: ldapPort, maxConnections: 5);
+  }
 
   Future<Map<String, dynamic>?> authenticateUser(
       String username, String password) async {
+    if (username.isEmpty || password.isEmpty) {
+      print('Authentication attempt with empty username or password');
+      return null;
+    }
+
     late final LdapConnection ldap;
 
     try {
-      ldap = await _getLdapConnection();
+      ldap = await _ldapPool.getConnection();
       final userDN = '$username@ad.unil.ch';
-      await ldap.bind(dn: DN(userDN), password: password);
 
-      final searchResult = await ldap.search(
-        DN(baseDN),
-        Filter.equals('sAMAccountName', username),
-        ['displayName', 'cn', 'mail', 'memberOf'],
-        scope: SearchScope.SUB_LEVEL,
-      );
-
-      SearchEntry? userEntry;
-
-      await for (var entry in searchResult.stream) {
-        if (entry.attributes['cn']?.values.first == username) {
-          userEntry = entry;
-          break;
-        }
+      try {
+        await ldap.bind(dn: DN(userDN), password: password);
+      } on LdapResultInvalidCredentialsException {
+        print('Invalid credentials for user: $username');
+        return null;
+      } on LdapResultUnavailableException {
+        print('LDAP server unavailable during bind');
+        throw Exception('Authentication service temporarily unavailable');
+      } on LdapException catch (e) {
+        print('LDAP error during bind: $e');
+        throw Exception('Authentication error: ${e.message}');
       }
 
-      if (userEntry == null) return null;
-
-      final groups = <String>[];
-      if (userEntry.attributes.containsKey('memberOf')) {
-        groups.addAll(
-          userEntry.attributes['memberOf']!.values
-              .map((v) => v.toString())
-              .map((dn) => RegExp(r'CN=([^,]+)').firstMatch(dn)?.group(1) ?? '')
-              .where((cn) => cn.isNotEmpty),
+      try {
+        final searchResult = await ldap.search(
+          DN(baseDN),
+          Filter.equals('sAMAccountName', username),
+          ['displayName', 'cn', 'mail', 'memberOf'],
+          scope: SearchScope.SUB_LEVEL,
         );
-      }
 
-      return {
-        'username': userEntry.attributes['cn']?.values.first,
-        'displayName': userEntry.attributes['displayName']?.values.first,
-        'email': userEntry.attributes['mail']?.values.first,
-        'groups': groups,
-      };
-    } on LdapResultInvalidCredentialsException catch (_) {
-      print('Invalid credentials');
-      return null;
-    } on LdapException catch (e) {
-      print('Unexpected error during authentication: $e');
-      return null;
+        SearchEntry? userEntry;
+
+        await for (var entry in searchResult.stream) {
+          if (entry.attributes['cn']?.values.isNotEmpty == true &&
+              entry.attributes['cn']?.values.first == username) {
+            userEntry = entry;
+            break;
+          }
+        }
+
+        if (userEntry == null) {
+          print('User authenticated but not found in directory: $username');
+          return null;
+        }
+
+        final groups = <String>[];
+        if (userEntry.attributes.containsKey('memberOf')) {
+          groups.addAll(
+            userEntry.attributes['memberOf']!.values
+                .map((v) => v.toString())
+                .map((dn) =>
+                    RegExp(r'CN=([^,]+)').firstMatch(dn)?.group(1) ?? '')
+                .where((cn) => cn.isNotEmpty)
+                .map((group) =>
+                    InputSanitizer.sanitizeText(group)), // Sanitize group names
+          );
+        }
+
+        // Sanitize all user data before returning
+        return {
+          'username': InputSanitizer.sanitizeText(
+              userEntry.attributes['cn']?.values.first?.toString() ?? ''),
+          'displayName': InputSanitizer.sanitizeText(
+              userEntry.attributes['displayName']?.values.first?.toString() ??
+                  ''),
+          'email': InputSanitizer.sanitizeText(
+              userEntry.attributes['mail']?.values.first?.toString() ?? ''),
+          'groups': groups,
+        };
+      } on LdapResultSizeLimitExceededException {
+        print('Size limit exceeded for LDAP search');
+        throw Exception('Too many results returned from directory');
+      } on LdapResultTimeLimitExceededException {
+        print('Time limit exceeded for LDAP search');
+        throw Exception('Directory search timed out');
+      } on LdapException catch (e) {
+        print('LDAP error during search: $e');
+        throw Exception('Error retrieving user information: ${e.message}');
+      }
+    } catch (e) {
+      if (e is! Exception) {
+        print('Unexpected error during authentication: $e');
+        throw Exception('Authentication failed due to an unexpected error');
+      }
+      rethrow;
     } finally {
-      await ldap.close();
+      try {
+        await _ldapPool.releaseConnection(ldap);
+      } catch (e) {
+        print('Error closing LDAP connection: $e');
+      }
     }
   }
 
-  bool checkRateLimit(Request request) {
-    final ip = request.headers['x-forwarded-for']?.split(',').first.trim() ??
-        request.headers['x-real-ip'] ??
-        'unknown';
+  bool checkRateLimit(Request request, [String? username]) {
+    return tokenService.checkRateLimit(request, username);
+  }
 
-    return tokenService.checkRateLimit(ip);
+  Future<void> dispose() async {
+    await _ldapPool.dispose();
   }
 
   TokenPair generateTokenPair(Map<String, dynamic> userData, Request request) {
     final fingerprint = tokenService.generateFingerPrint(request);
     return tokenService.generateTokenPair(userData, fingerprint);
+  }
+
+  List<String> getGroupsFromToken(String token) {
+    try {
+      final jwt = JWT.verify(token, SecretKey(jwtSecret));
+      final payload = jwt.payload;
+
+      if (!payload.containsKey('groups')) {
+        return [];
+      }
+
+      final groups = payload['groups'];
+      if (groups is! List) {
+        return [];
+      }
+
+      return groups
+          .map((group) => group.toString())
+          .where((group) => group.isNotEmpty)
+          .toList();
+    } catch (e) {
+      print('Error extracting groups from token: $e');
+      return [];
+    }
   }
 
   Future<Map<String, dynamic>?> getUserData(String username) async {
@@ -97,7 +171,7 @@ class AuthService {
     late final LdapConnection ldap;
 
     try {
-      ldap = await _getLdapConnection();
+      ldap = await _ldapPool.getConnection();
 
       String serviceAccountDN =
           InputSanitizer.sanitizeLdapDN(serviceAccountUsername);
@@ -148,7 +222,7 @@ class AuthService {
 
       return sanitizedData;
     } finally {
-      await ldap.close();
+      await _ldapPool.releaseConnection(ldap);
     }
   }
 
@@ -165,23 +239,83 @@ class AuthService {
     final fingerprint = tokenService.generateFingerPrint(request);
     return tokenService.verifyRefreshToken(token, fingerprint);
   }
+}
 
-  Future<LdapConnection> _getLdapConnection() async {
-    final ldap = LdapConnection(
+class LdapConnectionPool {
+  final String ldapUrl;
+  final int ldapPort;
+  final bool useSsl;
+  final int maxConnections;
+  final Duration connectionTimeout;
+
+  final List<LdapConnection> _availableConnections = [];
+  final List<LdapConnection> _inUseConnections = [];
+
+  LdapConnectionPool({
+    required this.ldapUrl,
+    required this.ldapPort,
+    this.useSsl = true,
+    this.maxConnections = 5,
+    this.connectionTimeout = const Duration(seconds: 10),
+  });
+
+  Future<void> dispose() async {
+    // Close all connections when shutting down
+    for (final connection in [..._availableConnections, ..._inUseConnections]) {
+      await _safeClose(connection);
+    }
+
+    _availableConnections.clear();
+    _inUseConnections.clear();
+  }
+
+  Future<LdapConnection> getConnection() async {
+    if (_availableConnections.isNotEmpty) {
+      final connection = _availableConnections.removeLast();
+      _inUseConnections.add(connection);
+      return connection;
+    }
+
+    if (_inUseConnections.length >= maxConnections) {
+      throw Exception('Maximum LDAP connections reached');
+    }
+
+    final connection = LdapConnection(
       host: ldapUrl,
       port: ldapPort,
-      ssl: true,
+      ssl: useSsl,
     );
+
     try {
-      await ldap.open();
-      return ldap;
+      await connection.open();
+      _inUseConnections.add(connection);
+      return connection;
     } catch (e) {
-      if (!ldap.isReady) {
-        try {
-          await ldap.close();
-        } catch (_) {}
+      await _safeClose(connection);
+      throw Exception('Failed to create LDAP connection: $e');
+    }
+  }
+
+  Future<void> releaseConnection(LdapConnection connection) async {
+    if (_inUseConnections.contains(connection)) {
+      _inUseConnections.remove(connection);
+
+      // Check if connection is still valid
+      if (connection.isReady) {
+        _availableConnections.add(connection);
+      } else {
+        await _safeClose(connection);
       }
-      throw Exception('Failed to connect to LDAP server: $e');
+    }
+  }
+
+  Future<void> _safeClose(LdapConnection connection) async {
+    try {
+      if (connection.isReady) {
+        await connection.close();
+      }
+    } catch (e) {
+      print('Error closing LDAP connection: $e');
     }
   }
 }
