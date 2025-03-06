@@ -14,7 +14,7 @@ class Api {
   final EncryptionService encryptionService;
 
   Api({required this.authService})
-      : db = AppDatabase(),
+      : db = AppDatabase(enableLogging: true),
         encryptionService = EncryptionService() {
     db.init();
   }
@@ -90,102 +90,105 @@ class Api {
           );
         }
 
-        final categories = db.db.select('''
-      WITH LinkData AS (
-        SELECT 
-          link.*,
-          s.name as status_name,
-          json_group_array(DISTINCT json_object(
-            'id', k.id,
-            'keyword', k.keyword
-          )) as keywords,
-          json_group_array(DISTINCT json_object(
-            'id', v.id,
-            'name', v.name
-          )) as views,
-          json_group_array(DISTINCT json_object(
-            'id', m.id,
-            'name', m.name,
-            'surname', m.surname,
-            'link', m.link
-          )) as managers,
-          EXISTS (
-            SELECT 1 
-            FROM links_views lv2
-            JOIN view v2 ON v2.id = lv2.view_id
-            WHERE lv2.link_id = link.id 
-            AND v2.name IN (${userGroups.map((g) => "'$g'").join(',')})
-          ) as has_access
-        FROM link
-        LEFT JOIN status s ON s.id = link.status_id
-        LEFT JOIN keywords_links kl ON link.id = kl.link_id
-        LEFT JOIN keyword k ON k.id = kl.keyword_id
-        LEFT JOIN links_views lv ON link.id = lv.link_id
-        LEFT JOIN view v ON v.id = lv.view_id
-        LEFT JOIN link_managers_links lm ON link.id = lm.link_id
-        LEFT JOIN link_manager m ON m.id = lm.manager_id
-        GROUP BY link.id
-      )
-      SELECT 
-        c.id as category_id,
-        c.name as category_name,
-        json_group_array(
-          CASE 
-            WHEN ld.has_access = 1 THEN
-              json_object(
-                'id', ld.id,
-                'link', ld.link,
-                'title', ld.title,
-                'description', ld.description,
-                'doc_link', ld.doc_link,
-                'status_id', ld.status_id,
-                'status_name', ld.status_name,
-                'keywords', ld.keywords,
-                'views', ld.views,
-                'managers', ld.managers
-              )
-            ELSE NULL
-          END
-        ) as links
-      FROM categories c
-      LEFT JOIN LinkData ld ON c.id = ld.category_id
-      GROUP BY c.id
-    ''').map((row) {
-          var map = Map<String, dynamic>.from(row);
-          var links = jsonDecode(map['links']) as List;
+        final categories = db.getCategoriesForUser(userGroups);
 
-          links = links.where((link) => link != null).map((link) {
-            if (link['keywords'] != null) {
-              link['keywords'] = jsonDecode(
-                link['keywords'].toString(),
-              );
-            }
-            if (link['views'] != null) {
-              link['views'] = jsonDecode(link['views'].toString());
-            }
-            if (link['managers'] != null) {
-              link['managers'] = jsonDecode(
-                link['managers'].toString(),
-              );
-            }
-            return link;
-          }).toList();
-
-          map['links'] = links;
-          return map;
-        }).toList();
-
-        categories.removeWhere(
-          (category) => (category['links'] as List).isEmpty,
-        );
+        final filteredCategories = categories
+            .where(
+              (category) => (category['links'] as List).isNotEmpty,
+            )
+            .toList();
 
         return Response.ok(
-          jsonEncode({'categories': categories}),
+          jsonEncode({'categories': filteredCategories}),
+          headers: {'content-type': 'application/json'},
+        );
+      } catch (e) {
+        return Response.internalServerError(
+          body: jsonEncode(
+              {'error': 'Internal server error', 'details': e.toString()}),
+          headers: {'content-type': 'application/json'},
+        );
+      }
+    });
+
+    router.get('/admin/db-stats', (Request request) async {
+      try {
+        final authHeader = request.headers['authorization'];
+        if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+          return Response(401, body: 'No token provided');
+        }
+
+        final token = authHeader.substring(7);
+        if (!authService.verifyAccessToken(token, request)) {
+          return Response(401, body: 'Invalid token');
+        }
+
+        // Check if user is an admin
+        final decodedToken = JwtDecoder.decode(token);
+        final userGroups =
+            (decodedToken['groups'] as List<dynamic>?)?.cast<String>() ?? [];
+
+        if (!userGroups.contains('admin') && !userGroups.contains('si-bcu-g')) {
+          return Response(403, body: 'Insufficient permissions');
+        }
+
+        final stats = db.getDatabaseStats();
+
+        return Response.ok(
+          jsonEncode({'stats': stats}),
           headers: {'content-type': 'application/json'},
         );
       } catch (e) {
         return Response.internalServerError(
           body: jsonEncode({'error': 'Internal server error'}),
+          headers: {'content-type': 'application/json'},
+        );
+      }
+    });
+
+    router.post('/admin/db-backup', (Request request) async {
+      try {
+        final authHeader = request.headers['authorization'];
+        if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+          return Response(401, body: 'No token provided');
+        }
+
+        final token = authHeader.substring(7);
+        if (!authService.verifyAccessToken(token, request)) {
+          return Response(401, body: 'Invalid token');
+        }
+
+        final decodedToken = JwtDecoder.decode(token);
+        final userGroups =
+            (decodedToken['groups'] as List<dynamic>?)?.cast<String>() ?? [];
+
+        if (!userGroups.contains('admin') && !userGroups.contains('si-bcu-g')) {
+          return Response(403, body: 'Insufficient permissions');
+        }
+
+        final timestamp = DateTime.now()
+            .toIso8601String()
+            .replaceAll(':', '-')
+            .replaceAll('.', '-');
+        final backupPath = '/data/backup_$timestamp.db';
+
+        final success = await db.backup(backupPath);
+
+        if (success) {
+          return Response.ok(
+            jsonEncode({'success': true, 'path': backupPath}),
+            headers: {'content-type': 'application/json'},
+          );
+        } else {
+          return Response.internalServerError(
+            body: jsonEncode({'error': 'Backup failed'}),
+            headers: {'content-type': 'application/json'},
+          );
+        }
+      } catch (e) {
+        return Response.internalServerError(
+          body: jsonEncode(
+              {'error': 'Internal server error', 'details': e.toString()}),
           headers: {'content-type': 'application/json'},
         );
       }
@@ -276,5 +279,9 @@ class Api {
     });
 
     return router;
+  }
+
+  void dispose() {
+    db.dispose();
   }
 }

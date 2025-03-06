@@ -1,12 +1,245 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:sqlite3/sqlite3.dart';
 
 class AppDatabase {
   late final Database _db;
+  final String dbPath;
+  final bool enableLogging;
+
+  AppDatabase({
+    this.dbPath = '/data/data.db',
+    this.enableLogging = false,
+  });
+
   Database get db => _db;
 
+  Future<bool> backup(String backupPath) async {
+    if (enableLogging) {
+      print('Starting database backup to $backupPath...');
+    }
+
+    try {
+      final sourceFile = File(dbPath);
+
+      _db.execute('PRAGMA wal_checkpoint;');
+
+      await sourceFile.copy(backupPath);
+
+      if (enableLogging) {
+        final sourceSize = await sourceFile.length();
+        final backupSize = await File(backupPath).length();
+
+        print('Database backup completed successfully');
+        print('Source size: ${(sourceSize / 1024).toStringAsFixed(2)} KB');
+        print('Backup size: ${(backupSize / 1024).toStringAsFixed(2)} KB');
+      }
+
+      return true;
+    } catch (e) {
+      print('Database backup failed: $e');
+      return false;
+    }
+  }
+
+  void dispose() {
+    try {
+      _db.dispose();
+      if (enableLogging) {
+        print('Database connection closed.');
+      }
+    } catch (e) {
+      print('Error closing database: $e');
+    }
+  }
+
+  List<Map<String, dynamic>> executeQuery(String sql,
+      [List<Object?> parameters = const []]) {
+    final Stopwatch stopwatch = Stopwatch()..start();
+    try {
+      final result = _db.select(sql, parameters);
+      if (enableLogging) {
+        print('Query executed in ${stopwatch.elapsedMilliseconds}ms: $sql');
+      }
+      return result;
+    } catch (e) {
+      print('Query failed in ${stopwatch.elapsedMilliseconds}ms: $sql');
+      print('Error: $e');
+      rethrow;
+    }
+  }
+
+  List<Map<String, dynamic>> getCategoriesForUser(List<String> userGroups) {
+    if (userGroups.isEmpty) {
+      return [];
+    }
+
+    // Convert userGroups to SQL placeholders
+    final placeholders = userGroups.map((_) => '?').join(',');
+
+    // Prepare the SQL statement
+    final stmt = _db.prepare('''
+    WITH LinkData AS (
+      SELECT 
+        link.*,
+        s.name as status_name,
+        json_group_array(DISTINCT json_object(
+          'id', k.id,
+          'keyword', k.keyword
+        )) as keywords,
+        json_group_array(DISTINCT json_object(
+          'id', v.id,
+          'name', v.name
+        )) as views,
+        json_group_array(DISTINCT json_object(
+          'id', m.id,
+          'name', m.name,
+          'surname', m.surname,
+          'link', m.link
+        )) as managers,
+        EXISTS (
+          SELECT 1 
+          FROM links_views lv2
+          JOIN view v2 ON v2.id = lv2.view_id
+          WHERE lv2.link_id = link.id 
+          AND v2.name IN ($placeholders)
+        ) as has_access
+      FROM link
+      LEFT JOIN status s ON s.id = link.status_id
+      LEFT JOIN keywords_links kl ON link.id = kl.link_id
+      LEFT JOIN keyword k ON k.id = kl.keyword_id
+      LEFT JOIN links_views lv ON link.id = lv.link_id
+      LEFT JOIN view v ON v.id = lv.view_id
+      LEFT JOIN link_managers_links lm ON link.id = lm.link_id
+      LEFT JOIN link_manager m ON m.id = lm.manager_id
+      GROUP BY link.id
+    )
+    SELECT 
+      c.id as category_id,
+      c.name as category_name,
+      json_group_array(
+        CASE 
+          WHEN ld.has_access = 1 THEN
+            json_object(
+              'id', ld.id,
+              'link', ld.link,
+              'title', ld.title,
+              'description', ld.description,
+              'doc_link', ld.doc_link,
+              'status_id', ld.status_id,
+              'status_name', ld.status_name,
+              'keywords', ld.keywords,
+              'views', ld.views,
+              'managers', ld.managers
+            )
+          ELSE NULL
+        END
+      ) as links
+    FROM categories c
+    LEFT JOIN LinkData ld ON c.id = ld.category_id
+    GROUP BY c.id
+    ''');
+
+    try {
+      final Stopwatch stopwatch = Stopwatch()..start();
+      final result = stmt.select(userGroups);
+
+      if (enableLogging) {
+        print(
+            'Category query executed in ${stopwatch.elapsedMilliseconds}ms for ${userGroups.length} groups');
+      }
+
+      return result.map((row) {
+        var map = Map<String, dynamic>.from(row);
+        var links = jsonDecode(map['links']) as List;
+
+        links = links.where((link) => link != null).map((link) {
+          if (link['keywords'] != null) {
+            link['keywords'] = jsonDecode(link['keywords'].toString());
+          }
+          if (link['views'] != null) {
+            link['views'] = jsonDecode(link['views'].toString());
+          }
+          if (link['managers'] != null) {
+            link['managers'] = jsonDecode(link['managers'].toString());
+          }
+          return link;
+        }).toList();
+
+        map['links'] = links;
+        return map;
+      }).toList();
+    } finally {
+      stmt.dispose(); // Important to dispose the statement
+    }
+  }
+
+  Map<String, dynamic> getDatabaseStats() {
+    return {
+      'size_kb': File(dbPath).lengthSync() ~/ 1024,
+      'page_count': _db.select('PRAGMA page_count;').first['page_count'],
+      'page_size': _db.select('PRAGMA page_size;').first['page_size'],
+      'schema_version': _db
+              .select(
+                  "SELECT value FROM db_metadata WHERE key = 'schema_version';")
+              .firstOrNull?['value'] ??
+          '0',
+      'tables': _db
+          .select(
+              "SELECT name, (SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND tbl_name=m.name) as index_count FROM sqlite_master m WHERE type='table' AND name NOT LIKE 'sqlite_%';")
+          .map((row) => {
+                'name': row['name'],
+                'index_count': row['index_count'],
+              })
+          .toList(),
+    };
+  }
+
   void init() {
-    _db = sqlite3.open('data.db');
+    final dbDir = Directory(dbPath.substring(0, dbPath.lastIndexOf('/')));
+    if (!dbDir.existsSync()) {
+      dbDir.createSync(recursive: true);
+    }
+
+    _db = sqlite3.open('/data/data.db');
     _initializeDatabase();
+
+    if (enableLogging) {
+      print('Database initialized at $dbPath');
+    }
+
+    if (!_checkDatabaseIntegrity()) {
+      print(
+          'WARNING: Database integrity check failed. Consider running recovery.');
+    }
+  }
+
+  bool _checkDatabaseIntegrity() {
+    try {
+      final result = _db.select("PRAGMA integrity_check;");
+      return result.first['integrity_check'] == 'ok';
+    } catch (e) {
+      print('Database integrity check failed: $e');
+      return false;
+    }
+  }
+
+  void _createIndexes() {
+    print('Creating database indexes for performance optimization...');
+    _db.execute('''
+      -- Indexes for link table
+      CREATE INDEX IF NOT EXISTS idx_link_category ON link(category_id);
+      CREATE INDEX IF NOT EXISTS idx_link_status ON link(status_id);
+
+      -- Indexes for relationship tables
+      CREATE INDEX IF NOT EXISTS idx_links_views_link ON links_views(link_id);
+      CREATE INDEX IF NOT EXISTS idx_links_views_view ON links_views(view_id);
+      CREATE INDEX IF NOT EXISTS idx_keywords_links_link ON keywords_links(link_id);
+      CREATE INDEX IF NOT EXISTS idx_keywords_links_keyword ON keywords_links(keyword_id);
+      CREATE INDEX IF NOT EXISTS idx_link_managers_links_link ON link_managers_links(link_id);
+      CREATE INDEX IF NOT EXISTS idx_link_managers_links_manager ON link_managers_links(manager_id);
+    ''');
   }
 
   void _createTables() {
@@ -66,20 +299,62 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
   }
 
   void _initializeDatabase() {
-    final tables = _db.select('''
-    SELECT name FROM sqlite_master 
-    WHERE type='table' 
-    AND name IN ('link', 'categories', 'status', 'keyword', 'view', 'link_manager');
-  ''');
+    // Create version table if it doesn't exist
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS db_metadata (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    ''');
 
-    if (tables.isEmpty) {
-      _createTables();
-      _insertMockData();
+    // Check current schema version
+    final versionResult = _db
+        .select("SELECT value FROM db_metadata WHERE key = 'schema_version';");
+
+    final currentVersion =
+        versionResult.isEmpty ? 0 : int.parse(versionResult.first['value']);
+    const targetVersion = 1; // Increment this when schema changes
+
+    if (currentVersion < targetVersion) {
+      print(
+          'Upgrading database from version $currentVersion to $targetVersion');
+      _db.execute('BEGIN TRANSACTION;');
+
+      try {
+        if (currentVersion == 0) {
+          _createTables();
+          _createIndexes();
+
+          // Check if we need to insert mock data
+          final categoriesCount =
+              _db.select('SELECT COUNT(*) as count FROM categories;');
+          if (categoriesCount.first['count'] == 0) {
+            _insertMockData();
+          }
+        }
+
+        // Future migrations would go here
+        // if (currentVersion < 2) _migrateToV2();
+
+        // Update the schema version
+        _db.execute('''
+          INSERT OR REPLACE INTO db_metadata (key, value) 
+          VALUES ('schema_version', '$targetVersion');
+        ''');
+
+        _db.execute('COMMIT;');
+        print('Database migration completed successfully');
+      } catch (e) {
+        _db.execute('ROLLBACK;');
+        print('Database migration failed: $e');
+        rethrow;
+      }
+    } else {
+      print('Database already at current version ($currentVersion)');
     }
   }
 
   void _insertMockData() {
-    _db.execute('BEGIN TRANSACTION;');
     try {
       final mockData = [
         '''
@@ -502,9 +777,7 @@ INSERT INTO keywords_links (link_id, keyword_id) VALUES (60, 25);
       for (final sql in mockData) {
         _db.execute(sql);
       }
-      _db.execute('COMMIT;');
     } catch (e) {
-      _db.execute('ROLLBACK;');
       rethrow;
     }
   }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:backend/db/api.dart';
@@ -9,6 +10,17 @@ import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 void main() async {
+  Api? api;
+  HttpServer? server;
+
+  ProcessSignal.sigint.watch().listen((_) async {
+    await _shutdown(server, api);
+  });
+
+  ProcessSignal.sigterm.watch().listen((_) async {
+    await _shutdown(server, api);
+  });
+
   try {
     final config = await ConfigService.getInstance();
     final AuthService authService = AuthService(
@@ -38,6 +50,24 @@ void main() async {
     print('Server running on http://${server.address.host}:${server.port}');
   } catch (e) {
     print('Failed to start server: $e');
+    await _shutdown(server, api);
     exit(1);
   }
+}
+
+Future<void> _shutdown(HttpServer? server, Api? api) async {
+  print('Shutting down server...');
+
+  if (server != null) {
+    await server.close(force: false);
+    print('HTTP server closed');
+  }
+
+  if (api != null) {
+    api.dispose();
+    print('Database connections closed');
+  }
+
+  print('Shutdown complete');
+  exit(0);
 }

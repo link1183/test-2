@@ -14,7 +14,7 @@ services:
       - "8080:8080"
     user: "1000:1000"
     volumes:
-      - sqlite_data:/app/data
+      - db_data:/data
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - SERVICE_ACCOUNT_USERNAME=${SERVICE_ACCOUNT_USERNAME}
@@ -26,4 +26,4 @@ services:
       - RATE_LIMIT_WINDOW_MINUTES=${RATE_LIMIT_WINDOW_MINUTES:-1}
 
 volumes:
-  sqlite_data:
+  db_data:
