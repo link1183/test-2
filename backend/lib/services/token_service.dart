@@ -77,7 +77,7 @@ class TokenService {
       _blacklistedTokenExpiry[token] = exp;
       _cleanupBlacklist();
     } catch (e) {
-      print('Attempt to blacklist invalid token: $e');
+      ('Attempt to blacklist invalid token: $e');
     }
   }
 

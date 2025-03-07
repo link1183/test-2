@@ -1,5 +1,6 @@
 import 'package:backend/services/input_sanitizer.dart';
 import 'package:backend/services/token_service.dart';
+import 'package:backend/utils/logger.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dartdap/dartdap.dart';
 import 'package:shelf/shelf.dart';
@@ -13,6 +14,7 @@ class AuthService {
   final String serviceAccountPassword;
   final String jwtSecret;
   late final LdapConnectionPool _ldapPool;
+  final _logger = LoggerFactory.getLogger('AuthService');
 
   AuthService({
     required this.ldapUrl,
@@ -33,7 +35,7 @@ class AuthService {
   Future<Map<String, dynamic>?> authenticateUser(
       String username, String password) async {
     if (username.isEmpty || password.isEmpty) {
-      print('Authentication attempt with empty username or password');
+      _logger.info('Authentication attempt with empty username or password');
       return null;
     }
 
@@ -46,13 +48,13 @@ class AuthService {
       try {
         await ldap.bind(dn: DN(userDN), password: password);
       } on LdapResultInvalidCredentialsException {
-        print('Invalid credentials for user: $username');
+        _logger.info('Invalid credentials for user', {'username': username});
         return null;
       } on LdapResultUnavailableException {
-        print('LDAP server unavailable during bind');
+        _logger.info('LDAP server unavailable during bind');
         throw Exception('Authentication service temporarily unavailable');
       } on LdapException catch (e) {
-        print('LDAP error during bind: $e');
+        _logger.error('LDAP error during bind', e);
         throw Exception('Authentication error: ${e.message}');
       }
 
@@ -75,7 +77,8 @@ class AuthService {
         }
 
         if (userEntry == null) {
-          print('User authenticated but not found in directory: $username');
+          _logger.info('User authenticated but not found in directory',
+              {'username': username});
           return null;
         }
 
@@ -104,18 +107,18 @@ class AuthService {
           'groups': groups,
         };
       } on LdapResultSizeLimitExceededException {
-        print('Size limit exceeded for LDAP search');
+        _logger.info('Size limit exceeded for LDAP search');
         throw Exception('Too many results returned from directory');
       } on LdapResultTimeLimitExceededException {
-        print('Time limit exceeded for LDAP search');
+        _logger.info('Time limit exceeded for LDAP search');
         throw Exception('Directory search timed out');
       } on LdapException catch (e) {
-        print('LDAP error during search: $e');
+        _logger.error('LDAP error during search', e);
         throw Exception('Error retrieving user information: ${e.message}');
       }
     } catch (e) {
       if (e is! Exception) {
-        print('Unexpected error during authentication: $e');
+        _logger.error('Unexpected error during authentication', e);
         throw Exception('Authentication failed due to an unexpected error');
       }
       rethrow;
@@ -123,7 +126,7 @@ class AuthService {
       try {
         await _ldapPool.releaseConnection(ldap);
       } catch (e) {
-        print('Error closing LDAP connection: $e');
+        _logger.error('Error closing LDAP connection', e);
       }
     }
   }
@@ -160,7 +163,7 @@ class AuthService {
           .where((group) => group.isNotEmpty)
           .toList();
     } catch (e) {
-      print('Error extracting groups from token: $e');
+      _logger.error('Error extracting groups from token', e);
       return [];
     }
   }
@@ -182,7 +185,7 @@ class AuthService {
         await ldap.bind(
             dn: DN(serviceAccountDN), password: serviceAccountPassword);
       } catch (e) {
-        print('Service account bind failed: $e');
+        _logger.error('Service account bind failed', e);
         rethrow;
       }
 
@@ -247,6 +250,7 @@ class LdapConnectionPool {
   final bool useSsl;
   final int maxConnections;
   final Duration connectionTimeout;
+  final _logger = LoggerFactory.getLogger('LdapConnectionPool');
 
   final List<LdapConnection> _availableConnections = [];
   final List<LdapConnection> _inUseConnections = [];
@@ -315,7 +319,7 @@ class LdapConnectionPool {
         await connection.close();
       }
     } catch (e) {
-      print('Error closing LDAP connection: $e');
+      _logger.error('Error closing LDAP connection', e);
     }
   }
 }
