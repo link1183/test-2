@@ -53,7 +53,7 @@ if [ -z "$USERNAME" ]; then
 fi
 
 # Always prompt for password (more secure than command line)
-read -s -p -r "Enter password: " PASSWORD
+read -s -r -p "Enter password: " PASSWORD
 echo ""
 
 if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
@@ -62,7 +62,7 @@ if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
 fi
 
 # Step 1: Get the public key
-echo "Fetching public key..."
+echo "Fetc ing public key..."
 PUBLIC_KEY_RESPONSE=$(curl -k -s "${API_URL}/public-key")
 PUBLIC_KEY=$(echo "$PUBLIC_KEY_RESPONSE" | jq -r '.publicKey')
 
@@ -135,7 +135,7 @@ if [ "$SUCCESS" = "true" ]; then
   echo "Backup file created at: $BACKUP_PATH"
   
   # Ask if user wants to download the backup file
-  read -p -r "Do you want to download the backup file? (y/n): " DOWNLOAD
+  read -r -p "Do you want to download the backup file? (y/n): " DOWNLOAD
   if [[ $DOWNLOAD == "y" || $DOWNLOAD == "Y" ]]; then
     CONTAINER_NAME=$(docker ps --filter "name=backend" --format "{{.Names}}")
     if [ -z "$CONTAINER_NAME" ]; then

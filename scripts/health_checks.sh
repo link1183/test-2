@@ -61,7 +61,7 @@ if $DETAILED; then
   fi
 
   # Always prompt for password (more secure than command line)
-  read -s -p -r "Enter password: " PASSWORD
+  read -s -r -p "Enter password: " PASSWORD
   echo ""
 
   if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then

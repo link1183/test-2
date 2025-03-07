@@ -74,17 +74,30 @@ class InputSanitizer {
   }
 
   static dynamic sanitizeJson(dynamic input) {
-    if (input is Map) {
-      return input.map((key, value) => MapEntry(
-            key is String ? sanitizeText(key) : key,
-            value is String && _isBase64(value) ? value : sanitizeJson(value),
-          ));
-    } else if (input is List) {
-      return input.map((item) => sanitizeJson(item)).toList();
-    } else if (input is String) {
-      return _isBase64(input) ? input : sanitizeText(input);
+    try {
+      if (input is Map) {
+        var sanitizedMap = <String, dynamic>{};
+        input.forEach((key, value) {
+          if (key is String) {
+            var sanitizedKey = sanitizeText(key);
+            sanitizedMap[sanitizedKey] = value is String && _isBase64(value)
+                ? value
+                : sanitizeJson(value);
+          }
+        });
+        return sanitizedMap;
+      } else if (input is List) {
+        return input.map((item) => sanitizeJson(item)).toList();
+      } else if (input is String) {
+        return _isBase64(input) ? input : sanitizeText(input);
+      } else if (input is int || input is double || input is bool) {
+        return input;
+      }
+
+      return input;
+    } catch (e) {
+      return input;
     }
-    return input;
   }
 
   static String sanitizeLdapDN(String dn) {
@@ -93,16 +106,45 @@ class InputSanitizer {
 
   static Map<String, dynamic>? sanitizeRequestBody(String body) {
     try {
-      final decoded = json.decode(body);
-      if (decoded is! Map<String, dynamic>) {
+      // Trim the body to remove any leading/trailing whitespace
+      body = body.trim();
+
+      // Check if body is empty
+      if (body.isEmpty) {
         return null;
       }
 
-      if (decoded.containsKey('username') && decoded.containsKey('password')) {
-        return decoded;
+      // Attempt to parse JSON
+      dynamic decoded = json.decode(body);
+
+      // Ensure decoded is a Map<String, dynamic>
+      if (decoded is! Map) {
+        return null;
       }
 
-      return sanitizeJson(decoded);
+      // Convert to Map<String, dynamic> with explicit type checking
+      Map<String, dynamic> sanitizedMap = {};
+      decoded.forEach((key, value) {
+        if (key is String) {
+          sanitizedMap[key] = value;
+        }
+      });
+
+      // Special handling for login credentials
+      if (sanitizedMap.containsKey('username') &&
+          sanitizedMap.containsKey('password')) {
+        return sanitizedMap;
+      }
+
+      // Sanitize the JSON
+      var sanitized = sanitizeJson(sanitizedMap);
+
+      // Validate that sanitization didn't completely strip the data
+      if (sanitized == null || (sanitized is Map && sanitized.isEmpty)) {
+        return null;
+      }
+
+      return sanitized;
     } catch (e) {
       return null;
     }

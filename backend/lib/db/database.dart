@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:backend/utils/logger.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 class AppDatabase {
@@ -46,6 +47,135 @@ class AppDatabase {
     } catch (e) {
       print('Database backup failed: $e');
       return false;
+    }
+  }
+
+  /// Creates a new link
+  /// Returns the ID of the newly created link
+  Future<int> createLink({
+    required String link,
+    required String title,
+    required String description,
+    String? docLink,
+    required int statusId,
+    required int categoryId,
+    required List<int> viewIds,
+    required List<int> keywordIds,
+    required List<int> managerIds,
+  }) async {
+    final logger = LoggerFactory.getLogger('Database');
+
+    try {
+      // Start a transaction for atomicity
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Insert the link
+      final stmt = _db.prepare('''
+      INSERT INTO link (link, title, description, doc_link, status_id, category_id)
+      VALUES (?, ?, ?, ?, ?, ?)
+    ''');
+
+      stmt.execute([
+        link,
+        title,
+        description,
+        docLink ?? '',
+        statusId,
+        categoryId,
+      ]);
+
+      stmt.dispose();
+
+      // Get the ID of the newly inserted link
+      final lastRowId =
+          _db.select('SELECT last_insert_rowid() as id').first['id'] as int;
+
+      // Insert view relationships
+      if (viewIds.isNotEmpty) {
+        final viewValues =
+            viewIds.map((viewId) => '($lastRowId, $viewId)').join(', ');
+        _db.execute('''
+        INSERT INTO links_views (link_id, view_id)
+        VALUES $viewValues
+      ''');
+      }
+
+      // Insert keyword relationships
+      if (keywordIds.isNotEmpty) {
+        final keywordValues = keywordIds
+            .map((keywordId) => '($lastRowId, $keywordId)')
+            .join(', ');
+        _db.execute('''
+        INSERT INTO keywords_links (link_id, keyword_id)
+        VALUES $keywordValues
+      ''');
+      }
+
+      // Insert manager relationships
+      if (managerIds.isNotEmpty) {
+        final managerValues = managerIds
+            .map((managerId) => '($lastRowId, $managerId)')
+            .join(', ');
+        _db.execute('''
+        INSERT INTO link_managers_links (link_id, manager_id)
+        VALUES $managerValues
+      ''');
+      }
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      // Invalidate the categories cache since we've modified links
+      invalidateCategoriesCache();
+
+      logger.info('Created new link', {'id': lastRowId, 'title': title});
+      return lastRowId;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      logger.error('Failed to create link', e);
+      rethrow;
+    }
+  }
+
+  /// Delete a link
+  /// Returns true if the deletion was successfull
+  Future<bool> deleteLink(int id) async {
+    final logger = LoggerFactory.getLogger('Database');
+
+    try {
+      // Check if the link exists
+      final exists =
+          _db.select('SELECT 1 FROM link WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        logger.warning('Link not found for deletion', {'id': id});
+        return false;
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Delete related data first (foreign key constraints)
+      _db.execute('DELETE FROM links_views WHERE link_id = ?', [id]);
+      _db.execute('DELETE FROM keywords_links WHERE link_id = ?', [id]);
+      _db.execute('DELETE FROM link_managers_links WHERE link_id = ?', [id]);
+
+      // Delete the link itself
+      _db.execute('DELETE FROM link WHERE id = ?', [id]);
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      // Invalidate the categories cache
+      invalidateCategoriesCache();
+
+      logger.info('Deleted link', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      logger.error('Failed to delete link', e, null, {'id': id});
+      rethrow;
     }
   }
 
@@ -125,6 +255,64 @@ class AppDatabase {
     };
   }
 
+  /// Get a link by ID
+  /// Returns the link data or null if not found
+  Map<String, dynamic>? getLinkById(int id) {
+    try {
+      final results = _db.select('''
+      SELECT 
+        l.id, l.link, l.title, l.description, l.doc_link, 
+        l.status_id, s.name as status_name,
+        l.category_id, c.name as category_name
+      FROM link l
+      LEFT JOIN status s ON s.id = l.status_id
+      LEFT JOIN categories c ON c.id = l.category_id
+      WHERE l.id = ?
+    ''', [id]);
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      final link = Map<String, dynamic>.from(results.first);
+
+      // Get views
+      final views = _db.select('''
+      SELECT v.id, v.name
+      FROM links_views lv
+      JOIN view v ON v.id = lv.view_id
+      WHERE lv.link_id = ?
+    ''', [id]).map((row) => Map<String, dynamic>.from(row)).toList();
+
+      // Get keywords
+      final keywords = _db.select('''
+      SELECT k.id, k.keyword
+      FROM keywords_links kl
+      JOIN keyword k ON k.id = kl.keyword_id
+      WHERE kl.link_id = ?
+    ''', [id]).map((row) => Map<String, dynamic>.from(row)).toList();
+
+      // Get managers
+      final managers = _db.select('''
+      SELECT m.id, m.name, m.surname, m.link
+      FROM link_managers_links lm
+      JOIN link_manager m ON m.id = lm.manager_id
+      WHERE lm.link_id = ?
+    ''', [id]).map((row) => Map<String, dynamic>.from(row)).toList();
+
+      // Add relationships to the result
+      link['views'] = views;
+      link['keywords'] = keywords;
+      link['managers'] = managers;
+
+      return link;
+    } catch (e) {
+      final logger = LoggerFactory.getLogger('Database');
+      logger.error('Error retrieving link', e, null, {'id': id});
+      return null;
+    }
+  }
+
   void init() {
     final dbDir = Directory(dbPath.substring(0, dbPath.lastIndexOf('/')));
     if (!dbDir.existsSync()) {
@@ -158,6 +346,143 @@ class AppDatabase {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Update an existing link
+  /// Returns true if the update was successfull
+  Future<bool> updateLink({
+    required int id,
+    String? link,
+    String? title,
+    String? description,
+    String? docLink,
+    int? statusId,
+    int? categoryId,
+    List<int>? viewIds,
+    List<int>? keywordIds,
+    List<int>? managerIds,
+  }) async {
+    final logger = LoggerFactory.getLogger('Database');
+
+    try {
+      // Check if the link exists
+      final exists =
+          _db.select('SELECT 1 FROM link WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        logger.warning('Link not found for update', {'id': id});
+        return false;
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Build the update statement dynamically based on provided fields
+      final updates = <String>[];
+      final params = <Object?>[];
+
+      if (link != null) {
+        updates.add('link = ?');
+        params.add(link);
+      }
+
+      if (title != null) {
+        updates.add('title = ?');
+        params.add(title);
+      }
+
+      if (description != null) {
+        updates.add('description = ?');
+        params.add(description);
+      }
+
+      if (docLink != null) {
+        updates.add('doc_link = ?');
+        params.add(docLink);
+      }
+
+      if (statusId != null) {
+        updates.add('status_id = ?');
+        params.add(statusId);
+      }
+
+      if (categoryId != null) {
+        updates.add('category_id = ?');
+        params.add(categoryId);
+      }
+
+      // If we have fields to update
+      if (updates.isNotEmpty) {
+        params.add(id); // Add the id parameter for the WHERE clause
+        final updateSql = '''
+        UPDATE link 
+        SET ${updates.join(', ')} 
+        WHERE id = ?
+      ''';
+        _db.execute(updateSql, params);
+      }
+
+      // Update view relationships if specified
+      if (viewIds != null) {
+        // Delete existing relationships
+        _db.execute('DELETE FROM links_views WHERE link_id = ?', [id]);
+
+        // Insert new relationships
+        if (viewIds.isNotEmpty) {
+          final viewValues =
+              viewIds.map((viewId) => '($id, $viewId)').join(', ');
+          _db.execute('''
+          INSERT INTO links_views (link_id, view_id)
+          VALUES $viewValues
+        ''');
+        }
+      }
+
+      // Update keyword relationships if specified
+      if (keywordIds != null) {
+        // Delete existing relationships
+        _db.execute('DELETE FROM keywords_links WHERE link_id = ?', [id]);
+
+        // Insert new relationships
+        if (keywordIds.isNotEmpty) {
+          final keywordValues =
+              keywordIds.map((keywordId) => '($id, $keywordId)').join(', ');
+          _db.execute('''
+          INSERT INTO keywords_links (link_id, keyword_id)
+          VALUES $keywordValues
+        ''');
+        }
+      }
+
+      // Update manager relationships if specified
+      if (managerIds != null) {
+        // Delete existing relationships
+        _db.execute('DELETE FROM link_managers_links WHERE link_id = ?', [id]);
+
+        // Insert new relationships
+        if (managerIds.isNotEmpty) {
+          final managerValues =
+              managerIds.map((managerId) => '($id, $managerId)').join(', ');
+          _db.execute('''
+          INSERT INTO link_managers_links (link_id, manager_id)
+          VALUES $managerValues
+        ''');
+        }
+      }
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      // Invalidate the categories cache
+      invalidateCategoriesCache();
+
+      logger.info('Updated link', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      logger.error('Failed to update link', e, null, {'id': id});
+      rethrow;
     }
   }
 
