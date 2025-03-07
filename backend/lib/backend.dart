@@ -26,6 +26,11 @@ void main() async {
   LoggerFactory.configure(
     minimumLevel: LogLevel.debug,
     logFilePath: '/data/logs/application.log',
+    useJsonFormat: false,
+    enableRotation: true,
+    maxLogSizeBytes: 10 * 1024 * 1024, // 10MB
+    maxBackupCount: 5,
+    checkIntervalSeconds: 600,
   );
 
   final logger = LoggerFactory.getLogger('Main');
@@ -68,7 +73,6 @@ void main() async {
 
     // Create the request pipeline with middleware
     final handler = Pipeline()
-        .addMiddleware(logRequests())
         .addMiddleware(corsHeaders())
         .addMiddleware(requestTrackingMiddleware())
         .addMiddleware(metricsMiddleware())

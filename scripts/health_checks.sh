@@ -57,11 +57,11 @@ done
 if $DETAILED; then
   # Prompt for username if not provided
   if [ -z "$USERNAME" ]; then
-    read -p "Enter username: " USERNAME
+    read -r -p "Enter username: " USERNAME
   fi
 
   # Always prompt for password (more secure than command line)
-  read -s -p "Enter password: " PASSWORD
+  read -s -p -r "Enter password: " PASSWORD
   echo ""
 
   if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
@@ -72,7 +72,7 @@ if $DETAILED; then
   # Step 1: Get the public key
   echo "Fetching public key..."
   PUBLIC_KEY_RESPONSE=$(curl -k -s "${API_URL}/public-key")
-  PUBLIC_KEY=$(echo $PUBLIC_KEY_RESPONSE | jq -r '.publicKey')
+  PUBLIC_KEY=$(echo "$PUBLIC_KEY_RESPONSE" | jq -r '.publicKey')
 
   if [ -z "$PUBLIC_KEY" ] || [ "$PUBLIC_KEY" == "null" ]; then
     echo "Failed to retrieve public key."
@@ -93,7 +93,7 @@ if $DETAILED; then
     echo -n "$value" > temp_value.txt
     
     # Encrypt with the public key and output in base64
-    openssl rsautl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
+    openssl pkeyutl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
     
     # Clean up
     rm temp_value.txt
@@ -116,11 +116,11 @@ if $DETAILED; then
     -d "{\"username\":\"${ENCRYPTED_USERNAME}\",\"password\":\"${ENCRYPTED_PASSWORD}\"}")
 
   # Extract the access token from the response
-  ACCESS_TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.accessToken')
+  ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.accessToken')
 
   if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
     echo "Login failed. Response was:"
-    echo $LOGIN_RESPONSE | jq .
+    echo "$LOGIN_RESPONSE" | jq .
     exit 1
   fi
 
@@ -132,18 +132,18 @@ if $DETAILED; then
     -H "Authorization: Bearer ${ACCESS_TOKEN}" \
     -H "Content-Type: application/json")
 
-  echo $HEALTH_RESPONSE | jq . > $OUTPUT_FILE
+  echo "$HEALTH_RESPONSE" | jq . > "$OUTPUT_FILE"
 
   # Check if health check was successful
-  STATUS=$(echo $HEALTH_RESPONSE | jq -r '.status')
+  STATUS=$(echo "$HEALTH_RESPONSE" | jq -r '.status')
 
   if [ "$STATUS" = "UP" ]; then
     echo "System is healthy! Detailed health status:"
-    echo $HEALTH_RESPONSE | jq .
+    echo "$HEALTH_RESPONSE" | jq .
     echo "Results saved to $OUTPUT_FILE"
   else
     echo "System health check indicates issues. Details:"
-    echo $HEALTH_RESPONSE | jq .
+    echo "$HEALTH_RESPONSE" | jq .
     echo "Results saved to $OUTPUT_FILE"
     exit 1
   fi
@@ -154,18 +154,18 @@ else
   HEALTH_RESPONSE=$(curl -k -s "https://localhost/api/health")
   
   # Save the response to the output file
-  echo $HEALTH_RESPONSE | jq . > $OUTPUT_FILE
+  echo "$HEALTH_RESPONSE" | jq . > "$OUTPUT_FILE"
   
   # Check status
-  STATUS=$(echo $HEALTH_RESPONSE | jq -r '.status')
+  STATUS=$(echo "$HEALTH_RESPONSE" | jq -r '.status')
   
   if [ "$STATUS" = "UP" ]; then
     echo "System is healthy!"
-    echo $HEALTH_RESPONSE | jq .
+    echo "$HEALTH_RESPONSE" | jq .
     echo "Results saved to $OUTPUT_FILE"
   else
     echo "System health check indicates issues. Details:"
-    echo $HEALTH_RESPONSE | jq .
+    echo "$HEALTH_RESPONSE" | jq .
     echo "Results saved to $OUTPUT_FILE"
     exit 1
   fi

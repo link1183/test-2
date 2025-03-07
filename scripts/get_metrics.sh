@@ -59,11 +59,11 @@ done
 
 # Prompt for username if not provided
 if [ -z "$USERNAME" ]; then
-  read -p "Enter username: " USERNAME
+  read -p -r "Enter username: " USERNAME
 fi
 
 # Always prompt for password (more secure than command line)
-read -s -p "Enter password: " PASSWORD
+read -s -p -r "Enter password: " PASSWORD
 echo ""
 
 if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
@@ -74,7 +74,7 @@ fi
 # Step 1: Get the public key
 echo "Fetching public key..."
 PUBLIC_KEY_RESPONSE=$(curl -k -s "${API_URL}/public-key")
-PUBLIC_KEY=$(echo $PUBLIC_KEY_RESPONSE | jq -r '.publicKey')
+PUBLIC_KEY=$(echo "$PUBLIC_KEY_RESPONSE" | jq -r '.publicKey')
 
 if [ -z "$PUBLIC_KEY" ] || [ "$PUBLIC_KEY" == "null" ]; then
   echo "Failed to retrieve public key."
@@ -95,7 +95,7 @@ encrypt_value() {
   echo -n "$value" > temp_value.txt
   
   # Encrypt with the public key and output in base64
-  openssl rsautl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
+  openssl pkeyutl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
   
   # Clean up
   rm temp_value.txt
@@ -118,11 +118,11 @@ LOGIN_RESPONSE=$(curl -k -s -X POST "${API_URL}/login" \
   -d "{\"username\":\"${ENCRYPTED_USERNAME}\",\"password\":\"${ENCRYPTED_PASSWORD}\"}")
 
 # Extract the access token from the response
-ACCESS_TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.accessToken')
+ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.accessToken')
 
 if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
   echo "Login failed. Response was:"
-  echo $LOGIN_RESPONSE | jq .
+  echo "$LOGIN_RESPONSE" | jq .
   exit 1
 fi
 
@@ -135,10 +135,10 @@ METRICS_RESPONSE=$(curl -k -s "https://localhost/api/metrics" \
   -H "Content-Type: application/json")
 
 # Save the raw metrics to file
-echo $METRICS_RESPONSE | jq . > $OUTPUT_FILE
+echo "$METRICS_RESPONSE" | jq . > "$OUTPUT_FILE"
 
 # Check if we got a valid response
-if [[ $(echo $METRICS_RESPONSE | jq -e . 2>/dev/null) ]]; then
+if [[ $(echo "$METRICS_RESPONSE" | jq -e . 2>/dev/null) ]]; then
   echo "Metrics retrieved successfully. Saved to $OUTPUT_FILE"
   
   # If requested format is summary, create a readable summary
@@ -148,35 +148,35 @@ if [[ $(echo $METRICS_RESPONSE | jq -e . 2>/dev/null) ]]; then
     echo ""
     
     # Timestamp
-    TIMESTAMP=$(echo $METRICS_RESPONSE | jq -r '.timestamp')
+    TIMESTAMP=$(echo "$METRICS_RESPONSE" | jq -r '.timestamp')
     echo "Timestamp: $TIMESTAMP"
     echo ""
     
     # HTTP Request Metrics
     echo "=== HTTP REQUESTS ==="
-    echo "Total requests: $(echo $METRICS_RESPONSE | jq -r '.counters.http_requests_total // "N/A"')"
-    echo "Active requests: $(echo $METRICS_RESPONSE | jq -r '.counters.http_requests_active // "N/A"')"
+    echo "Total requests: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_requests_total // "N/A"')"
+    echo "Active requests: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_requests_active // "N/A"')"
     
     # Response Codes
     echo ""
     echo "=== RESPONSE CODES ==="
-    echo "200 OK responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_200 // "N/A"')"
-    echo "400 Bad Request responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_400 // "N/A"')"
-    echo "401 Unauthorized responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_401 // "N/A"')"
-    echo "403 Forbidden responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_403 // "N/A"')"
-    echo "404 Not Found responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_404 // "N/A"')"
-    echo "500 Server Error responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_500 // "N/A"')"
+    echo "200 OK responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_200 // "N/A"')"
+    echo "400 Bad Request responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_400 // "N/A"')"
+    echo "401 Unauthorized responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_401 // "N/A"')"
+    echo "403 Forbidden responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_403 // "N/A"')"
+    echo "404 Not Found responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_404 // "N/A"')"
+    echo "500 Server Error responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_500 // "N/A"')"
     
     # Request Duration
-    if [[ $(echo $METRICS_RESPONSE | jq -e '.histograms.http_request_duration_milliseconds' 2>/dev/null) ]]; then
+    if [[ $(echo "$METRICS_RESPONSE" | jq -e '.histograms.http_request_duration_milliseconds' 2>/dev/null) ]]; then
       echo ""
       echo "=== REQUEST DURATION (milliseconds) ==="
-      echo "Minimum: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.min // "N/A"')"
-      echo "Maximum: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.max // "N/A"')"
-      echo "Average: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.avg // "N/A"')"
-      echo "50th percentile: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.p50 // "N/A"')"
-      echo "95th percentile: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.p95 // "N/A"')"
-      echo "99th percentile: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.p99 // "N/A"')"
+      echo "Minimum: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.min // "N/A"')"
+      echo "Maximum: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.max // "N/A"')"
+      echo "Average: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.avg // "N/A"')"
+      echo "50th percentile: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.p50 // "N/A"')"
+      echo "95th percentile: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.p95 // "N/A"')"
+      echo "99th percentile: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.p99 // "N/A"')"
     fi
     
     # Custom summary file
@@ -188,26 +188,26 @@ if [[ $(echo $METRICS_RESPONSE | jq -e . 2>/dev/null) ]]; then
       echo "Timestamp: $TIMESTAMP"
       echo ""
       echo "HTTP REQUESTS"
-      echo "Total requests: $(echo $METRICS_RESPONSE | jq -r '.counters.http_requests_total // "N/A"')"
-      echo "Active requests: $(echo $METRICS_RESPONSE | jq -r '.counters.http_requests_active // "N/A"')"
+      echo "Total requests: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_requests_total // "N/A"')"
+      echo "Active requests: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_requests_active // "N/A"')"
       echo ""
       echo "RESPONSE CODES"
-      echo "200 OK responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_200 // "N/A"')"
-      echo "400 Bad Request responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_400 // "N/A"')"
-      echo "401 Unauthorized responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_401 // "N/A"')"
-      echo "403 Forbidden responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_403 // "N/A"')"
-      echo "404 Not Found responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_404 // "N/A"')"
-      echo "500 Server Error responses: $(echo $METRICS_RESPONSE | jq -r '.counters.http_responses_500 // "N/A"')"
+      echo "200 OK responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_200 // "N/A"')"
+      echo "400 Bad Request responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_400 // "N/A"')"
+      echo "401 Unauthorized responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_401 // "N/A"')"
+      echo "403 Forbidden responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_403 // "N/A"')"
+      echo "404 Not Found responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_404 // "N/A"')"
+      echo "500 Server Error responses: $(echo "$METRICS_RESPONSE" | jq -r '.counters.http_responses_500 // "N/A"')"
       
-      if [[ $(echo $METRICS_RESPONSE | jq -e '.histograms.http_request_duration_milliseconds' 2>/dev/null) ]]; then
+      if [[ $(echo "$METRICS_RESPONSE" | jq -e '.histograms.http_request_duration_milliseconds' 2>/dev/null) ]]; then
         echo ""
         echo "REQUEST DURATION (milliseconds)"
-        echo "Minimum: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.min // "N/A"')"
-        echo "Maximum: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.max // "N/A"')"
-        echo "Average: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.avg // "N/A"')"
-        echo "50th percentile: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.p50 // "N/A"')"
-        echo "95th percentile: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.p95 // "N/A"')"
-        echo "99th percentile: $(echo $METRICS_RESPONSE | jq -r '.histograms.http_request_duration_milliseconds.p99 // "N/A"')"
+        echo "Minimum: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.min // "N/A"')"
+        echo "Maximum: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.max // "N/A"')"
+        echo "Average: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.avg // "N/A"')"
+        echo "50th percentile: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.p50 // "N/A"')"
+        echo "95th percentile: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.p95 // "N/A"')"
+        echo "99th percentile: $(echo "$METRICS_RESPONSE" | jq -r '.histograms.http_request_duration_milliseconds.p99 // "N/A"')"
       fi
     } > "$SUMMARY_FILE"
     
@@ -216,6 +216,6 @@ if [[ $(echo $METRICS_RESPONSE | jq -e . 2>/dev/null) ]]; then
   fi
 else
   echo "Failed to retrieve metrics. Response was:"
-  echo $METRICS_RESPONSE
+  echo "$METRICS_RESPONSE"
   exit 1
 fi

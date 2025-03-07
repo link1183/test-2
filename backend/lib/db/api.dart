@@ -31,7 +31,7 @@ class Api {
   Router get router {
     final router = Router();
 
-    // Auth endpoints
+    // Auth routes
     router.post(
         '/login',
         Pipeline()
@@ -231,4 +231,3 @@ class Api {
     }
   }
 }
-

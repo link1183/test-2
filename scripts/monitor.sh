@@ -65,11 +65,11 @@ done
 
 # Prompt for username if not provided
 if [ -z "$USERNAME" ]; then
-  read -p "Enter username: " USERNAME
+  read -p -r "Enter username: " USERNAME
 fi
 
 # Always prompt for password (more secure than command line)
-read -s -p "Enter password: " PASSWORD
+read -s -p -r "Enter password: " PASSWORD
 echo ""
 
 if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
@@ -86,7 +86,7 @@ fi
 # Step 1: Get the public key
 echo "Fetching public key..."
 PUBLIC_KEY_RESPONSE=$(curl -k -s "${API_URL}/public-key")
-PUBLIC_KEY=$(echo $PUBLIC_KEY_RESPONSE | jq -r '.publicKey')
+PUBLIC_KEY=$(echo "$PUBLIC_KEY_RESPONSE" | jq -r '.publicKey')
 
 if [ -z "$PUBLIC_KEY" ] || [ "$PUBLIC_KEY" == "null" ]; then
   echo "Failed to retrieve public key."
@@ -107,7 +107,7 @@ encrypt_value() {
   echo -n "$value" > temp_value.txt
   
   # Encrypt with the public key and output in base64
-  openssl rsautl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
+  openssl pkeyutl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
   
   # Clean up
   rm temp_value.txt
@@ -130,12 +130,12 @@ LOGIN_RESPONSE=$(curl -k -s -X POST "${API_URL}/login" \
   -d "{\"username\":\"${ENCRYPTED_USERNAME}\",\"password\":\"${ENCRYPTED_PASSWORD}\"}")
 
 # Extract the access token from the response
-ACCESS_TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.accessToken')
-REFRESH_TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.refreshToken')
+ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.accessToken')
+REFRESH_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.refreshToken')
 
 if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
   echo "Login failed. Response was:"
-  echo $LOGIN_RESPONSE | jq .
+  echo "$LOGIN_RESPONSE" | jq .
   exit 1
 fi
 
@@ -147,12 +147,12 @@ refresh_token() {
     -H "Content-Type: application/json" \
     -d "{\"refreshToken\":\"${REFRESH_TOKEN}\"}")
   
-  local new_access_token=$(echo $refresh_response | jq -r '.accessToken')
-  local new_refresh_token=$(echo $refresh_response | jq -r '.refreshToken')
+  local new_access_token=$(echo "$refresh_response" | jq -r '.accessToken')
+  local new_refresh_token=$(echo "$refresh_response" | jq -r '.refreshToken')
   
   if [ "$new_access_token" = "null" ] || [ -z "$new_access_token" ]; then
     echo "Token refresh failed. Response was:"
-    echo $refresh_response | jq .
+    echo "$refresh_response" | jq .
     return 1
   fi
   
@@ -173,17 +173,17 @@ check_status() {
     echo "Checking basic health status..."
     HEALTH_RESPONSE=$(curl -k -s "https://localhost/api/health")
     
-    if [[ $(echo $HEALTH_RESPONSE | jq -e . 2>/dev/null) ]]; then
+    if [[ $(echo "$HEALTH_RESPONSE" | jq -e . 2>/dev/null) ]]; then
       success=true
-      echo $HEALTH_RESPONSE | jq . > $HEALTH_OUTPUT
+      echo "$HEALTH_RESPONSE" | jq . > $HEALTH_OUTPUT
       
       # Save historical data if enabled
       if $SAVE_HISTORY; then
-        echo $HEALTH_RESPONSE | jq . > "$HISTORY_DIR/health_${timestamp}.json"
+        echo "$HEALTH_RESPONSE" | jq . > "$HISTORY_DIR/health_${timestamp}.json"
       fi
       
       # Display status
-      STATUS=$(echo $HEALTH_RESPONSE | jq -r '.status')
+      STATUS=$(echo "$HEALTH_RESPONSE" | jq -r '.status')
       if [ "$STATUS" = "UP" ]; then
         echo "$(date): System health: UP"
       else
@@ -208,7 +208,7 @@ check_status() {
       -H "Content-Type: application/json")
     
     # Check if we got unauthorized response
-    if [[ $(echo $METRICS_RESPONSE | jq -e '.error.code == "unauthorized"' 2>/dev/null) == "true" ]]; then
+    if [[ $(echo "$METRICS_RESPONSE" | jq -e '.error.code == "unauthorized"' 2>/dev/null) == "true" ]]; then
       echo "Token expired, attempting to refresh..."
       if refresh_token; then
         # Try again with new token
@@ -222,19 +222,19 @@ check_status() {
       fi
     fi
     
-    if [[ $(echo $METRICS_RESPONSE | jq -e . 2>/dev/null) ]]; then
+    if [[ $(echo "$METRICS_RESPONSE" | jq -e . 2>/dev/null) ]]; then
       success=true
-      echo $METRICS_RESPONSE | jq . > $METRICS_OUTPUT
+      echo "$METRICS_RESPONSE" | jq . > $METRICS_OUTPUT
       
       # Save historical data if enabled
       if $SAVE_HISTORY; then
-        echo $METRICS_RESPONSE | jq . > "$HISTORY_DIR/metrics_${timestamp}.json"
+        echo "$METRICS_RESPONSE" | jq . > "$HISTORY_DIR/metrics_${timestamp}.json"
       fi
       
       # Display key metrics
-      REQUEST_COUNT=$(echo $METRICS_RESPONSE | jq -r '.counters.http_requests_total // "N/A"')
-      ACTIVE_REQUESTS=$(echo $METRICS_RESPONSE | jq -r '.counters.http_requests_active // "N/A"')
-      ERROR_COUNT=$(echo $METRICS_RESPONSE | jq -r '.counters.http_errors_total // "N/A"')
+      REQUEST_COUNT=$(echo "$METRICS_RESPONSE" | jq -r '.counters.http_requests_total // "N/A"')
+      ACTIVE_REQUESTS=$(echo "$METRICS_RESPONSE" | jq -r '.counters.http_requests_active // "N/A"')
+      ERROR_COUNT=$(echo "$METRICS_RESPONSE" | jq -r '.counters.http_errors_total // "N/A"')
       
       echo "$(date): Total requests: $REQUEST_COUNT | Active: $ACTIVE_REQUESTS | Errors: $ERROR_COUNT"
     else
@@ -255,15 +255,15 @@ echo "------------------------------------------------------"
 
 # Calculate end time if duration specified
 END_TIME=""
-if [ ! -z "$MONITOR_DURATION" ]; then
-  END_TIME=$(($(date +%s) + $MONITOR_DURATION * 60))
+if [ -n "$MONITOR_DURATION" ]; then
+  END_TIME=("$(date +%s)" + "$MONITOR_DURATION" * 60)
   echo "Monitoring will run for $MONITOR_DURATION minutes"
 fi
 
 # Monitor indefinitely or until the specified duration
 while true; do
   # Check if we've reached the end time
-  if [ ! -z "$END_TIME" ] && [ $(date +%s) -ge $END_TIME ]; then
+  if [ -n "$END_TIME" ] && [ "$(date +%s)" -ge "$END_TIME" ]; then
     echo "Monitoring duration ($MONITOR_DURATION minutes) completed."
     break
   fi
@@ -272,7 +272,7 @@ while true; do
   check_status
   
   # Wait for the next interval
-  sleep $INTERVAL
+  sleep "$INTERVAL"
 done
 
 echo "Monitoring complete. Final results saved to $HEALTH_OUTPUT and $METRICS_OUTPUT"

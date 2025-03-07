@@ -1,21 +1,22 @@
 #!/bin/bash
-# Script to fetch database statistics including RSA encryption for login
+# Script to perform database backup including RSA encryption for login
 
 # Configuration
 API_URL="https://localhost/api"
-OUTPUT_FILE="db_stats_result.json"
+OUTPUT_FILE="backup_result.json"
 
 # Function to display usage
 display_usage() {
-  echo "Database Statistics Tool"
-  echo "------------------------"
-  echo "This script retrieves database statistics from the API."
+  echo "Database Backup Tool"
+  echo "-------------------"
+  echo "This script creates a backup of the database through the API."
   echo ""
   echo "Usage:"
   echo "  $0 [options]"
   echo ""
   echo "Options:"
   echo "  -u, --username USERNAME   Specify the username (optional)"
+  echo "  -o, --output FILENAME     Specify output filename (default: backup_result.json)"
   echo "  -h, --help                Display this help message"
   echo ""
   echo "If username is not provided, you will be prompted to enter it."
@@ -28,6 +29,10 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -u|--username)
       USERNAME="$2"
+      shift 2
+      ;;
+    -o|--output)
+      OUTPUT_FILE="$2"
       shift 2
       ;;
     -h|--help)
@@ -44,11 +49,11 @@ done
 
 # Prompt for username if not provided
 if [ -z "$USERNAME" ]; then
-  read -p "Enter username: " USERNAME
+  read -r -p "Enter username: " USERNAME
 fi
 
 # Always prompt for password (more secure than command line)
-read -s -p "Enter password: " PASSWORD
+read -s -p -r "Enter password: " PASSWORD
 echo ""
 
 if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
@@ -59,7 +64,7 @@ fi
 # Step 1: Get the public key
 echo "Fetching public key..."
 PUBLIC_KEY_RESPONSE=$(curl -k -s "${API_URL}/public-key")
-PUBLIC_KEY=$(echo $PUBLIC_KEY_RESPONSE | jq -r '.publicKey')
+PUBLIC_KEY=$(echo "$PUBLIC_KEY_RESPONSE" | jq -r '.publicKey')
 
 if [ -z "$PUBLIC_KEY" ] || [ "$PUBLIC_KEY" == "null" ]; then
   echo "Failed to retrieve public key."
@@ -80,7 +85,7 @@ encrypt_value() {
   echo -n "$value" > temp_value.txt
   
   # Encrypt with the public key and output in base64
-  openssl rsautl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
+  openssl pkeyutl -encrypt -inkey temp_public_key.pem -pubin -in temp_value.txt | base64 -w 0
   
   # Clean up
   rm temp_value.txt
@@ -103,49 +108,49 @@ LOGIN_RESPONSE=$(curl -k -s -X POST "${API_URL}/login" \
   -d "{\"username\":\"${ENCRYPTED_USERNAME}\",\"password\":\"${ENCRYPTED_PASSWORD}\"}")
 
 # Extract the access token from the response
-ACCESS_TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.accessToken')
+ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | jq -r '.accessToken')
 
 if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
   echo "Login failed. Response was:"
-  echo $LOGIN_RESPONSE | jq .
+  echo "$LOGIN_RESPONSE" | jq .
   exit 1
 fi
 
 echo "Successfully logged in, received access token."
 
-# Step 4: Fetch database statistics
-echo "Fetching database statistics..."
-STATS_RESPONSE=$(curl -k -s -X GET "${API_URL}/admin/db-stats" \
+# Step 4: Trigger database backup
+echo "Initiating database backup..."
+BACKUP_RESPONSE=$(curl -k -s -X POST "${API_URL}/admin/db-backup" \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json")
 
-# Save the raw response to a file
-echo $STATS_RESPONSE | jq . > $OUTPUT_FILE
+echo "$BACKUP_RESPONSE" | jq . > "$OUTPUT_FILE"
 
-# Check if the stats request was successful
-if echo "$STATS_RESPONSE" | jq -e '.stats' > /dev/null; then
-  echo -e "\nDatabase Statistics Summary:"
-  echo "============================"
+# Check if backup was successful
+SUCCESS=$(echo "$BACKUP_RESPONSE" | jq -r '.success')
+
+if [ "$SUCCESS" = "true" ]; then
+  BACKUP_PATH=$(echo "$BACKUP_RESPONSE" | jq -r '.path')
+  echo "Backup completed successfully!"
+  echo "Backup file created at: $BACKUP_PATH"
   
-  # Extract and display key statistics
-  DB_SIZE=$(echo $STATS_RESPONSE | jq -r '.stats.size_kb')
-  PAGE_COUNT=$(echo $STATS_RESPONSE | jq -r '.stats.page_count')
-  PAGE_SIZE=$(echo $STATS_RESPONSE | jq -r '.stats.page_size')
-  SCHEMA_VERSION=$(echo $STATS_RESPONSE | jq -r '.stats.schema_version')
-  
-  echo "Database Size: ${DB_SIZE} KB"
-  echo "Page Count: ${PAGE_COUNT}"
-  echo "Page Size: ${PAGE_SIZE} bytes"
-  echo "Schema Version: ${SCHEMA_VERSION}"
-  
-  # Display tables
-  echo -e "\nDatabase Tables:"
-  echo "----------------"
-  echo $STATS_RESPONSE | jq -r '.stats.tables[] | "Table: \(.name), Indexes: \(.index_count)"'
-  
-  echo -e "\nDetailed statistics saved to $OUTPUT_FILE"
+  # Ask if user wants to download the backup file
+  read -p -r "Do you want to download the backup file? (y/n): " DOWNLOAD
+  if [[ $DOWNLOAD == "y" || $DOWNLOAD == "Y" ]]; then
+    CONTAINER_NAME=$(docker ps --filter "name=backend" --format "{{.Names}}")
+    if [ -z "$CONTAINER_NAME" ]; then
+      echo "Could not find the backend container. Please download manually with:"
+      echo "docker cp container_name:$BACKUP_PATH ./local_backup.db"
+    else
+      LOCAL_FILENAME=$(basename "$BACKUP_PATH")
+      docker cp "$CONTAINER_NAME":"$BACKUP_PATH" ./"$LOCAL_FILENAME"
+      echo "Backup downloaded to ./$LOCAL_FILENAME"
+    fi
+  else
+    echo "To extract the backup file from the Docker container later, run:"
+    echo "docker cp container_name:$BACKUP_PATH ./local_backup.db"
+  fi
 else
-  echo "Failed to fetch database statistics. Response:"
-  echo $STATS_RESPONSE | jq .
+  echo "Backup failed. See error details above."
   exit 1
 fi
