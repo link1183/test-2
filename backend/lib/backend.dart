@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:backend/db/api.dart';
-import 'package:backend/db/database.dart';
+import 'package:backend/db/database_connection_pool.dart';
+import 'package:backend/db/database_seeder.dart';
 import 'package:backend/di/service_locator.dart';
 import 'package:backend/middleware/auth_middleware.dart';
 import 'package:backend/middleware/metrics_middleware.dart';
@@ -16,13 +17,14 @@ import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+/// Application entry point
 void main() async {
   HttpServer? server;
 
+  // Configure the logger
   Directory('/data/logs').createSync(recursive: true);
   Directory('/data/metrics').createSync(recursive: true);
 
-  // Configure the logger
   LoggerFactory.configure(
     minimumLevel: LogLevel.debug,
     logFilePath: '/data/logs/application.log',
@@ -52,24 +54,33 @@ void main() async {
     logger.info('Initializing service locator...');
     await ServiceLocator.instance.initialize();
 
-    // Initialize metrics service
-    MetricsService.instance.startPeriodicExport(
-      interval: Duration(minutes: 1),
-      filePath: '/data/metrics/metrics.json',
-    );
+    // Seed development data if environment variable is set
+    if (Platform.environment['SEED_DEV_DATA'] == 'true') {
+      logger.info('Seeding development data...');
+
+      final connectionPool =
+          ServiceLocator.instance.get<DatabaseConnectionPool>();
+      final seeder = DevelopmentSeeder();
+
+      await seeder.seed(connectionPool);
+    }
 
     // Create API with dependencies
     final authService = ServiceLocator.instance.get<AuthService>();
-    final api = Api(authService: authService);
+    final authMiddleware = AuthMiddleware(authService);
 
-    // Create the health router
-    final db = ServiceLocator.instance.get<AppDatabase>();
-    final healthRouter = HealthRouter(db, AuthMiddleware(authService));
-
-    // Set up the router and mount API routes
+    // Set up the router
     final app = Router();
+
+    // Add health routes
+    final connectionPool =
+        ServiceLocator.instance.get<DatabaseConnectionPool>();
+    final healthRouter = HealthRouter(connectionPool, authMiddleware);
+    app.mount('/api/health/', healthRouter.router.call);
+
+    // Set up API routes
+    final api = Api(authService: authService);
     app.mount('/api/', api.router.call);
-    app.mount('/api/', healthRouter.router.call);
 
     // Create the request pipeline with middleware
     final handler = Pipeline()
@@ -94,6 +105,7 @@ void main() async {
   }
 }
 
+/// Gracefully shut down the application
 Future<void> _shutdown(HttpServer? server, Logger logger) async {
   logger.info('Shutting down server...');
 
@@ -105,12 +117,7 @@ Future<void> _shutdown(HttpServer? server, Logger logger) async {
   // Clean up services
   try {
     await ServiceLocator.instance.dispose();
-    logger.info('Services disposed');
-
-    MetricsService.instance.dispose();
-    logger.info('Metrics service disposed');
-
-    LoggerFactory.closeAll();
+    logger.info('All services disposed');
   } catch (e, stackTrace) {
     logger.error('Error during shutdown', e, stackTrace);
   }
@@ -118,3 +125,4 @@ Future<void> _shutdown(HttpServer? server, Logger logger) async {
   logger.info('Shutdown complete');
   exit(0);
 }
+

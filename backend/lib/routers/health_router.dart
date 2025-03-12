@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:backend/db/database.dart';
+import 'package:backend/db/database_connection_pool.dart';
 import 'package:backend/middleware/auth_middleware.dart';
+import 'package:backend/services/database_health_service.dart';
 import 'package:backend/services/metrics_service.dart';
 import 'package:backend/utils/logger.dart';
 import 'package:shelf/shelf.dart';
@@ -10,11 +11,15 @@ import 'package:shelf_router/shelf_router.dart';
 
 /// Router that provides health and metrics endpoints for monitoring the application
 class HealthRouter {
-  final AppDatabase _db;
+  final DatabaseConnectionPool _connectionPool;
   final Logger _logger = LoggerFactory.getLogger('HealthRouter');
   final AuthMiddleware _authMiddleware;
+  late final DatabaseHealthService _healthService;
 
-  HealthRouter(this._db, this._authMiddleware);
+  HealthRouter(this._connectionPool, this._authMiddleware) {
+    _healthService =
+        DatabaseHealthService(_connectionPool, MetricsService.instance);
+  }
 
   Router get router {
     final router = Router();
@@ -43,10 +48,10 @@ class HealthRouter {
   Future<Response> _handleBasicHealth(Request request) async {
     try {
       // Simple DB connectivity check
-      final isDbConnected = _db.isConnected();
+      final healthCheck = await _healthService.checkHealth();
 
       final health = {
-        'status': isDbConnected ? 'UP' : 'DOWN',
+        'status': healthCheck['status'],
         'timestamp': DateTime.now().toIso8601String(),
       };
 
@@ -69,16 +74,15 @@ class HealthRouter {
   /// Handle detailed health check request
   Future<Response> _handleDetailedHealth(Request request) async {
     try {
-      // DB health
-      final isDbConnected = _db.isConnected();
-      final dbStats = _db.getDatabaseStats();
+      // Detailed database health check
+      final healthCheck = await _healthService.checkHealth();
 
       // System resources
       final memoryUsage = ProcessInfo.currentRss;
       final maxRss = ProcessInfo.maxRss;
 
       final health = {
-        'status': isDbConnected ? 'UP' : 'DOWN',
+        'status': healthCheck['status'],
         'timestamp': DateTime.now().toIso8601String(),
         'memory': {
           'currentRssBytes': memoryUsage,
@@ -86,10 +90,13 @@ class HealthRouter {
           'currentRssMb': memoryUsage ~/ (1024 * 1024),
           'maxRssMb': maxRss ~/ (1024 * 1024),
         },
-        'database': {
-          'connected': isDbConnected,
-          'stats': dbStats,
-        },
+        'database': healthCheck,
+        'connections': {
+          'active': _connectionPool.activeConnectionCount,
+          'idle': _connectionPool.idleConnectionCount,
+          'total': _connectionPool.totalConnectionCount,
+          'max': _connectionPool.config.maxConnections,
+        }
       };
 
       return Response.ok(
@@ -130,3 +137,4 @@ class HealthRouter {
     }
   }
 }
+
