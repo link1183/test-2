@@ -7,23 +7,20 @@ import 'package:sqlite3/sqlite3.dart';
 class AppDatabase {
   late final Database _db;
   final String dbPath;
-  final bool enableLogging;
   PreparedStatement? _categoriesStmt;
   final Map<String, CacheEntry<List<Map<String, dynamic>>>> _categoriesCache =
       {};
   final Duration _cacheTtl = Duration(minutes: 10);
+  final _logger = LoggerFactory.getLogger('Database');
 
   AppDatabase({
     this.dbPath = '/data/data.db',
-    this.enableLogging = false,
   });
 
   Database get db => _db;
 
   Future<bool> backup(String backupPath) async {
-    if (enableLogging) {
-      print('Starting database backup to $backupPath...');
-    }
+    _logger.info('Starting database backup to $backupPath...');
 
     try {
       final sourceFile = File(dbPath);
@@ -32,21 +29,96 @@ class AppDatabase {
 
       await sourceFile.copy(backupPath);
 
-      if (enableLogging) {
-        final sourceSize = await sourceFile.length();
-        final backupSize = await File(backupPath).length();
+      final sourceSize = await sourceFile.length();
+      final backupSize = await File(backupPath).length();
 
-        print('Database backup completed successfully');
-        print('Source size: ${(sourceSize / 1024).toStringAsFixed(2)} KB');
-        print('Backup size: ${(backupSize / 1024).toStringAsFixed(2)} KB');
-      }
+      _logger.info('Database backup completed successfully',
+          {'sourceSize': sourceSize, 'backupSize': backupSize});
 
       invalidateCategoriesCache();
 
       return true;
     } catch (e) {
-      print('Database backup failed: $e');
+      _logger.error('Database backup failed', e);
       return false;
+    }
+  }
+
+  /// Create a new category
+  /// Returns the ID of the newly created category
+  Future<int> createCategory({
+    required String name,
+  }) async {
+    try {
+      // Check if a category with this name already exists
+      final existingCategory = _db.select(
+        'SELECT id FROM categories WHERE name = ?',
+        [name],
+      );
+
+      if (existingCategory.isNotEmpty) {
+        throw Exception('A category with this name already exists.');
+      }
+
+      // Insert the category
+      final stmt = _db.prepare('''
+      INSERT INTO categories (name)
+      VALUES (?)
+    ''');
+
+      stmt.execute([name]);
+      stmt.dispose();
+
+      // Get the ID of the newly inserted category
+      final lastRowId =
+          _db.select('SELECT last_insert_rowid() as id').first['id'] as int;
+
+      // Invalidate the categories cache
+      invalidateCategoriesCache();
+
+      _logger.info('Created new category', {'id': lastRowId, 'name': name});
+      return lastRowId;
+    } catch (e) {
+      _logger.error('Failed to create category', e);
+      rethrow;
+    }
+  }
+
+  /// Create a new keyword
+  /// Returns the ID of the newly created keyword
+  Future<int> createKeyword({
+    required String keyword,
+  }) async {
+    try {
+      // Check if a keyword with this name already exists
+      final existingKeyword = _db.select(
+        'SELECT id FROM keyword WHERE keyword = ?',
+        [keyword],
+      );
+
+      if (existingKeyword.isNotEmpty) {
+        throw Exception('A keyword with this name already exists.');
+      }
+
+      // Insert the keyword
+      final stmt = _db.prepare('''
+      INSERT INTO keyword (keyword)
+      VALUES (?)
+    ''');
+
+      stmt.execute([keyword]);
+      stmt.dispose();
+
+      // Get the ID of the newly inserted keyword
+      final lastRowId =
+          _db.select('SELECT last_insert_rowid() as id').first['id'] as int;
+
+      _logger
+          .info('Created new keyword', {'id': lastRowId, 'keyword': keyword});
+      return lastRowId;
+    } catch (e) {
+      _logger.error('Failed to create keyword', e);
+      rethrow;
     }
   }
 
@@ -63,8 +135,6 @@ class AppDatabase {
     required List<int> keywordIds,
     required List<int> managerIds,
   }) async {
-    final logger = LoggerFactory.getLogger('Database');
-
     try {
       // Start a transaction for atomicity
       _db.execute('BEGIN TRANSACTION;');
@@ -128,12 +198,207 @@ class AppDatabase {
       // Invalidate the categories cache since we've modified links
       invalidateCategoriesCache();
 
-      logger.info('Created new link', {'id': lastRowId, 'title': title});
+      _logger.info('Created new link', {'id': lastRowId, 'title': title});
       return lastRowId;
     } catch (e) {
       // Rollback in case of error
       _db.execute('ROLLBACK;');
-      logger.error('Failed to create link', e);
+      _logger.error('Failed to create link', e);
+      rethrow;
+    }
+  }
+
+  /// Create a new link manager
+  /// Returns the ID of the newly created link manager
+  Future<int> createLinkManager({
+    required String name,
+    required String surname,
+    String? link,
+  }) async {
+    try {
+      // Insert the link manager
+      final stmt = _db.prepare('''
+      INSERT INTO link_manager (name, surname, link)
+      VALUES (?, ?, ?)
+    ''');
+
+      stmt.execute([name, surname, link ?? '']);
+      stmt.dispose();
+
+      // Get the ID of the newly inserted link manager
+      final lastRowId =
+          _db.select('SELECT last_insert_rowid() as id').first['id'] as int;
+
+      _logger.info('Created new link manager',
+          {'id': lastRowId, 'name': name, 'surname': surname});
+
+      return lastRowId;
+    } catch (e) {
+      _logger.error('Failed to create link manager', e);
+      rethrow;
+    }
+  }
+
+  /// Create a new status
+  /// Returns the ID of the newly created status
+  Future<int> createStatus({
+    required String name,
+  }) async {
+    try {
+      // Check if a status with this name already exists
+      final existingStatus = _db.select(
+        'SELECT id FROM status WHERE name = ?',
+        [name],
+      );
+
+      if (existingStatus.isNotEmpty) {
+        throw Exception('A status with this name already exists.');
+      }
+
+      // Insert the status
+      final stmt = _db.prepare('''
+      INSERT INTO status (name)
+      VALUES (?)
+    ''');
+
+      stmt.execute([name]);
+      stmt.dispose();
+
+      // Get the ID of the newly inserted status
+      final lastRowId =
+          _db.select('SELECT last_insert_rowid() as id').first['id'] as int;
+
+      _logger.info('Created new status', {'id': lastRowId, 'name': name});
+      return lastRowId;
+    } catch (e) {
+      _logger.error('Failed to create status', e);
+      rethrow;
+    }
+  }
+
+  /// Create a new view
+  /// Returns the ID of the newly created view
+  Future<int> createView({
+    required String name,
+  }) async {
+    try {
+      // Check if a view with this name already exists
+      final existingView = _db.select(
+        'SELECT id FROM view WHERE name = ?',
+        [name],
+      );
+
+      if (existingView.isNotEmpty) {
+        throw Exception('A view with this name already exists.');
+      }
+
+      // Insert the view
+      final stmt = _db.prepare('''
+      INSERT INTO view (name)
+      VALUES (?)
+    ''');
+
+      stmt.execute([name]);
+      stmt.dispose();
+
+      // Get the ID of the newly inserted view
+      final lastRowId =
+          _db.select('SELECT last_insert_rowid() as id').first['id'] as int;
+
+      // Invalidate the categories cache since views affect permissions
+      invalidateCategoriesCache();
+
+      _logger.info('Created new view', {'id': lastRowId, 'name': name});
+      return lastRowId;
+    } catch (e) {
+      _logger.error('Failed to create view', e);
+      rethrow;
+    }
+  }
+
+  /// Delete a category
+  /// Returns true if the deletion was successful
+  Future<bool> deleteCategory(int id) async {
+    try {
+      // Check if the category exists
+      final exists =
+          _db.select('SELECT 1 FROM categories WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Category not found for deletion', {'id': id});
+        return false;
+      }
+
+      // Check if there are any links using this category
+      final linkedLinks = _db.select(
+        'SELECT COUNT(*) as count FROM link WHERE category_id = ?',
+        [id],
+      ).first['count'] as int;
+
+      if (linkedLinks > 0) {
+        throw Exception(
+            'Cannot delete category: it is used by $linkedLinks links.');
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Delete the category
+      _db.execute('DELETE FROM categories WHERE id = ?', [id]);
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      // Invalidate the categories cache
+      invalidateCategoriesCache();
+
+      _logger.info('Deleted category', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      _logger.error('Failed to delete category', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Delete a keyword
+  /// Returns true if the deletion was successful
+  Future<bool> deleteKeyword(int id) async {
+    try {
+      // Check if the keyword exists
+      final exists =
+          _db.select('SELECT 1 FROM keyword WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Keyword not found for deletion', {'id': id});
+        return false;
+      }
+
+      // Check if there are any links using this keyword
+      final linkedLinks = _db.select(
+        'SELECT COUNT(*) as count FROM keywords_links WHERE keyword_id = ?',
+        [id],
+      ).first['count'] as int;
+
+      if (linkedLinks > 0) {
+        throw Exception(
+            'Cannot delete keyword: it is used by $linkedLinks links.');
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Delete the keyword
+      _db.execute('DELETE FROM keyword WHERE id = ?', [id]);
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      _logger.info('Deleted keyword', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      _logger.error('Failed to delete keyword', e, null, {'id': id});
       rethrow;
     }
   }
@@ -141,14 +406,12 @@ class AppDatabase {
   /// Delete a link
   /// Returns true if the deletion was successfull
   Future<bool> deleteLink(int id) async {
-    final logger = LoggerFactory.getLogger('Database');
-
     try {
       // Check if the link exists
       final exists =
           _db.select('SELECT 1 FROM link WHERE id = ?', [id]).isNotEmpty;
       if (!exists) {
-        logger.warning('Link not found for deletion', {'id': id});
+        _logger.warning('Link not found for deletion', {'id': id});
         return false;
       }
 
@@ -169,12 +432,141 @@ class AppDatabase {
       // Invalidate the categories cache
       invalidateCategoriesCache();
 
-      logger.info('Deleted link', {'id': id});
+      _logger.info('Deleted link', {'id': id});
       return true;
     } catch (e) {
       // Rollback in case of error
       _db.execute('ROLLBACK;');
-      logger.error('Failed to delete link', e, null, {'id': id});
+      _logger.error('Failed to delete link', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Delete a link manager
+  /// Returns true if the deletion was successful
+  Future<bool> deleteLinkManager(int id) async {
+    try {
+      // Check if the link manager exists
+      final exists = _db
+          .select('SELECT 1 FROM link_manager WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Link manager not found for deletion', {'id': id});
+        return false;
+      }
+
+      // Check if there are any links using this link manager
+      final linkedLinks = _db.select(
+        'SELECT COUNT(*) as count FROM link_managers_links WHERE manager_id = ?',
+        [id],
+      ).first['count'] as int;
+
+      if (linkedLinks > 0) {
+        throw Exception(
+            'Cannot delete link manager: it is associated with $linkedLinks links.');
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Delete the link manager
+      _db.execute('DELETE FROM link_manager WHERE id = ?', [id]);
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      _logger.info('Deleted link manager', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      _logger.error('Failed to delete link manager', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Delete a status
+  /// Returns true if the deletion was successful
+  Future<bool> deleteStatus(int id) async {
+    try {
+      // Check if the status exists
+      final exists =
+          _db.select('SELECT 1 FROM status WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Status not found for deletion', {'id': id});
+        return false;
+      }
+
+      // Check if there are any links using this status
+      final linkedLinks = _db.select(
+        'SELECT COUNT(*) as count FROM link WHERE status_id = ?',
+        [id],
+      ).first['count'] as int;
+
+      if (linkedLinks > 0) {
+        throw Exception(
+            'Cannot delete status: it is used by $linkedLinks links.');
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Delete the status
+      _db.execute('DELETE FROM status WHERE id = ?', [id]);
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      _logger.info('Deleted status', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      _logger.error('Failed to delete status', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Delete a view
+  /// Returns true if the deletion was successful
+  Future<bool> deleteView(int id) async {
+    try {
+      // Check if the view exists
+      final exists =
+          _db.select('SELECT 1 FROM view WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('View not found for deletion', {'id': id});
+        return false;
+      }
+
+      // Check if there are any links using this view
+      final linkedLinks = _db.select(
+        'SELECT COUNT(*) as count FROM links_views WHERE view_id = ?',
+        [id],
+      ).first['count'] as int;
+
+      if (linkedLinks > 0) {
+        throw Exception(
+            'Cannot delete view: it is used by $linkedLinks links.');
+      }
+
+      // Start a transaction
+      _db.execute('BEGIN TRANSACTION;');
+
+      // Delete the view
+      _db.execute('DELETE FROM view WHERE id = ?', [id]);
+
+      // Commit the transaction
+      _db.execute('COMMIT;');
+
+      // Invalidate the categories cache since views affect permissions
+      invalidateCategoriesCache();
+
+      _logger.info('Deleted view', {'id': id});
+      return true;
+    } catch (e) {
+      // Rollback in case of error
+      _db.execute('ROLLBACK;');
+      _logger.error('Failed to delete view', e, null, {'id': id});
       rethrow;
     }
   }
@@ -182,27 +574,80 @@ class AppDatabase {
   void dispose() {
     try {
       _db.dispose();
-      if (enableLogging) {
-        print('Database connection closed.');
-      }
+      _logger.info('Database connection closed.');
     } catch (e) {
-      print('Error closing database: $e');
+      _logger.error('Error closing database', e);
     }
   }
 
   List<Map<String, dynamic>> executeQuery(String sql,
       [List<Object?> parameters = const []]) {
-    final Stopwatch stopwatch = Stopwatch()..start();
     try {
       final result = _db.select(sql, parameters);
-      if (enableLogging) {
-        print('Query executed in ${stopwatch.elapsedMilliseconds}ms: $sql');
-      }
       return result;
     } catch (e) {
-      print('Query failed in ${stopwatch.elapsedMilliseconds}ms: $sql');
-      print('Error: $e');
+      _logger.error('Error while executing query', e);
       rethrow;
+    }
+  }
+
+  /// Get all keywords
+  /// Returns a list of keyword objects
+  List<Map<String, dynamic>> getAllKeywords() {
+    try {
+      return _db.select('''
+      SELECT id, keyword
+      FROM keyword
+      ORDER BY keyword
+    ''');
+    } catch (e) {
+      _logger.error('Error retrieving all keywords', e);
+      return [];
+    }
+  }
+
+  /// Get all link managers
+  /// Returns a list of link manager objects
+  List<Map<String, dynamic>> getAllLinkManagers() {
+    try {
+      return _db.select('''
+      SELECT id, name, surname, link
+      FROM link_manager
+      ORDER BY surname, name
+    ''');
+    } catch (e) {
+      _logger.error('Error retrieving all link managers', e);
+      return [];
+    }
+  }
+
+  /// Get all statuses
+  /// Returns a list of status objects
+  List<Map<String, dynamic>> getAllStatuses() {
+    try {
+      return _db.select('''
+      SELECT id, name
+      FROM status
+      ORDER BY name
+    ''');
+    } catch (e) {
+      _logger.error('Error retrieving all statuses', e);
+      return [];
+    }
+  }
+
+  /// Get all views
+  /// Returns a list of view objects with their permissions
+  List<Map<String, dynamic>> getAllViews() {
+    try {
+      return _db.select('''
+      SELECT id, name
+      FROM view
+      ORDER BY name
+    ''');
+    } catch (e) {
+      _logger.error('Error retrieving all views', e);
+      return [];
     }
   }
 
@@ -218,9 +663,6 @@ class AppDatabase {
     // Check cache
     final cachedResult = _categoriesCache[cacheKey];
     if (cachedResult != null && cachedResult.isValid) {
-      if (enableLogging) {
-        print('Category data retrieved from cache for groups: $cacheKey');
-      }
       return List<Map<String, dynamic>>.from(cachedResult.data);
     }
 
@@ -232,6 +674,28 @@ class AppDatabase {
         CacheEntry<List<Map<String, dynamic>>>(result, _cacheTtl);
 
     return result;
+  }
+
+  /// Get a category by ID
+  /// Returns the category data or null if not found
+  Map<String, dynamic>? getCategoryById(int id) {
+    try {
+      final results = _db.select('''
+      SELECT 
+        id, name
+      FROM categories
+      WHERE id = ?
+    ''', [id]);
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(results.first);
+    } catch (e) {
+      _logger.error('Error retrieving category', e, null, {'id': id});
+      return null;
+    }
   }
 
   Map<String, dynamic> getDatabaseStats() {
@@ -253,6 +717,27 @@ class AppDatabase {
               })
           .toList(),
     };
+  }
+
+  /// Get a keyword by ID
+  /// Returns the keyword data or null if not found
+  Map<String, dynamic>? getKeywordById(int id) {
+    try {
+      final results = _db.select('''
+      SELECT id, keyword
+      FROM keyword
+      WHERE id = ?
+    ''', [id]);
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(results.first);
+    } catch (e) {
+      _logger.error('Error retrieving keyword', e, null, {'id': id});
+      return null;
+    }
   }
 
   /// Get a link by ID
@@ -307,8 +792,141 @@ class AppDatabase {
 
       return link;
     } catch (e) {
-      final logger = LoggerFactory.getLogger('Database');
-      logger.error('Error retrieving link', e, null, {'id': id});
+      _logger.error('Error retrieving link', e, null, {'id': id});
+      return null;
+    }
+  }
+
+  /// Get a link manager by ID
+  /// Returns the link manager data or null if not found
+  Map<String, dynamic>? getLinkManagerById(int id) {
+    try {
+      final results = _db.select('''
+      SELECT id, name, surname, link
+      FROM link_manager
+      WHERE id = ?
+    ''', [id]);
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(results.first);
+    } catch (e) {
+      _logger.error('Error retrieving link manager', e, null, {'id': id});
+      return null;
+    }
+  }
+
+  /// Get links by keyword ID
+  /// Returns a list of links that use the specified keyword
+  List<Map<String, dynamic>> getLinksByKeywordId(int keywordId) {
+    try {
+      return _db.select('''
+      SELECT 
+        l.id, l.link, l.title, l.description, l.doc_link, 
+        l.status_id, s.name as status_name,
+        l.category_id, c.name as category_name
+      FROM link l
+      JOIN keywords_links kl ON kl.link_id = l.id
+      LEFT JOIN status s ON s.id = l.status_id
+      LEFT JOIN categories c ON c.id = l.category_id
+      WHERE kl.keyword_id = ?
+      ORDER BY l.title
+    ''', [keywordId]);
+    } catch (e) {
+      _logger.error('Error retrieving links by keyword', e, null,
+          {'keywordId': keywordId});
+      return [];
+    }
+  }
+
+  /// Get links by link manager ID
+  /// Returns a list of links that are associated with the specified link manager
+  List<Map<String, dynamic>> getLinksByManagerId(int managerId) {
+    try {
+      return _db.select('''
+      SELECT 
+        l.id, l.link, l.title, l.description, l.doc_link, 
+        l.status_id, s.name as status_name,
+        l.category_id, c.name as category_name
+      FROM link l
+      JOIN link_managers_links lml ON lml.link_id = l.id
+      LEFT JOIN status s ON s.id = l.status_id
+      LEFT JOIN categories c ON c.id = l.category_id
+      WHERE lml.manager_id = ?
+      ORDER BY l.title
+    ''', [managerId]);
+    } catch (e) {
+      _logger.error('Error retrieving links by manager', e, null,
+          {'managerId': managerId});
+      return [];
+    }
+  }
+
+  /// Get links by view ID
+  /// Returns a list of links that belong to the specified view
+  List<Map<String, dynamic>> getLinksByViewId(int viewId) {
+    try {
+      return _db.select('''
+      SELECT 
+        l.id, l.link, l.title, l.description, l.doc_link, 
+        l.status_id, s.name as status_name,
+        l.category_id, c.name as category_name
+      FROM link l
+      JOIN links_views lv ON lv.link_id = l.id
+      LEFT JOIN status s ON s.id = l.status_id
+      LEFT JOIN categories c ON c.id = l.category_id
+      WHERE lv.view_id = ?
+      ORDER BY l.title
+    ''', [viewId]);
+    } catch (e) {
+      _logger
+          .error('Error retrieving links by view', e, null, {'viewId': viewId});
+      return [];
+    }
+  }
+
+  // Methods to add to the AppDatabase class in lib/db/database.dart
+
+  /// Get a status by ID
+  /// Returns the status data or null if not found
+  Map<String, dynamic>? getStatusById(int id) {
+    try {
+      final results = _db.select('''
+      SELECT id, name
+      FROM status
+      WHERE id = ?
+    ''', [id]);
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(results.first);
+    } catch (e) {
+      _logger.error('Error retrieving status', e, null, {'id': id});
+      return null;
+    }
+  }
+
+  /// Get a view by ID
+  /// Returns the view data or null if not found
+  Map<String, dynamic>? getViewById(int id) {
+    try {
+      final results = _db.select('''
+      SELECT id, name
+      FROM view
+      WHERE id = ?
+    ''', [id]);
+
+      if (results.isEmpty) {
+        return null;
+      }
+
+      return Map<String, dynamic>.from(results.first);
+    } catch (e) {
+      _logger.error('Error retrieving view', e, null, {'id': id});
       return null;
     }
   }
@@ -322,21 +940,16 @@ class AppDatabase {
     _db = sqlite3.open('/data/data.db');
     _initializeDatabase();
 
-    if (enableLogging) {
-      print('Database initialized at $dbPath');
-    }
+    _logger.info('Database initialized at $dbPath');
 
     if (!_checkDatabaseIntegrity()) {
-      print(
+      _logger.warning(
           'WARNING: Database integrity check failed. Consider running recovery.');
     }
   }
 
   void invalidateCategoriesCache() {
     _categoriesCache.clear();
-    if (enableLogging) {
-      print('Categories cache invalidated');
-    }
   }
 
   bool isConnected() {
@@ -346,6 +959,89 @@ class AppDatabase {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Update an existing category
+  /// Returns true if the update was successful
+  Future<bool> updateCategory({
+    required int id,
+    required String name,
+  }) async {
+    try {
+      // Check if the category exists
+      final exists =
+          _db.select('SELECT 1 FROM categories WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Category not found for update', {'id': id});
+        return false;
+      }
+
+      // Check if another category with this name already exists
+      final existingCategory = _db.select(
+        'SELECT id FROM categories WHERE name = ? AND id != ?',
+        [name, id],
+      );
+
+      if (existingCategory.isNotEmpty) {
+        throw Exception('Another category with this name already exists.');
+      }
+
+      // Update the category
+      _db.execute(
+        'UPDATE categories SET name = ? WHERE id = ?',
+        [name, id],
+      );
+
+      // Invalidate the categories cache
+      invalidateCategoriesCache();
+
+      _logger.info('Updated category', {'id': id, 'name': name});
+      return true;
+    } catch (e) {
+      _logger.error('Failed to update category', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  // Methods to add to the AppDatabase class in lib/db/database.dart
+
+  /// Update an existing keyword
+  /// Returns true if the update was successful
+  Future<bool> updateKeyword({
+    required int id,
+    required String keyword,
+  }) async {
+    try {
+      // Check if the keyword exists
+      final exists =
+          _db.select('SELECT 1 FROM keyword WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Keyword not found for update', {'id': id});
+        return false;
+      }
+
+      // Check if another keyword with this name already exists
+      final existingKeyword = _db.select(
+        'SELECT id FROM keyword WHERE keyword = ? AND id != ?',
+        [keyword, id],
+      );
+
+      if (existingKeyword.isNotEmpty) {
+        throw Exception('Another keyword with this name already exists.');
+      }
+
+      // Update the keyword
+      _db.execute(
+        'UPDATE keyword SET keyword = ? WHERE id = ?',
+        [keyword, id],
+      );
+
+      _logger.info('Updated keyword', {'id': id, 'keyword': keyword});
+      return true;
+    } catch (e) {
+      _logger.error('Failed to update keyword', e, null, {'id': id});
+      rethrow;
     }
   }
 
@@ -363,14 +1059,12 @@ class AppDatabase {
     List<int>? keywordIds,
     List<int>? managerIds,
   }) async {
-    final logger = LoggerFactory.getLogger('Database');
-
     try {
       // Check if the link exists
       final exists =
           _db.select('SELECT 1 FROM link WHERE id = ?', [id]).isNotEmpty;
       if (!exists) {
-        logger.warning('Link not found for update', {'id': id});
+        _logger.warning('Link not found for update', {'id': id});
         return false;
       }
 
@@ -476,12 +1170,152 @@ class AppDatabase {
       // Invalidate the categories cache
       invalidateCategoriesCache();
 
-      logger.info('Updated link', {'id': id});
+      _logger.info('Updated link', {'id': id});
       return true;
     } catch (e) {
       // Rollback in case of error
       _db.execute('ROLLBACK;');
-      logger.error('Failed to update link', e, null, {'id': id});
+      _logger.error('Failed to update link', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Update an existing link manager
+  /// Returns true if the update was successful
+  Future<bool> updateLinkManager({
+    required int id,
+    String? name,
+    String? surname,
+    String? link,
+  }) async {
+    try {
+      // Check if the link manager exists
+      final exists = _db
+          .select('SELECT 1 FROM link_manager WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Link manager not found for update', {'id': id});
+        return false;
+      }
+
+      // Build the update statement dynamically based on provided fields
+      final updates = <String>[];
+      final params = <Object?>[];
+
+      if (name != null) {
+        updates.add('name = ?');
+        params.add(name);
+      }
+
+      if (surname != null) {
+        updates.add('surname = ?');
+        params.add(surname);
+      }
+
+      if (link != null) {
+        updates.add('link = ?');
+        params.add(link);
+      }
+
+      // If we have fields to update
+      if (updates.isNotEmpty) {
+        params.add(id); // Add the id parameter for the WHERE clause
+        final updateSql = '''
+        UPDATE link_manager 
+        SET ${updates.join(', ')} 
+        WHERE id = ?
+      ''';
+
+        _db.execute(updateSql, params);
+
+        _logger.info('Updated link manager', {'id': id});
+        return true;
+      } else {
+        _logger.warning('No fields to update for link manager', {'id': id});
+        return false;
+      }
+    } catch (e) {
+      _logger.error('Failed to update link manager', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Update an existing status
+  /// Returns true if the update was successful
+  Future<bool> updateStatus({
+    required int id,
+    required String name,
+  }) async {
+    try {
+      // Check if the status exists
+      final exists =
+          _db.select('SELECT 1 FROM status WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('Status not found for update', {'id': id});
+        return false;
+      }
+
+      // Check if another status with this name already exists
+      final existingStatus = _db.select(
+        'SELECT id FROM status WHERE name = ? AND id != ?',
+        [name, id],
+      );
+
+      if (existingStatus.isNotEmpty) {
+        throw Exception('Another status with this name already exists.');
+      }
+
+      // Update the status
+      _db.execute(
+        'UPDATE status SET name = ? WHERE id = ?',
+        [name, id],
+      );
+
+      _logger.info('Updated status', {'id': id, 'name': name});
+      return true;
+    } catch (e) {
+      _logger.error('Failed to update status', e, null, {'id': id});
+      rethrow;
+    }
+  }
+
+  /// Update an existing view
+  /// Returns true if the update was successful
+  Future<bool> updateView({
+    required int id,
+    required String name,
+  }) async {
+    try {
+      // Check if the view exists
+      final exists =
+          _db.select('SELECT 1 FROM view WHERE id = ?', [id]).isNotEmpty;
+      if (!exists) {
+        _logger.warning('View not found for update', {'id': id});
+        return false;
+      }
+
+      // Check if another view with this name already exists
+      final existingView = _db.select(
+        'SELECT id FROM view WHERE name = ? AND id != ?',
+        [name, id],
+      );
+
+      if (existingView.isNotEmpty) {
+        throw Exception('Another view with this name already exists.');
+      }
+
+      // Update the view
+      _db.execute(
+        'UPDATE view SET name = ? WHERE id = ?',
+        [name, id],
+      );
+
+      // Invalidate the categories cache since views affect permissions
+      invalidateCategoriesCache();
+
+      _logger.info('Updated view', {'id': id, 'name': name});
+      return true;
+    } catch (e) {
+      _logger.error('Failed to update view', e, null, {'id': id});
       rethrow;
     }
   }
@@ -491,13 +1325,13 @@ class AppDatabase {
       final result = _db.select("PRAGMA integrity_check;");
       return result.first['integrity_check'] == 'ok';
     } catch (e) {
-      print('Database integrity check failed: $e');
+      _logger.error('Database integrity check failed', e);
       return false;
     }
   }
 
   void _createIndexes() {
-    print('Creating database indexes for performance optimization...');
+    _logger.info('Creating database indexes for performance optimization...');
     _db.execute('''
       -- Indexes for link table
       CREATE INDEX IF NOT EXISTS idx_link_category ON link(category_id);
@@ -578,8 +1412,6 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
     _categoriesStmt ??= _prepareGetCategoriesStatement();
 
     try {
-      final Stopwatch stopwatch = Stopwatch()..start();
-
       // Create a parameter list that matches the number of placeholders
       // Since we used 99 placeholders in the prepared statement, we need to pad with empty values if there are fewer groups
       final parameters = <String>[...userGroups];
@@ -589,11 +1421,6 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
 
       final result = _categoriesStmt!.select(parameters);
 
-      if (enableLogging) {
-        print(
-            'Category query executed in ${stopwatch.elapsedMilliseconds}ms for ${userGroups.length} groups');
-      }
-
       return result.map((row) {
         var map = Map<String, dynamic>.from(row);
         var linksJson = map['links'] as String;
@@ -602,7 +1429,7 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
         try {
           links = jsonDecode(linksJson) as List;
         } catch (e) {
-          print('Error parsing JSON links data: $e');
+          _logger.error('Error parsing JSON links data', e);
           links = [];
         }
 
@@ -641,7 +1468,7 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
         return map;
       }).toList();
     } catch (e) {
-      print('Error executing getCategoriesForUser: $e');
+      _logger.error('Error executing getCategoriesForUser', e);
 
       // If an error occurs, recreate the prepared statement
       if (_categoriesStmt != null) {
@@ -660,10 +1487,6 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
 
   List<Map<String, dynamic>> _executeSimpleCategoriesQuery(
       List<String> userGroups) {
-    if (enableLogging) {
-      print('Using fallback query for categories');
-    }
-
     final placeholders = userGroups.map((_) => '?').join(',');
 
     final sql = '''
@@ -755,8 +1578,8 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
     const targetVersion = 1; // Increment this when schema changes
 
     if (currentVersion < targetVersion) {
-      print(
-          'Upgrading database from version $currentVersion to $targetVersion');
+      _logger.info('Upgrading database...',
+          {'currentVersion': currentVersion, 'targetVersion': targetVersion});
       _db.execute('BEGIN TRANSACTION;');
 
       try {
@@ -782,14 +1605,12 @@ FOREIGN KEY(`keyword_id`) REFERENCES `keyword`(`id`)
         ''');
 
         _db.execute('COMMIT;');
-        print('Database migration completed successfully');
+        _logger.info('Database migration completed successfully');
       } catch (e) {
         _db.execute('ROLLBACK;');
-        print('Database migration failed: $e');
+        _logger.error('Database migration failed', e);
         rethrow;
       }
-    } else {
-      print('Database already at current version ($currentVersion)');
     }
   }
 

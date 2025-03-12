@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:backend/utils/logger.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:shelf/shelf.dart';
 import 'package:uuid/uuid.dart';
@@ -59,6 +60,8 @@ class TokenService {
   final int _maxAttemptsPerWindow;
   final Duration _rateLimitWindow;
 
+  final _logger = LoggerFactory.getLogger('TokenService');
+
   TokenService({
     required this.jwtSecret,
     this.accessTokenDuration = const Duration(minutes: 15),
@@ -77,7 +80,7 @@ class TokenService {
       _blacklistedTokenExpiry[token] = exp;
       _cleanupBlacklist();
     } catch (e) {
-      print('Attempt to blacklist invalid token: $e');
+      _logger.error('Attempt to blacklist invalid token', e);
     }
   }
 

@@ -37,7 +37,7 @@ class ServiceLocator {
     register<ConfigService>(config);
 
     // Initialize database
-    final db = AppDatabase(enableLogging: true);
+    final db = AppDatabase();
     db.init();
     register<AppDatabase>(db);
 
