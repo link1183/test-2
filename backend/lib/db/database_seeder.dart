@@ -32,32 +32,22 @@ class DevelopmentSeeder extends DatabaseSeeder {
       await connection.database.beginTransaction();
 
       try {
-        // Check if we need to seed (only seed if tables are empty)
-        final statusCount = await connection.database.query(
-          'SELECT COUNT(*) as count FROM status',
-        );
-
-        if ((statusCount.first['count'] as int) > 0) {
-          log('Database already has data, skipping seeding');
-          await connection.database.rollbackTransaction();
-          return;
-        }
-
-        // Insert statuses
-// Find the SQL query in getCategoriesForUser method
-// It should be around line 170 in the category_service.dart file
-// Replace it with this improved version:
-
         await connection.database.execute('''
 -- Insert statuses
 INSERT INTO status (name) VALUES ('Active');
 INSERT INTO status (name) VALUES ('Inactive');
+''');
 
--- Insert views
+        log('Inserted statuses');
+
+        await connection.database.execute('''-- Insert views
 INSERT INTO view (name) VALUES ('si-bcu-g');
 INSERT INTO view (name) VALUES ('User');
+''');
 
--- Insert categories
+        log('inserted views');
+
+        await connection.database.execute('''-- Insert categories
 INSERT INTO categories (name) VALUES ('Applications métiers'),
  ('Monitoring'),
  ('Serveurs Web'),
@@ -72,7 +62,10 @@ INSERT INTO categories (name) VALUES ('Applications métiers'),
  ('Téléphonie'),
  ('Formations'),
  ('Utilitaires');
+''');
 
+        log('categories');
+        await connection.database.execute('''
 -- Insert managers
 INSERT INTO link_manager (name, surname, link) VALUES 
  ('Bob', 'Brown', ''),
@@ -81,8 +74,9 @@ INSERT INTO link_manager (name, surname, link) VALUES
  ('Alice', 'Johnson', ''),
  ('Kevin', 'Pradervand', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1184744'),
  ('Augustin', 'Schicker', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1079784'),
- ('Brendan', 'Demierre', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1279608');
-
+ ('Brendan', 'Demierre', 'https://applications.unil.ch/intra/auth/php/Sy/SyPerInfo.php?PerNum=1279608');''');
+        log('managers');
+        await connection.database.execute('''
 -- Insert keywords
 INSERT INTO keyword (keyword) VALUES ('gitlab'),
  ('monitoring'),
@@ -116,8 +110,10 @@ INSERT INTO keyword (keyword) VALUES ('gitlab'),
  ('microsoft store'),
  ('plans'),
  ('code'),
- ('support');
+ ('support');''');
+        log('keywords');
 
+        await connection.database.execute('''
 -- insert links and their relationships
 -- applications métiers
 insert into link (link, title, description, doc_link, status_id, category_id) values ('https://gitlab-bcul.unil.ch', 'gitlab', 'le gitlab de la bcul', 'https://docs.gitlab.com/', 1, 1);
@@ -463,6 +459,7 @@ insert into link (link, title, description, doc_link, status_id, category_id) va
 insert into link_managers_links (link_id, manager_id) values (60, 1);
 insert into links_views (link_id, view_id) values (60, 1);
 insert into keywords_links (link_id, keyword_id) values (60, 25);''');
+        log('links');
         // Commit the transaction
         await connection.database.commitTransaction();
 

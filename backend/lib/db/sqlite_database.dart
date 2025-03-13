@@ -109,14 +109,23 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<int> execute(String sql, [List<Object?> parameters = const []]) async {
     try {
-      final stmt = _db.prepare(sql);
+      final stmt = _db.prepareMultiple(sql);
+      _logger.debug('Executing statement');
 
       try {
-        stmt.execute(parameters);
+        for (var stmt in stmt) {
+          stmt.execute(parameters);
+        }
         final changes = _db.updatedRows;
+        _logger.debug('Statement executed: $changes');
         return changes;
+      } catch (e, stackTrace) {
+        _logger.error('Error in a statement', e, stackTrace);
+        return 0;
       } finally {
-        stmt.dispose();
+        for (var stmt in stmt) {
+          stmt.dispose();
+        }
       }
     } catch (e, stackTrace) {
       _logger.error('Error executing SQL: $sql', e, stackTrace);

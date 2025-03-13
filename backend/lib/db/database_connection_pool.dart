@@ -40,6 +40,17 @@ class DatabaseConnectionPool {
       throw ConnectionException('Connection pool is shutting down');
     }
 
+    if (_inUseConnections.length >= config.maxConnections * 0.9) {
+      _logger.warning('Connection pool nearly exhausted', {
+        'active': _inUseConnections.length,
+        'idle': _availableConnections.length,
+        'max': config.maxConnections,
+      });
+
+      _logger.debug('Connection request stack trace',
+          {'trace': StackTrace.current.toString()});
+    }
+
     if (_availableConnections.isNotEmpty) {
       final connection = _availableConnections.removeLast();
       connection.updateLastUsed();
@@ -127,6 +138,14 @@ class DatabaseConnectionPool {
     // Only keep a minimum number of idle connections around
     final maxIdleConnections = max(1, config.maxConnections ~/ 4);
 
+    // Log the current connection status
+    _logger.debug('Connection pool status check', {
+      'active': _inUseConnections.length,
+      'idle': _availableConnections.length,
+      'total': totalConnectionCount,
+      'max': config.maxConnections,
+    });
+
     // If we have more idle connections than needed, close the oldest ones
     if (_availableConnections.length > maxIdleConnections) {
       // Sort by last used time (oldest first)
@@ -206,6 +225,9 @@ class PooledDatabaseConnection {
     if (!_released) {
       await pool.releaseConnection(id);
       _released = true;
+    } else {
+      pool._logger.warning(
+          'Attempt to release already released connection', {'id': id});
     }
   }
 

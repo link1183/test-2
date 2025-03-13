@@ -13,7 +13,7 @@ class MigrationRegistry {
   static List<Migration> getMigrations() {
     return [
       InitialSchemaMigration(),
-      //InitialData(),
+      InitialData(),
     ];
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:convert' as convert;
+
 import 'package:backend/db/database_connection_pool.dart';
 import 'package:backend/db/database_exceptions.dart';
 import 'package:backend/utils/logger.dart';
@@ -184,86 +186,83 @@ class CategoryService {
         final placeholders = List.filled(sortedGroups.length, '?').join(',');
 
         // Get categories and links in a single query
-// Find the SQL query in getCategoriesForUser method
-// It should be around line 170 in the category_service.dart file
-// Replace it with this improved version:
 
         final sql = '''
-  WITH LinkData AS (
-    SELECT 
-      link.*,
-      s.name as status_name,
-      IFNULL(
-        (
-          SELECT json_group_array(json_object(
-            'id', k.id, 'keyword', k.keyword
-          ))
-          FROM keywords_links kl
-          JOIN keyword k ON k.id = kl.keyword_id
-          WHERE kl.link_id = link.id
-        ),
-        '[]'
-      ) as keywords,
-      IFNULL(
-        (
-          SELECT json_group_array(json_object(
-            'id', v.id, 'name', v.name
-          ))
-          FROM links_views lv
-          JOIN view v ON v.id = lv.view_id
-          WHERE lv.link_id = link.id
-        ),
-        '[]'
-      ) as views,
-      IFNULL(
-        (
-          SELECT json_group_array(json_object(
-            'id', m.id, 'name', m.name, 'surname', m.surname, 'link', m.link
-          ))
-          FROM link_managers_links lm
-          JOIN link_manager m ON m.id = lm.manager_id
-          WHERE lm.link_id = link.id
-        ),
-        '[]'
-      ) as managers,
-      EXISTS (
-        SELECT 1 
-        FROM links_views lv2
-        JOIN view v2 ON v2.id = lv2.view_id
-        WHERE lv2.link_id = link.id 
-        AND v2.name IN ($placeholders)
-      ) as has_access
-    FROM link
-    LEFT JOIN status s ON s.id = link.status_id
-  )
-  SELECT 
-    c.id as category_id,
-    c.name as category_name,
-    IFNULL(
-      json_group_array(
-        CASE 
-          WHEN ld.has_access = 1 THEN
-            json_object(
-              'id', ld.id,
-              'link', ld.link,
-              'title', ld.title,
-              'description', ld.description,
-              'doc_link', ld.doc_link,
-              'status_id', ld.status_id,
-              'status_name', ld.status_name,
-              'keywords', ld.keywords,
-              'views', ld.views,
-              'managers', ld.managers
-            )
-          ELSE NULL
-        END
-      ),
-      '[]'
-    ) as links
-  FROM categories c
-  LEFT JOIN LinkData ld ON c.id = ld.category_id
-  GROUP BY c.id
-''';
+        WITH LinkData AS (
+          SELECT 
+            link.*,
+            s.name as status_name,
+            IFNULL(
+              (
+                SELECT json_group_array(json_object(
+                  'id', k.id, 'keyword', k.keyword
+                ))
+                FROM keywords_links kl
+                JOIN keyword k ON k.id = kl.keyword_id
+                WHERE kl.link_id = link.id
+              ),
+              '[]'
+            ) as keywords,
+            IFNULL(
+              (
+                SELECT json_group_array(json_object(
+                  'id', v.id, 'name', v.name
+                ))
+                FROM links_views lv
+                JOIN view v ON v.id = lv.view_id
+                WHERE lv.link_id = link.id
+              ),
+              '[]'
+            ) as views,
+            IFNULL(
+              (
+                SELECT json_group_array(json_object(
+                  'id', m.id, 'name', m.name, 'surname', m.surname, 'link', m.link
+                ))
+                FROM link_managers_links lm
+                JOIN link_manager m ON m.id = lm.manager_id
+                WHERE lm.link_id = link.id
+              ),
+              '[]'
+            ) as managers,
+            EXISTS (
+              SELECT 1 
+              FROM links_views lv2
+              JOIN view v2 ON v2.id = lv2.view_id
+              WHERE lv2.link_id = link.id 
+              AND v2.name IN ($placeholders)
+            ) as has_access
+          FROM link
+          LEFT JOIN status s ON s.id = link.status_id
+        )
+        SELECT 
+          c.id as category_id,
+          c.name as category_name,
+          IFNULL(
+            json_group_array(
+              CASE 
+                WHEN ld.has_access = 1 THEN
+                  json_object(
+                    'id', ld.id,
+                    'link', ld.link,
+                    'title', ld.title,
+                    'description', ld.description,
+                    'doc_link', ld.doc_link,
+                    'status_id', ld.status_id,
+                    'status_name', ld.status_name,
+                    'keywords', ld.keywords,
+                    'views', ld.views,
+                    'managers', ld.managers
+                  )
+                ELSE NULL
+              END
+            ),
+            '[]'
+          ) as links
+        FROM categories c
+        LEFT JOIN LinkData ld ON c.id = ld.category_id
+        GROUP BY c.id
+      ''';
         // Execute query
         final result = await connection.database.query(sql, sortedGroups);
 
@@ -486,6 +485,6 @@ class CategoryService {
 class JsonCodec {
   const JsonCodec();
 
-  dynamic decode(String source) => null; // Implement with actual JSON parsing
-  String encode(dynamic value) => ''; // Implement with actual JSON encoding
+  dynamic decode(String source) => convert.json.decode(source);
+  String encode(dynamic value) => convert.json.encode(value);
 }
