@@ -27,12 +27,23 @@ class DatabaseConfig {
   DatabaseConfig({
     required this.dbPath,
     this.inMemory = false,
-    this.maxConnections = 1,
+    this.maxConnections = 50,
     this.extraOptions = const {},
     this.backupDirectory = '/data/backup',
     this.enableWal = true,
     this.enableForeignKeys = true,
   });
+
+  /// Creates a configuration for testing with an in-memory database
+  factory DatabaseConfig.forTesting() {
+    return DatabaseConfig(
+      dbPath: ':memory:',
+      inMemory: true,
+      maxConnections: 50,
+      backupDirectory: '/tmp',
+      enableWal: false, // WAL mode doesn't work with in-memory databases
+    );
+  }
 
   /// Creates a configuration from environment variables
   factory DatabaseConfig.fromEnvironment() {
@@ -43,22 +54,12 @@ class DatabaseConfig {
       dbPath: Platform.environment['DB_PATH'] ?? '/data/data.db',
       inMemory: Platform.environment['DB_IN_MEMORY'] == 'true',
       maxConnections:
-          int.tryParse(Platform.environment['DB_MAX_CONNECTIONS'] ?? '1') ?? 1,
+          int.tryParse(Platform.environment['DB_MAX_CONNECTIONS'] ?? '50') ??
+              50,
       backupDirectory: backupDir,
       enableWal: Platform.environment['DB_ENABLE_WAL'] != 'false',
       enableForeignKeys:
           Platform.environment['DB_ENABLE_FOREIGN_KEYS'] != 'false',
-    );
-  }
-
-  /// Creates a configuration for testing with an in-memory database
-  factory DatabaseConfig.forTesting() {
-    return DatabaseConfig(
-      dbPath: ':memory:',
-      inMemory: true,
-      maxConnections: 1,
-      backupDirectory: '/tmp',
-      enableWal: false, // WAL mode doesn't work with in-memory databases
     );
   }
 
@@ -83,4 +84,3 @@ class DatabaseConfig {
     );
   }
 }
-

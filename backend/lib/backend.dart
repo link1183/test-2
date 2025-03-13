@@ -79,7 +79,7 @@ void main() async {
     app.mount('/api/health/', healthRouter.router.call);
 
     // Set up API routes
-    final api = Api(authService: authService);
+    final api = Api(authService: authService, connectionPool: connectionPool);
     app.mount('/api/', api.router.call);
 
     // Create the request pipeline with middleware
@@ -125,4 +125,3 @@ Future<void> _shutdown(HttpServer? server, Logger logger) async {
   logger.info('Shutdown complete');
   exit(0);
 }
-

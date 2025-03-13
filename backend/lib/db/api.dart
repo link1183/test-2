@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:backend/db/database.dart';
+import 'package:backend/db/database_connection_pool.dart';
 import 'package:backend/middleware/auth_middleware.dart';
 import 'package:backend/middleware/rate_limit_middleware.dart';
 import 'package:backend/services/auth_service.dart';
@@ -9,6 +9,7 @@ import 'package:backend/services/encryption_service.dart';
 import 'package:backend/services/input_sanitizer.dart';
 import 'package:backend/services/keyword_service.dart';
 import 'package:backend/services/link_manager_service.dart';
+import 'package:backend/services/link_service.dart';
 import 'package:backend/services/status_service.dart';
 import 'package:backend/services/view_service.dart';
 import 'package:backend/utils/api_response.dart';
@@ -17,29 +18,32 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class Api {
-  final AppDatabase db;
+  final DatabaseConnectionPool _connectionPool;
   final AuthService authService;
   final EncryptionService encryptionService;
   final AuthMiddleware _authMiddleware;
   final RateLimitMiddleware _rateLimitMiddleware;
-  late CategoryService categoryService;
-  late StatusService statusService;
-  late KeywordService keywordService;
-  late ViewService viewService;
-  late LinkManagerService managerService;
+  late final CategoryService categoryService;
+  late final StatusService statusService;
+  late final KeywordService keywordService;
+  late final ViewService viewService;
+  late final LinkManagerService managerService;
+  late final LinkService linkService;
   final _logger = LoggerFactory.getLogger('API');
 
-  Api({required this.authService})
-      : db = AppDatabase(),
+  Api({
+    required this.authService,
+    required DatabaseConnectionPool connectionPool,
+  })  : _connectionPool = connectionPool,
         encryptionService = EncryptionService(),
         _authMiddleware = AuthMiddleware(authService),
         _rateLimitMiddleware = RateLimitMiddleware(authService) {
-    db.init();
-    categoryService = CategoryService(db);
-    statusService = StatusService(db);
-    keywordService = KeywordService(db);
-    viewService = ViewService(db);
-    managerService = LinkManagerService(db);
+    categoryService = CategoryService(_connectionPool);
+    statusService = StatusService(_connectionPool);
+    keywordService = KeywordService(_connectionPool);
+    viewService = ViewService(_connectionPool);
+    managerService = LinkManagerService(_connectionPool);
+    linkService = LinkService(_connectionPool);
   }
 
   Router get router {
@@ -70,17 +74,17 @@ class Api {
             .addHandler(_handleGetCategories));
 
     // Admin routes - require admin privileges
-    router.get(
-        '/admin/db-stats',
-        Pipeline()
-            .addMiddleware(_authMiddleware.requireAdmin)
-            .addHandler(_handleGetDbStats));
+    //router.get(
+    //    '/admin/db-stats',
+    //    Pipeline()
+    //        .addMiddleware(_authMiddleware.requireAdmin)
+    //        .addHandler(_handleGetDbStats));
 
-    router.post(
-        '/admin/db-backup',
-        Pipeline()
-            .addMiddleware(_authMiddleware.requireAdmin)
-            .addHandler(_handleDbBackup));
+    //router.post(
+    //    '/admin/db-backup',
+    //    Pipeline()
+    //        .addMiddleware(_authMiddleware.requireAdmin)
+    //        .addHandler(_handleDbBackup));
 
     // Link routes - require admin privileges
     router.post(
@@ -264,10 +268,6 @@ class Api {
     return router;
   }
 
-  void dispose() {
-    db.dispose();
-  }
-
   /// Utility method to extract a list of integers from dynamic input
   List<int> _extractIntList(dynamic input) {
     if (input == null) {
@@ -353,7 +353,7 @@ class Api {
       final id = await keywordService.createKeyword(keyword);
 
       // Retrieve the created keyword for the response
-      final createdKeyword = keywordService.getKeywordById(id);
+      final createdKeyword = await keywordService.getKeywordById(id);
 
       if (createdKeyword == null) {
         return ApiResponse.serverError(
@@ -413,7 +413,7 @@ class Api {
       final managerIds = _extractIntList(data['managerIds']);
 
       // Create the link
-      final id = await db.createLink(
+      final id = await linkService.createLink(
         link: data['link'],
         title: data['title'],
         description: data['description'],
@@ -426,7 +426,7 @@ class Api {
       );
 
       // Retrieve the created link for the response
-      final createdLink = db.getLinkById(id);
+      final createdLink = await linkService.getLinkById(id);
 
       if (createdLink == null) {
         return ApiResponse.serverError(
@@ -483,7 +483,7 @@ class Api {
       final id = await managerService.createLinkManager(name, surname, link);
 
       // Retrieve the created link manager for the response
-      final createdManager = managerService.getLinkManagerById(id);
+      final createdManager = await managerService.getLinkManagerById(id);
 
       if (createdManager == null) {
         return ApiResponse.serverError(
@@ -569,7 +569,7 @@ class Api {
       final id = await viewService.createView(name);
 
       // Retrieve the created view for the response
-      final createdView = viewService.getViewById(id);
+      final createdView = await viewService.getViewById(id);
 
       if (createdView == null) {
         return ApiResponse.serverError(
@@ -585,26 +585,26 @@ class Api {
     }
   }
 
-  Future<Response> _handleDbBackup(Request request) async {
-    try {
-      final timestamp = DateTime.now()
-          .toIso8601String()
-          .replaceAll(':', '-')
-          .replaceAll('.', '-');
-      final backupPath = '/data/backup_$timestamp.db';
-
-      final success = await db.backup(backupPath);
-
-      if (success) {
-        return ApiResponse.ok({'success': true, 'path': backupPath});
-      } else {
-        return ApiResponse.serverError('Backup failed');
-      }
-    } catch (e) {
-      return ApiResponse.serverError('Error creating database backup',
-          details: e.toString());
-    }
-  }
+  //Future<Response> _handleDbBackup(Request request) async {
+  //  try {
+  //    final timestamp = DateTime.now()
+  //        .toIso8601String()
+  //        .replaceAll(':', '-')
+  //        .replaceAll('.', '-');
+  //    final backupPath = '/data/backup_$timestamp.db';
+  //
+  //    final success = await _connectionPool.backup(backupPath);
+  //
+  //    if (success) {
+  //      return ApiResponse.ok({'success': true, 'path': backupPath});
+  //    } else {
+  //      return ApiResponse.serverError('Backup failed');
+  //    }
+  //  } catch (e) {
+  //    return ApiResponse.serverError('Error creating database backup',
+  //        details: e.toString());
+  //  }
+  //}
 
   Future<Response> _handleDeleteCategory(Request request, String id) async {
     final categoryId = int.tryParse(id);
@@ -646,7 +646,7 @@ class Api {
 
     try {
       // First check if the keyword exists and get its details for the response
-      final keyword = keywordService.getKeywordById(keywordId);
+      final keyword = await keywordService.getKeywordById(keywordId);
 
       if (keyword == null) {
         return ApiResponse.notFound('Keyword not found');
@@ -677,14 +677,14 @@ class Api {
 
     try {
       // First check if the link exists and get its details for the response
-      final link = db.getLinkById(linkId);
+      final link = await linkService.getLinkById(linkId);
 
       if (link == null) {
         return ApiResponse.notFound('Link not found');
       }
 
       // Delete the link
-      final success = await db.deleteLink(linkId);
+      final success = await linkService.deleteLink(linkId);
 
       if (!success) {
         return ApiResponse.serverError('Failed to delete link');
@@ -708,7 +708,7 @@ class Api {
 
     try {
       // First check if the link manager exists and get its details for the response
-      final manager = managerService.getLinkManagerById(managerId);
+      final manager = await managerService.getLinkManagerById(managerId);
 
       if (manager == null) {
         return ApiResponse.notFound('Link manager not found');
@@ -770,7 +770,7 @@ class Api {
 
     try {
       // First check if the view exists and get its details for the response
-      final view = viewService.getViewById(viewId);
+      final view = await viewService.getViewById(viewId);
 
       if (view == null) {
         return ApiResponse.notFound('View not found');
@@ -874,15 +874,15 @@ class Api {
     }
   }
 
-  Future<Response> _handleGetDbStats(Request request) async {
-    try {
-      final stats = db.getDatabaseStats();
-      return ApiResponse.ok({'stats': stats});
-    } catch (e) {
-      return ApiResponse.serverError('Error retrieving database statistics',
-          details: e.toString());
-    }
-  }
+  //Future<Response> _handleGetDbStats(Request request) async {
+  //  try {
+  //    final stats = _connectionPool.getDatabaseStats();
+  //    return ApiResponse.ok({'stats': stats});
+  //  } catch (e) {
+  //    return ApiResponse.serverError('Error retrieving database statistics',
+  //        details: e.toString());
+  //  }
+  //}
 
   Future<Response> _handleGetKeywordById(Request request, String id) async {
     final keywordId = int.tryParse(id);
@@ -892,7 +892,7 @@ class Api {
     }
 
     try {
-      final keyword = keywordService.getKeywordById(keywordId);
+      final keyword = await keywordService.getKeywordById(keywordId);
 
       if (keyword == null) {
         return ApiResponse.notFound('Keyword not found');
@@ -914,7 +914,7 @@ class Api {
     }
 
     try {
-      final link = db.getLinkById(linkId);
+      final link = await linkService.getLinkById(linkId);
 
       if (link == null) {
         return ApiResponse.notFound('Link not found');
@@ -928,6 +928,7 @@ class Api {
     }
   }
 
+  /// Handle GET /api/keywords/{id}/links
   Future<Response> _handleGetLinksByKeyword(Request request, String id) async {
     final keywordId = int.tryParse(id);
 
@@ -937,17 +938,17 @@ class Api {
 
     try {
       // First check if the keyword exists
-      final keyword = keywordService.getKeywordById(keywordId);
+      final keyword = await keywordService.getKeywordById(keywordId);
 
       if (keyword == null) {
         return ApiResponse.notFound('Keyword not found');
       }
 
       // Get links for this keyword
-      final links = keywordService.getLinksByKeywordId(keywordId);
+      final links = await keywordService.getLinksByKeywordId(keywordId);
 
       return ApiResponse.ok(
-          {'keyword': keyword, 'links': links, 'count': links.length});
+          {'keyword': keyword.toMap(), 'links': links, 'count': links.length});
     } catch (e, stackTrace) {
       _logger.error(
           'Error retrieving links by keyword', e, stackTrace, {'id': id});
@@ -965,14 +966,14 @@ class Api {
 
     try {
       // First check if the link manager exists
-      final manager = managerService.getLinkManagerById(managerId);
+      final manager = await managerService.getLinkManagerById(managerId);
 
       if (manager == null) {
         return ApiResponse.notFound('Link manager not found');
       }
 
       // Get links for this manager
-      final links = managerService.getLinksByManagerId(managerId);
+      final links = await managerService.getLinksByManagerId(managerId);
 
       return ApiResponse.ok(
           {'manager': manager, 'links': links, 'count': links.length});
@@ -993,14 +994,14 @@ class Api {
 
     try {
       // First check if the view exists
-      final view = viewService.getViewById(viewId);
+      final view = await viewService.getViewById(viewId);
 
       if (view == null) {
         return ApiResponse.notFound('View not found');
       }
 
       // Get links for this view
-      final links = viewService.getLinksByViewId(viewId);
+      final links = await viewService.getLinksByViewId(viewId);
 
       return ApiResponse.ok(
           {'view': view, 'links': links, 'count': links.length});
@@ -1020,7 +1021,7 @@ class Api {
     }
 
     try {
-      final manager = managerService.getLinkManagerById(managerId);
+      final manager = await managerService.getLinkManagerById(managerId);
 
       if (manager == null) {
         return ApiResponse.notFound('Link manager not found');
@@ -1068,7 +1069,7 @@ class Api {
     }
 
     try {
-      final view = viewService.getViewById(viewId);
+      final view = await viewService.getViewById(viewId);
 
       if (view == null) {
         return ApiResponse.notFound('View not found');
@@ -1250,7 +1251,7 @@ class Api {
       }
 
       // First check if the keyword exists
-      final existingKeyword = keywordService.getKeywordById(keywordId);
+      final existingKeyword = await keywordService.getKeywordById(keywordId);
 
       if (existingKeyword == null) {
         return ApiResponse.notFound('Keyword not found');
@@ -1323,7 +1324,7 @@ class Api {
       }
 
       // Update the link
-      final success = await db.updateLink(
+      final success = await linkService.updateLink(
         id: linkId,
         link: data['link'],
         title: data['title'],
@@ -1341,7 +1342,7 @@ class Api {
       }
 
       // Retrieve the updated link for the response
-      final updatedLink = db.getLinkById(linkId);
+      final updatedLink = await linkService.getLinkById(linkId);
 
       _logger.info('Link updated', {'id': linkId});
       return ApiResponse.ok({'success': true, 'link': updatedLink});
@@ -1390,7 +1391,8 @@ class Api {
       }
 
       // First check if the link manager exists
-      final existingManager = managerService.getLinkManagerById(managerId);
+      final existingManager =
+          await managerService.getLinkManagerById(managerId);
 
       if (existingManager == null) {
         return ApiResponse.notFound('Link manager not found');
@@ -1499,7 +1501,7 @@ class Api {
       }
 
       // First check if the view exists
-      final existingView = viewService.getViewById(viewId);
+      final existingView = await viewService.getViewById(viewId);
 
       if (existingView == null) {
         return ApiResponse.notFound('View not found');

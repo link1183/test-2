@@ -1,5 +1,6 @@
 import 'package:backend/db/migration/migration.dart';
 import 'package:backend/db/migration/migrations/001_initial_schema.dart';
+import 'package:backend/db/migration/migrations/002_initial_data.dart';
 
 /// Registry of all database migrations
 class MigrationRegistry {
@@ -12,7 +13,7 @@ class MigrationRegistry {
   static List<Migration> getMigrations() {
     return [
       InitialSchemaMigration(),
-      // Add new migrations here in version order
+      InitialData(),
     ];
   }
 }
