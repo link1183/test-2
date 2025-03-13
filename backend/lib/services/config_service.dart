@@ -33,16 +33,14 @@ class ConfigService {
           },
         },
         'ldap': {
-          'url': Platform.environment['LDAP_URL'] ?? 'dc1.ad.unil.ch',
+          'url': Platform.environment['LDAP_URL'] ?? 'ad.unil.ch',
           'port': int.parse(Platform.environment['LDAP_PORT'] ?? '636'),
           'base_dn':
               Platform.environment['LDAP_BASE_DN'] ?? 'DC=ad,DC=unil,DC=ch',
         },
         'rate_limit': {
-          'max_attempts':
-              int.parse(Platform.environment['RATE_LIMIT_MAX_ATTEMPTS'] ?? '5'),
-          'windows_minutes': int.parse(
-              Platform.environment['RATE_LIMIT_WINDOW_MINUTES'] ?? '5'),
+          'max_attempts': 5,
+          'windows_minutes': 5,
         },
       };
 
