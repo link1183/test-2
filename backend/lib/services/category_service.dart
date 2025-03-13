@@ -184,108 +184,164 @@ class CategoryService {
         final placeholders = List.filled(sortedGroups.length, '?').join(',');
 
         // Get categories and links in a single query
-        final sql = '''
-          WITH LinkData AS (
-            SELECT 
-              link.*,
-              s.name as status_name,
-              (
-                SELECT json_group_array(json_object(
-                  'id', k.id, 'keyword', k.keyword
-                ))
-                FROM keywords_links kl
-                JOIN keyword k ON k.id = kl.keyword_id
-                WHERE kl.link_id = link.id
-              ) as keywords,
-              (
-                SELECT json_group_array(json_object(
-                  'id', v.id, 'name', v.name
-                ))
-                FROM links_views lv
-                JOIN view v ON v.id = lv.view_id
-                WHERE lv.link_id = link.id
-              ) as views,
-              (
-                SELECT json_group_array(json_object(
-                  'id', m.id, 'name', m.name, 'surname', m.surname, 'link', m.link
-                ))
-                FROM link_managers_links lm
-                JOIN link_manager m ON m.id = lm.manager_id
-                WHERE lm.link_id = link.id
-              ) as managers,
-              EXISTS (
-                SELECT 1 
-                FROM links_views lv2
-                JOIN view v2 ON v2.id = lv2.view_id
-                WHERE lv2.link_id = link.id 
-                AND v2.name IN ($placeholders)
-              ) as has_access
-            FROM link
-            LEFT JOIN status s ON s.id = link.status_id
-          )
-          SELECT 
-            c.id as category_id,
-            c.name as category_name,
-            json_group_array(
-              CASE 
-                WHEN ld.has_access = 1 THEN
-                  json_object(
-                    'id', ld.id,
-                    'link', ld.link,
-                    'title', ld.title,
-                    'description', ld.description,
-                    'doc_link', ld.doc_link,
-                    'status_id', ld.status_id,
-                    'status_name', ld.status_name,
-                    'keywords', ld.keywords,
-                    'views', ld.views,
-                    'managers', ld.managers
-                  )
-                ELSE NULL
-              END
-            ) as links
-          FROM categories c
-          LEFT JOIN LinkData ld ON c.id = ld.category_id
-          GROUP BY c.id
-        ''';
+// Find the SQL query in getCategoriesForUser method
+// It should be around line 170 in the category_service.dart file
+// Replace it with this improved version:
 
+        final sql = '''
+  WITH LinkData AS (
+    SELECT 
+      link.*,
+      s.name as status_name,
+      IFNULL(
+        (
+          SELECT json_group_array(json_object(
+            'id', k.id, 'keyword', k.keyword
+          ))
+          FROM keywords_links kl
+          JOIN keyword k ON k.id = kl.keyword_id
+          WHERE kl.link_id = link.id
+        ),
+        '[]'
+      ) as keywords,
+      IFNULL(
+        (
+          SELECT json_group_array(json_object(
+            'id', v.id, 'name', v.name
+          ))
+          FROM links_views lv
+          JOIN view v ON v.id = lv.view_id
+          WHERE lv.link_id = link.id
+        ),
+        '[]'
+      ) as views,
+      IFNULL(
+        (
+          SELECT json_group_array(json_object(
+            'id', m.id, 'name', m.name, 'surname', m.surname, 'link', m.link
+          ))
+          FROM link_managers_links lm
+          JOIN link_manager m ON m.id = lm.manager_id
+          WHERE lm.link_id = link.id
+        ),
+        '[]'
+      ) as managers,
+      EXISTS (
+        SELECT 1 
+        FROM links_views lv2
+        JOIN view v2 ON v2.id = lv2.view_id
+        WHERE lv2.link_id = link.id 
+        AND v2.name IN ($placeholders)
+      ) as has_access
+    FROM link
+    LEFT JOIN status s ON s.id = link.status_id
+  )
+  SELECT 
+    c.id as category_id,
+    c.name as category_name,
+    IFNULL(
+      json_group_array(
+        CASE 
+          WHEN ld.has_access = 1 THEN
+            json_object(
+              'id', ld.id,
+              'link', ld.link,
+              'title', ld.title,
+              'description', ld.description,
+              'doc_link', ld.doc_link,
+              'status_id', ld.status_id,
+              'status_name', ld.status_name,
+              'keywords', ld.keywords,
+              'views', ld.views,
+              'managers', ld.managers
+            )
+          ELSE NULL
+        END
+      ),
+      '[]'
+    ) as links
+  FROM categories c
+  LEFT JOIN LinkData ld ON c.id = ld.category_id
+  GROUP BY c.id
+''';
         // Execute query
         final result = await connection.database.query(sql, sortedGroups);
 
         // Post-process results
         for (final category in result) {
           // Parse the links JSON
-          final linksJson = category['links'] as String;
+          final linksJson = category['links'] as String?;
 
           try {
-            final linksList = _parseJson(linksJson) as List;
+            // Handle the case when linksJson is null
+            if (linksJson == null) {
+              category['links'] = [];
+              continue;
+            }
+
+            // Try to parse, but handle failure gracefully
+            dynamic parsedLinks;
+            try {
+              parsedLinks = _parseJson(linksJson);
+            } catch (e) {
+              _logger.error('Error parsing root links JSON', e);
+              category['links'] = [];
+              continue;
+            }
+
+            if (parsedLinks == null) {
+              category['links'] = [];
+              continue;
+            }
+
+            // Ensure we have a list
+            final linksList = parsedLinks is List ? parsedLinks : [];
 
             // Filter out null values and process nested JSON
             final validLinks =
                 linksList.where((link) => link != null).map((link) {
               if (link is Map<String, dynamic>) {
-                // Parse nested JSON strings
-                try {
-                  if (link['keywords'] is String) {
-                    link['keywords'] = _parseJson(link['keywords']);
+                // Parse nested JSON strings, handling each one individually with safe defaults
+
+                // Handle keywords
+                if (link.containsKey('keywords')) {
+                  try {
+                    if (link['keywords'] is String) {
+                      link['keywords'] = _safeParseJson(link['keywords']);
+                    }
+                  } catch (e) {
+                    _logger.error('Error parsing keywords JSON', e);
+                    link['keywords'] = [];
                   }
-                } catch (e) {
+                } else {
                   link['keywords'] = [];
                 }
 
-                try {
-                  if (link['views'] is String) {
-                    link['views'] = _parseJson(link['views']);
+                // Handle views
+                if (link.containsKey('views')) {
+                  try {
+                    if (link['views'] is String) {
+                      link['views'] = _safeParseJson(link['views']);
+                    }
+                  } catch (e) {
+                    _logger.error('Error parsing views JSON', e);
+                    link['views'] = [];
                   }
-                } catch (e) {
+                } else {
                   link['views'] = [];
                 }
 
-                try {
-                  if (link['managers'] is String) {
-                    link['managers'] = _parseJson(link['managers']);
+                // Handle managers
+                if (link.containsKey('managers')) {
+                  try {
+                    if (link['managers'] is String) {
+                      link['managers'] = _safeParseJson(link['managers']);
+                    }
+                  } catch (e) {
+                    _logger.error('Error parsing managers JSON', e);
+                    link['managers'] = [];
                   }
-                } catch (e) {
+                } else {
                   link['managers'] = [];
                 }
               }
@@ -296,11 +352,10 @@ class CategoryService {
             // Update the category with parsed links
             category['links'] = validLinks;
           } catch (e) {
-            _logger.error('Error parsing links JSON', e);
+            _logger.error('Error processing category links', e);
             category['links'] = [];
           }
         }
-
         return result;
       } finally {
         await connection.release();
@@ -395,14 +450,34 @@ class CategoryService {
   }
 
   /// Parse JSON with error handling
-  dynamic _parseJson(String json) {
+  dynamic _parseJson(String? json) {
+    if (json == null || json.isEmpty) {
+      return [];
+    }
+
     try {
       return (_connectionPool.config.extraOptions['jsonCodec'] as JsonCodec?)
               ?.decode(json) ??
           const JsonCodec().decode(json);
     } catch (e) {
       _logger.error('Error parsing JSON', e);
-      rethrow;
+      return [];
+    }
+  }
+
+  dynamic _safeParseJson(dynamic json) {
+    if (json == null) return [];
+    if (json is! String) return [];
+    if (json.isEmpty) return [];
+
+    try {
+      final result =
+          (_connectionPool.config.extraOptions['jsonCodec'] as JsonCodec?)
+                  ?.decode(json) ??
+              const JsonCodec().decode(json);
+      return result is List ? result : [];
+    } catch (e) {
+      return [];
     }
   }
 }
@@ -414,4 +489,3 @@ class JsonCodec {
   dynamic decode(String source) => null; // Implement with actual JSON parsing
   String encode(dynamic value) => ''; // Implement with actual JSON encoding
 }
-
