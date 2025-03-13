@@ -70,12 +70,6 @@ abstract class DatabaseInterface {
   /// Rolls back the current transaction
   Future<void> rollbackTransaction();
 
-  /// Executes a function within a transaction
-  ///
-  /// If the function throws an exception, the transaction is rolled back.
-  /// Otherwise, the transaction is committed.
-  Future<T> transaction<T>(Future<T> Function() action);
-
   /// Updates rows in a table
   ///
   /// @param table The table name

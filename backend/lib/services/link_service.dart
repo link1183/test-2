@@ -88,6 +88,18 @@ class Link {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'link': link,
+      'title': title,
+      'description': description,
+      'doc_link': docLink,
+      'status_id': statusId,
+      'category_id': categoryId,
+    };
+  }
+
   /// Converts this link to a database row
   Map<String, dynamic> toMap() {
     return {

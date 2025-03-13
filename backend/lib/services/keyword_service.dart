@@ -25,6 +25,13 @@ class Keyword {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'keyword': keyword,
+    };
+  }
+
   /// Converts this keyword to a database row
   Map<String, dynamic> toMap() {
     return {
@@ -280,4 +287,3 @@ class KeywordService {
     }
   }
 }
-

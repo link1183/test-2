@@ -25,6 +25,13 @@ class Status {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'name': name,
+    };
+  }
+
   /// Converts this status to a database row
   Map<String, dynamic> toMap() {
     return {
@@ -248,4 +255,3 @@ class StatusService {
     }
   }
 }
-

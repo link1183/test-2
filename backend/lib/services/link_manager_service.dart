@@ -44,6 +44,15 @@ class LinkManager {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'name': name,
+      'surname': surname,
+      'link': link,
+    };
+  }
+
   /// Converts this link manager to a database row
   Map<String, dynamic> toMap() {
     return {
@@ -316,4 +325,3 @@ class LinkManagerService {
     }
   }
 }
-

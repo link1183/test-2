@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:backend/db/database_config.dart' as backend;
 import 'package:backend/db/database_exceptions.dart';
 import 'package:backend/db/database_interface.dart';
+import 'package:backend/db/sql/query_builder.dart';
+import 'package:backend/db/sql/transaction_manager.dart';
 import 'package:backend/utils/logger.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -12,11 +14,16 @@ class SqliteDatabase implements DatabaseInterface {
   final backend.DatabaseConfig config;
 
   late final Database _db;
+  late final TransactionManager transactionManager;
+  late final QueryBuilder queryBuilder;
   final Logger _logger = LoggerFactory.getLogger('SqliteDatabase');
   bool _initialized = false;
-  bool _inTransaction = false;
 
-  SqliteDatabase(this.config);
+  SqliteDatabase(this.config) {
+    initialize();
+    transactionManager = TransactionManager(_db);
+    queryBuilder = QueryBuilder(_db);
+  }
 
   @override
   Future<bool> backup(String path) async {
@@ -47,17 +54,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<void> beginTransaction() async {
-    if (_inTransaction) {
-      throw DatabaseException('Transaction already in progress');
-    }
-
-    try {
-      _db.execute('BEGIN TRANSACTION;');
-      _inTransaction = true;
-    } catch (e, stackTrace) {
-      _logger.error('Failed to begin transaction', e, stackTrace);
-      throw DatabaseException('Failed to begin transaction', e, stackTrace);
-    }
+    await transactionManager.beginTransaction();
   }
 
   @override
@@ -76,61 +73,18 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<void> commitTransaction() async {
-    if (!_inTransaction) {
-      throw DatabaseException('No transaction in progress');
-    }
-
-    try {
-      _db.execute('COMMIT;');
-      _inTransaction = false;
-    } catch (e, stackTrace) {
-      _logger.error('Failed to commit transaction', e, stackTrace);
-      throw DatabaseException('Failed to commit transaction', e, stackTrace);
-    }
+    await transactionManager.commitTransaction();
   }
 
   @override
   Future<int> delete(String table,
       {String? where, List<Object?>? whereArgs}) async {
-    try {
-      String sql = 'DELETE FROM $table';
-
-      if (where != null) {
-        sql += ' WHERE $where';
-      }
-
-      return execute(sql, whereArgs ?? []);
-    } catch (e, stackTrace) {
-      _logger.error('Failed to delete from $table', e, stackTrace);
-      throw DatabaseException('Failed to delete from $table', e, stackTrace);
-    }
+    return await queryBuilder.delete(table, whereArgs: whereArgs);
   }
 
   @override
   Future<int> execute(String sql, [List<Object?> parameters = const []]) async {
-    try {
-      final stmt = _db.prepareMultiple(sql);
-      _logger.debug('Executing statement');
-
-      try {
-        for (var stmt in stmt) {
-          stmt.execute(parameters);
-        }
-        final changes = _db.updatedRows;
-        _logger.debug('Statement executed: $changes');
-        return changes;
-      } catch (e, stackTrace) {
-        _logger.error('Error in a statement', e, stackTrace);
-        return 0;
-      } finally {
-        for (var stmt in stmt) {
-          stmt.dispose();
-        }
-      }
-    } catch (e, stackTrace) {
-      _logger.error('Error executing SQL: $sql', e, stackTrace);
-      throw DatabaseException('Failed to execute SQL', e, stackTrace);
-    }
+    return queryBuilder.execute(sql, parameters);
   }
 
   @override
@@ -215,25 +169,7 @@ class SqliteDatabase implements DatabaseInterface {
 
   @override
   Future<int> insert(String table, Map<String, Object?> values) async {
-    try {
-      final columns = values.keys.join(', ');
-      final placeholders = List.filled(values.length, '?').join(', ');
-
-      final sql = 'INSERT INTO $table ($columns) VALUES ($placeholders)';
-
-      await execute(sql, values.values.toList());
-
-      return _db.lastInsertRowId;
-    } catch (e, stackTrace) {
-      _logger.error('Failed to insert into $table', e, stackTrace);
-
-      if (e.toString().contains('UNIQUE constraint failed')) {
-        throw ConstraintException(
-            'Unique constraint violation for table $table', e);
-      }
-
-      throw DatabaseException('Failed to insert into $table', e, stackTrace);
-    }
+    return await queryBuilder.insert(table, values);
   }
 
   @override
@@ -250,64 +186,17 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<List<Map<String, dynamic>>> query(String sql,
       [List<Object?> parameters = const []]) async {
-    try {
-      final result = _db.select(sql, parameters);
-
-      // Convert to a list of maps
-      return result.map((row) => Map<String, dynamic>.from(row)).toList();
-    } catch (e, stackTrace) {
-      _logger.error('Error executing query: $sql', e, stackTrace);
-      throw DatabaseException('Failed to execute query', e, stackTrace);
-    }
+    return await queryBuilder.query(sql, parameters);
   }
 
   @override
   Future<void> rollbackTransaction() async {
-    if (!_inTransaction) {
-      throw DatabaseException('No transaction in progress');
-    }
-
-    try {
-      _db.execute('ROLLBACK;');
-      _inTransaction = false;
-    } catch (e, stackTrace) {
-      _logger.error('Failed to rollback transaction', e, stackTrace);
-      throw DatabaseException('Failed to rollback transaction', e, stackTrace);
-    }
-  }
-
-  @override
-  Future<T> transaction<T>(Future<T> Function() action) async {
-    await beginTransaction();
-
-    try {
-      final result = await action();
-      await commitTransaction();
-      return result;
-    } catch (e) {
-      await rollbackTransaction();
-      rethrow;
-    }
+    await transactionManager.rollbackTransaction();
   }
 
   @override
   Future<int> update(String table, Map<String, Object?> values,
       {String? where, List<Object?>? whereArgs}) async {
-    try {
-      final setClause = values.keys.map((key) => '$key = ?').join(', ');
-
-      String sql = 'UPDATE $table SET $setClause';
-
-      if (where != null) {
-        sql += ' WHERE $where';
-      }
-
-      final params = [...values.values, ...?whereArgs];
-
-      return execute(sql, params);
-    } catch (e, stackTrace) {
-      _logger.error('Failed to update $table', e, stackTrace);
-      throw DatabaseException('Failed to update $table', e, stackTrace);
-    }
+    return await queryBuilder.update(table, values);
   }
 }

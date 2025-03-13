@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:backend/db/database_config.dart';
 import 'package:backend/db/database_exceptions.dart';
-import 'package:backend/db/database_interface.dart';
+import 'package:backend/db/pooled_database_connection.dart';
 import 'package:backend/db/sqlite_database.dart';
 import 'package:backend/utils/logger.dart';
 
@@ -54,6 +54,7 @@ class DatabaseConnectionPool {
     if (_availableConnections.isNotEmpty) {
       final connection = _availableConnections.removeLast();
       connection.updateLastUsed();
+      connection.resetReleaseState();
       _inUseConnections[connection.id] = connection;
       return connection;
     }
@@ -93,6 +94,7 @@ class DatabaseConnectionPool {
       if (_shuttingDown) {
         await _closeConnection(connection);
       } else {
+        connection.resetReleaseState();
         _availableConnections.add(connection);
       }
 
@@ -204,35 +206,5 @@ class DatabaseConnectionPool {
     } catch (e, stackTrace) {
       _logger.error('Error closing database connection', e, stackTrace);
     }
-  }
-}
-
-/// A pooled database connection
-class PooledDatabaseConnection {
-  final int id;
-  final DatabaseInterface database;
-  final DatabaseConnectionPool pool;
-  bool _released = false;
-  DateTime _lastUsed = DateTime.now();
-
-  PooledDatabaseConnection(this.id, this.database, this.pool);
-
-  /// Get the last time this connection was used
-  DateTime get lastUsed => _lastUsed;
-
-  /// Releases the connection back to the pool
-  Future<void> release() async {
-    if (!_released) {
-      await pool.releaseConnection(id);
-      _released = true;
-    } else {
-      pool._logger.warning(
-          'Attempt to release already released connection', {'id': id});
-    }
-  }
-
-  /// Updates the last used timestamp
-  void updateLastUsed() {
-    _lastUsed = DateTime.now();
   }
 }

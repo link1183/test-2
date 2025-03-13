@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:backend/db/database_connection_pool.dart';
+import 'package:backend/db/pooled_database_connection.dart';
 import 'package:backend/services/metrics_service.dart';
 import 'package:backend/utils/logger.dart';
 
