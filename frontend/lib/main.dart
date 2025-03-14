@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:portail_it/middlewares/auth_middleware.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
-import 'package:portail_it/screens/home/home.dart';
-import 'package:portail_it/screens/login/login.dart';
+import 'package:portail_it/routes.dart';
 import 'package:portail_it/theme/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -26,10 +24,8 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Portail IT BCUL',
       theme: AppTheme.theme,
-      home: AuthMiddleware(
-        loginScreen: const Login(),
-        child: const Home(),
-      ),
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: AppRoutes.generateRoute,
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context)
@@ -40,3 +36,4 @@ class App extends StatelessWidget {
     );
   }
 }
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:portail_it/middlewares/auth_provider.dart';
+import 'package:portail_it/screens/admin/admin_dashboard.dart';
 import 'package:portail_it/screens/shared/widgets/user_info.dart';
 import 'package:portail_it/theme/theme.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ class Header extends StatelessWidget {
     final isLoggedIn = authProvider.isAuthenticated;
     final displayName = authProvider.displayName;
     final email = authProvider.email;
+    final isAdmin = _isUserAdmin(authProvider);
 
     return Container(
       decoration: BoxDecoration(
@@ -50,14 +52,49 @@ class Header extends StatelessWidget {
               ),
             ],
           ),
-          if (isLoggedIn && displayName != null && email != null)
-            UserInfo(
-              displayName: displayName,
-              email: email,
-              authProvider: authProvider,
+          if (isLoggedIn)
+            Row(
+              children: [
+                if (isAdmin)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AdminDashboard(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.admin_panel_settings),
+                      label: const Text('Administration'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accent,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                if (displayName != null && email != null)
+                  UserInfo(
+                    displayName: displayName,
+                    email: email,
+                    authProvider: authProvider,
+                  ),
+              ],
             ),
         ],
       ),
     );
   }
+
+  bool _isUserAdmin(AuthProvider authProvider) {
+    final userData = authProvider.userData;
+    if (userData == null) return false;
+
+    final groups = userData['groups'];
+    if (groups == null) return false;
+
+    return (groups as List).contains('admin') || (groups).contains('si-bcu-g');
+  }
 }
+

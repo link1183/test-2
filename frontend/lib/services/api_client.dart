@@ -10,6 +10,19 @@ class ApiClient {
   static bool _isRefreshing = false;
   static final List<Function> _refreshSubscribers = [];
 
+  static Future<http.Response> delete(String endpoint) async {
+    return _executeRequest(() async {
+      final token = await _getAccessToken();
+      return http.delete(
+        Uri.parse(endpoint),
+        headers: {
+          'content-type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+    });
+  }
+
   static Future<http.Response> get(String endpoint) async {
     return _executeRequest(() async {
       final token = await _getAccessToken();
@@ -52,6 +65,20 @@ class ApiClient {
     return _executeRequest(() async {
       final token = await _getAccessToken();
       return http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'content-type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: body is String ? body : (body != null ? json.encode(body) : null),
+      );
+    });
+  }
+
+  static Future<http.Response> put(String endpoint, {Object? body}) async {
+    return _executeRequest(() async {
+      final token = await _getAccessToken();
+      return http.put(
         Uri.parse(endpoint),
         headers: {
           'content-type': 'application/json',
