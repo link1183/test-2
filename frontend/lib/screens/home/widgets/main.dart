@@ -54,7 +54,7 @@ class _MainState extends State<Main> {
       'tutorial',
       'reference',
       'application',
-      'library'
+      'library',
     ],
     'status': ['active', 'archived', 'draft'],
   };
@@ -87,7 +87,7 @@ class _MainState extends State<Main> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadCategories,
-                child: const Text('Retry'),
+                child: const Text('Réessayer'),
               ),
             ],
           ),
@@ -132,7 +132,8 @@ class _MainState extends State<Main> {
               else
                 SingleChildScrollView(
                   physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics()),
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
                   child: Column(
                     children: filteredCategories.map((filteredCategory) {
                       final category = {
@@ -214,18 +215,23 @@ class _MainState extends State<Main> {
       if (category['category_name'] != null) {
         categorySet.add(category['category_name'].toString());
       }
-      final links = category['links'] as List;
-      for (var link in links) {
-        final titleWords = link['title']
-            .toString()
-            .split(' ')
-            .where((word) => word.length > 3)
-            .toList();
-        keywordSet.addAll(titleWords);
 
-        final keywords = link['keywords'] as List;
+      final links = category['links'] as List? ?? [];
+      for (var link in links) {
+        if (link != null) {
+          final titleWords = link['title']
+              .toString()
+              .split(' ')
+              .where((word) => word.length > 3)
+              .toList();
+          keywordSet.addAll(titleWords);
+        }
+
+        final keywords = link['keywords'] as List? ?? [];
         for (var keywordObj in keywords) {
-          keywordSet.add(keywordObj['keyword'].toString());
+          if (keywordObj != null && keywordObj['keyword'] != null) {
+            keywordSet.add(keywordObj['keyword'].toString());
+          }
         }
       }
     }
@@ -240,10 +246,12 @@ class _MainState extends State<Main> {
     if (searchText.isEmpty && _selectedSearchScope == null) {
       // No search query and no scope filter - show all categories
       filteredCategories = categories
-          .map((category) => FilteredCategory(
-                originalCategory: category,
-                filteredLinks: category['links'],
-              ))
+          .map(
+            (category) => FilteredCategory(
+              originalCategory: category,
+              filteredLinks: category['links'],
+            ),
+          )
           .toList();
       expandedIds.clear();
       expandedId = null;
@@ -317,15 +325,17 @@ class _MainState extends State<Main> {
 
         // Search in keywords
         final keywords = link['keywords'] as List;
-        return keywords.any((keyword) =>
-            keyword['keyword'].toString().toLowerCase().contains(searchLower));
+        return keywords.any(
+          (keyword) => keyword['keyword'].toString().toLowerCase().contains(
+                searchLower,
+              ),
+        );
       }).toList();
 
       if (links.isNotEmpty) {
-        filteredCategories.add(FilteredCategory(
-          originalCategory: category,
-          filteredLinks: links,
-        ));
+        filteredCategories.add(
+          FilteredCategory(originalCategory: category, filteredLinks: links),
+        );
         expandedIds.add(category['category_id'].toString());
       }
     }
@@ -333,10 +343,13 @@ class _MainState extends State<Main> {
 
   void _handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
-      final isCtrlPressed = HardwareKeyboard.instance.logicalKeysPressed
-              .contains(LogicalKeyboardKey.controlLeft) ||
-          HardwareKeyboard.instance.logicalKeysPressed
-              .contains(LogicalKeyboardKey.controlRight);
+      final isCtrlPressed =
+          HardwareKeyboard.instance.logicalKeysPressed.contains(
+                LogicalKeyboardKey.controlLeft,
+              ) ||
+              HardwareKeyboard.instance.logicalKeysPressed.contains(
+                LogicalKeyboardKey.controlRight,
+              );
 
       if (isCtrlPressed && event.logicalKey == LogicalKeyboardKey.keyF) {
         event.logicalKey.debugFillProperties(DiagnosticPropertiesBuilder());
@@ -370,10 +383,12 @@ class _MainState extends State<Main> {
         setState(() {
           categories = data['categories'];
           filteredCategories = categories
-              .map((category) => FilteredCategory(
-                    originalCategory: category,
-                    filteredLinks: category['links'],
-                  ))
+              .map(
+                (category) => FilteredCategory(
+                  originalCategory: category,
+                  filteredLinks: category['links'],
+                ),
+              )
               .toList();
           _isLoading = false;
         });
@@ -392,10 +407,10 @@ class _MainState extends State<Main> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (!mounted) return;
       setState(() {
-        _error = 'Error: $e';
+        _error = 'Error: $e, $stackTrace';
         _isLoading = false;
       });
     }

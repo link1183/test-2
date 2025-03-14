@@ -139,7 +139,7 @@ class KeywordController {
   /// Handler for GET /api/keywords
   Future<Response> _handleGetAllKeywords(Request request) async {
     try {
-      final keywords = _keywordService.getAllKeywords();
+      final keywords = await _keywordService.getAllKeywords();
       return ApiResponse.ok({'keywords': keywords});
     } catch (e, stackTrace) {
       _logger.error('Error retrieving all keywords', e, stackTrace);
@@ -244,7 +244,7 @@ class KeywordController {
       }
 
       // Retrieve the updated keyword for the response
-      final updatedKeyword = _keywordService.getKeywordById(keywordId);
+      final updatedKeyword = await _keywordService.getKeywordById(keywordId);
 
       _logger.info('Keyword updated', {'id': keywordId, 'keyword': keyword});
       return ApiResponse.ok({'success': true, 'keyword': updatedKeyword});

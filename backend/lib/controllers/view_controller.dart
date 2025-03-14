@@ -128,7 +128,7 @@ class ViewController {
 
   Future<Response> _handleGetAllViews(Request request) async {
     try {
-      final views = _viewService.getAllViews();
+      final views = await _viewService.getAllViews();
       return ApiResponse.ok({'views': views});
     } catch (e, stackTrace) {
       _logger.error('Error retrieving all views', e, stackTrace);
@@ -230,7 +230,7 @@ class ViewController {
       }
 
       // Retrieve the updated view for the response
-      final updatedView = _viewService.getViewById(viewId);
+      final updatedView = await _viewService.getViewById(viewId);
 
       _logger.info('View updated', {'id': viewId, 'name': name});
       return ApiResponse.ok({'success': true, 'view': updatedView});

@@ -80,7 +80,7 @@ class LinkCard extends StatelessWidget {
                           const SizedBox(height: 8),
                         ],
                         KeywordsList(
-                          keywords: link['keywords'] as List,
+                          keywords: link['keywords'] as List? ?? [],
                           searchQuery: searchQuery,
                         ),
                       ],

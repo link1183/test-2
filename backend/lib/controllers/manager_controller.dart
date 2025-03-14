@@ -144,7 +144,7 @@ class ManagerController {
 
   Future<Response> _handleGetAllManagers(Request request) async {
     try {
-      final managers = _managerService.getAllLinkManagers();
+      final managers = await _managerService.getAllLinkManagers();
       return ApiResponse.ok({'managers': managers});
     } catch (e, stackTrace) {
       _logger.error('Error retrieving all link managers', e, stackTrace);

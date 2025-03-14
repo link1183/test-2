@@ -123,7 +123,7 @@ class StatusController {
 
   Future<Response> _handleGetAllStatuses(Request request) async {
     try {
-      final statuses = _statusService.getAllStatuses();
+      final statuses = await _statusService.getAllStatuses();
       return ApiResponse.ok({'statuses': statuses});
     } catch (e, stackTrace) {
       _logger.error('Error retrieving all statuses', e, stackTrace);
