@@ -16,6 +16,12 @@ class LinkController {
   Router get router {
     final router = Router();
 
+    router.get(
+        '/',
+        Pipeline()
+            .addMiddleware(_authMiddleware.requireAuth)
+            .addHandler(_handleGetAllLinks));
+
     router.post(
         '/',
         Pipeline()
@@ -157,6 +163,17 @@ class LinkController {
     } catch (e) {
       _logger.error('Error deleting link', e, null, {'id': id});
       return ApiResponse.serverError('Failed to delete link',
+          details: e.toString());
+    }
+  }
+
+  Future<Response> _handleGetAllLinks(Request request) async {
+    try {
+      final links = await _linkService.getAllLinks();
+      return ApiResponse.ok({'links': links});
+    } catch (e, stackTrace) {
+      _logger.error('Error retrieving all links', e, stackTrace);
+      return ApiResponse.serverError('Failed to retrieve all links',
           details: e.toString());
     }
   }

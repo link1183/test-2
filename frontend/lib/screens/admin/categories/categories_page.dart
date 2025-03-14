@@ -116,9 +116,20 @@ class _CategoriesPageState extends State<CategoriesPage> {
     });
 
     try {
-      final categories = await _categoryService.getAll();
+      final categoriesData = await _categoryService.getAll();
+
+      // Transform the data structure to match what the DataTableWidget expects
+      final transformedCategories =
+          categoriesData.map<Map<String, dynamic>>((category) {
+        return {
+          'id': category['category_id'],
+          'name': category['category_name'],
+          // Include other fields you might need
+        };
+      }).toList();
+
       setState(() {
-        _categories = categories;
+        _categories = transformedCategories;
       });
     } catch (e) {
       _showErrorSnackbar('Failed to load categories: $e');
