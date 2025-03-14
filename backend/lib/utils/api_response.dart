@@ -12,6 +12,15 @@ class ApiResponse {
     );
   }
 
+  static Response conflict(String message, {dynamic details}) {
+    return error(
+      statusCode: 409,
+      message: message,
+      code: 'conflict',
+      details: details,
+    );
+  }
+
   static Response error({
     required int statusCode,
     required String message,
@@ -61,8 +70,11 @@ class ApiResponse {
     return error(statusCode: 429, message: message, code: 'rate_limited');
   }
 
-  static Response unauthorized(String message) {
-    return error(statusCode: 401, message: message, code: 'unauthorized');
+  static Response unauthorized(String message, {dynamic details}) {
+    return error(
+        statusCode: 401,
+        message: message,
+        code: 'unauthorized',
+        details: details);
   }
 }
-

@@ -64,7 +64,6 @@ class KeywordController {
   /// Handler for POST /api/keywords
   Future<Response> _handleCreateKeyword(Request request) async {
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -72,22 +71,22 @@ class KeywordController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('keyword')) {
         return ApiResponse.badRequest('Missing required field: keyword');
       }
 
       final keyword = data['keyword'];
 
-      // Validate keyword
       if (keyword == null || (keyword is String && keyword.trim().isEmpty)) {
         return ApiResponse.badRequest('Keyword cannot be empty');
       }
 
-      // Create the keyword
       final id = await _keywordService.createKeyword(keyword);
 
-      // Retrieve the created keyword for the response
+      if (id == -1) {
+        return ApiResponse.conflict('A keyword with this name already exists');
+      }
+
       final createdKeyword = await _keywordService.getKeywordById(id);
 
       if (createdKeyword == null) {
@@ -209,7 +208,6 @@ class KeywordController {
     }
 
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -217,33 +215,22 @@ class KeywordController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('keyword')) {
         return ApiResponse.badRequest('Missing required field: keyword');
       }
 
       final keyword = data['keyword'];
 
-      // Validate keyword
       if (keyword == null || (keyword is String && keyword.trim().isEmpty)) {
         return ApiResponse.badRequest('Keyword cannot be empty');
       }
 
-      // First check if the keyword exists
-      final existingKeyword = await _keywordService.getKeywordById(keywordId);
-
-      if (existingKeyword == null) {
-        return ApiResponse.notFound('Keyword not found');
-      }
-
-      // Update the keyword
       final success = await _keywordService.updateKeyword(keywordId, keyword);
 
       if (!success) {
-        return ApiResponse.serverError('Failed to update keyword');
+        return ApiResponse.conflict('Keyword not found or name already exists');
       }
 
-      // Retrieve the updated keyword for the response
       final updatedKeyword = await _keywordService.getKeywordById(keywordId);
 
       _logger.info('Keyword updated', {'id': keywordId, 'keyword': keyword});

@@ -66,7 +66,7 @@ class ViewService {
         );
 
         if (existingViews.isNotEmpty) {
-          throw ConstraintException('A view with this name already exists');
+          return -1;
         }
 
         // Insert the view
@@ -78,7 +78,7 @@ class ViewService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }
@@ -231,8 +231,11 @@ class ViewService {
   /// Updates a view
   Future<bool> updateView(int id, String name) async {
     try {
+      // Trim and normalize the name
+      name = name.trim();
+
       // Validate inputs
-      if (name.trim().isEmpty) {
+      if (name.isEmpty) {
         throw ArgumentError('View name cannot be empty');
       }
 
@@ -250,18 +253,16 @@ class ViewService {
           return false;
         }
 
-        // Check if another view with this name already exists
+        // Check if another view with this name already exists (case-insensitive)
         final existingView = await connection.database.query(
-          'SELECT id FROM view WHERE name = ? AND id != ?',
+          'SELECT id FROM view WHERE LOWER(name) = LOWER(?) AND id != ?',
           [name, id],
         );
 
         if (existingView.isNotEmpty) {
-          throw ConstraintException(
-              'Another view with this name already exists');
+          return false;
         }
 
-        // Update the view
         await connection.database.update(
           'view',
           {'name': name},
@@ -275,7 +276,7 @@ class ViewService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }

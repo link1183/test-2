@@ -68,8 +68,14 @@ class AuthController {
         return ApiResponse.badRequest('Username and password required');
       }
 
-      final username = _encryptionService.decrypt(encryptedUsername);
-      final password = _encryptionService.decrypt(encryptedPassword);
+      String username;
+      String password;
+      try {
+        username = _encryptionService.decrypt(encryptedUsername);
+        password = _encryptionService.decrypt(encryptedPassword);
+      } catch (e) {
+        return ApiResponse.unauthorized('Decryption failed');
+      }
 
       if (!InputSanitizer.isValidUsername(username)) {
         return ApiResponse.badRequest('Invalid username format');
@@ -80,25 +86,36 @@ class AuthController {
       }
 
       final sanitizedUsername = InputSanitizer.sanitizeLdapDN(username);
-      final userData = await _authService.authenticateUser(
-        sanitizedUsername,
-        password,
-      );
 
-      if (userData == null) {
-        return ApiResponse.unauthorized('Invalid credentials');
+      try {
+        final userData = await _authService.authenticateUser(
+          sanitizedUsername,
+          password,
+        );
+
+        if (userData == null) {
+          _logger.info('Failed login attempt', {'username': sanitizedUsername});
+          return ApiResponse.unauthorized('Invalid credentials');
+        }
+
+        final tokenPair = _authService.generateTokenPair(userData, request);
+
+        return ApiResponse.ok({
+          'accessToken': tokenPair.accessToken,
+          'refreshToken': tokenPair.refreshToken,
+          'user': userData,
+        });
+      } catch (e) {
+        _logger.warning('Authentication error', {
+          'username': sanitizedUsername,
+          'error': e.toString(),
+        });
+
+        return ApiResponse.unauthorized(e.toString());
       }
-
-      final tokenPair = _authService.generateTokenPair(userData, request);
-
-      return ApiResponse.ok({
-        'accessToken': tokenPair.accessToken,
-        'refreshToken': tokenPair.refreshToken,
-        'user': userData,
-      });
     } catch (e, stackTrace) {
       _logger.error('Login error', e, stackTrace);
-      return ApiResponse.serverError('Server error', details: e.toString());
+      return ApiResponse.serverError('Authentication process failed');
     }
   }
 

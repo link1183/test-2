@@ -66,7 +66,7 @@ class StatusService {
         );
 
         if (existingStatuses.isNotEmpty) {
-          throw ConstraintException('A status with this name already exists');
+          return -1;
         }
 
         // Insert the status
@@ -78,7 +78,7 @@ class StatusService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }
@@ -226,8 +226,7 @@ class StatusService {
         );
 
         if (existingStatus.isNotEmpty) {
-          throw ConstraintException(
-              'Another status with this name already exists');
+          return false;
         }
 
         // Update the status
@@ -244,7 +243,7 @@ class StatusService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }

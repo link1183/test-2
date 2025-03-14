@@ -66,7 +66,7 @@ class KeywordService {
         );
 
         if (existingKeywords.isNotEmpty) {
-          throw ConstraintException('A keyword with this name already exists');
+          return -1;
         }
 
         // Insert the keyword
@@ -79,7 +79,7 @@ class KeywordService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }
@@ -232,8 +232,11 @@ class KeywordService {
   /// Updates a keyword
   Future<bool> updateKeyword(int id, String keyword) async {
     try {
+      // Trim and normalize the keyword
+      keyword = keyword.trim();
+
       // Validate inputs
-      if (keyword.trim().isEmpty) {
+      if (keyword.isEmpty) {
         throw ArgumentError('Keyword cannot be empty');
       }
 
@@ -251,18 +254,16 @@ class KeywordService {
           return false;
         }
 
-        // Check if another keyword with this name already exists
+        // Check if another keyword with this name already exists (case-insensitive)
         final existingKeyword = await connection.database.query(
-          'SELECT id FROM keyword WHERE keyword = ? AND id != ?',
+          'SELECT id FROM keyword WHERE LOWER(keyword) = LOWER(?) AND id != ?',
           [keyword, id],
         );
 
         if (existingKeyword.isNotEmpty) {
-          throw ConstraintException(
-              'Another keyword with this name already exists');
+          return false;
         }
 
-        // Update the keyword
         await connection.database.update(
           'keyword',
           {'keyword': keyword},
@@ -276,7 +277,7 @@ class KeywordService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }

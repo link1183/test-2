@@ -48,7 +48,17 @@ class AuthService {
         await ldap.bind(dn: DN(userDN), password: password);
       } on LdapException catch (e) {
         _logger.error('LDAP error during bind', e);
-        throw Exception('Authentication error: ${e.message}');
+
+        if (e.message.contains('Invalid credentials')) {
+          return null;
+        }
+
+        if (e.message.contains('Account disabled') ||
+            e.message.contains('Account locked')) {
+          throw Exception('Account is disabled or locked');
+        }
+
+        throw Exception('Authentication service error');
       }
 
       try {

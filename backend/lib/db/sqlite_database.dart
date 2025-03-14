@@ -79,7 +79,7 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<int> delete(String table,
       {String? where, List<Object?>? whereArgs}) async {
-    return await queryBuilder.delete(table, whereArgs: whereArgs);
+    return await queryBuilder.delete(table, where: where, whereArgs: whereArgs);
   }
 
   @override
@@ -197,6 +197,7 @@ class SqliteDatabase implements DatabaseInterface {
   @override
   Future<int> update(String table, Map<String, Object?> values,
       {String? where, List<Object?>? whereArgs}) async {
-    return await queryBuilder.update(table, values);
+    return await queryBuilder.update(table, values,
+        where: where, whereArgs: whereArgs);
   }
 }

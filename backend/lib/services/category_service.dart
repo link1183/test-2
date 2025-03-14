@@ -68,7 +68,7 @@ class CategoryService {
         );
 
         if (existingCategories.isNotEmpty) {
-          throw ConstraintException('A category with this name already exists');
+          return -1;
         }
 
         // Insert the category
@@ -506,22 +506,144 @@ class CategoryService {
     }
   }
 
-  /// Gets a category by ID
-  Future<Category?> getCategoryById(int id) async {
+  /// Gets a category by ID with its associated links
+  Future<Map<String, dynamic>?> getCategoryById(int id) async {
     try {
       final connection = await _connectionPool.getConnection();
 
       try {
-        final results = await connection.database.query(
-          'SELECT id, name FROM categories WHERE id = ?',
-          [id],
-        );
+        final sql = '''
+        WITH LinkData AS (
+          SELECT 
+            link.*,
+            s.name AS status_name,
+            c.name AS category_name,
+            IFNULL(
+              (
+                SELECT json_group_array(json_object(
+                  'id', k.id, 'keyword', k.keyword
+                ))
+                FROM keywords_links kl
+                JOIN keyword k ON k.id = kl.keyword_id
+                WHERE kl.link_id = link.id
+              ),
+              '[]'
+            ) AS keywords,
+            IFNULL(
+              (
+                SELECT json_group_array(json_object(
+                  'id', v.id, 'name', v.name
+                ))
+                FROM links_views lv
+                JOIN view v ON v.id = lv.view_id
+                WHERE lv.link_id = link.id
+              ),
+              '[]'
+            ) AS views,
+            IFNULL(
+              (
+                SELECT json_group_array(json_object(
+                  'id', m.id, 'name', m.name, 'surname', m.surname, 'link', m.link
+                ))
+                FROM link_managers_links lm
+                JOIN link_manager m ON m.id = lm.manager_id
+                WHERE lm.link_id = link.id
+              ),
+              '[]'
+            ) AS managers
+          FROM link
+          LEFT JOIN status s ON s.id = link.status_id
+          LEFT JOIN categories c ON c.id = link.category_id
+        )
+        SELECT 
+          c.id AS category_id,
+          c.name AS category_name,
+          IFNULL(
+            json_group_array(
+              CASE 
+                WHEN ld.id IS NOT NULL THEN
+                  json_object(
+                    'id', ld.id,
+                    'link', ld.link,
+                    'title', ld.title,
+                    'description', ld.description,
+                    'doc_link', ld.doc_link,
+                    'status_id', ld.status_id,
+                    'status_name', ld.status_name,
+                    'keywords', ld.keywords,
+                    'views', ld.views,
+                    'managers', ld.managers
+                  )
+                ELSE NULL
+              END
+            ),
+            '[]'
+          ) AS links
+        FROM categories c
+        LEFT JOIN LinkData ld ON c.id = ld.category_id
+        WHERE c.id = ?
+        GROUP BY c.id
+      ''';
+
+        // Execute the query
+        final results = await connection.database.query(sql, [id]);
 
         if (results.isEmpty) {
           return null;
         }
 
-        return Category.fromMap(results.first);
+        // Process the result
+        final category = results.first;
+
+        // Parse links JSON
+        final linksJson = category['links'] as String?;
+        if (linksJson != null) {
+          try {
+            final parsedLinks = convert.json.decode(linksJson);
+
+            // Process nested JSON strings in each link
+            final processedLinks = (parsedLinks as List).map((link) {
+              if (link is Map<String, dynamic>) {
+                // Parse keywords
+                if (link['keywords'] is String) {
+                  try {
+                    link['keywords'] = convert.json.decode(link['keywords']);
+                  } catch (e) {
+                    link['keywords'] = [];
+                  }
+                }
+
+                // Parse views
+                if (link['views'] is String) {
+                  try {
+                    link['views'] = convert.json.decode(link['views']);
+                  } catch (e) {
+                    link['views'] = [];
+                  }
+                }
+
+                // Parse managers
+                if (link['managers'] is String) {
+                  try {
+                    link['managers'] = convert.json.decode(link['managers']);
+                  } catch (e) {
+                    link['managers'] = [];
+                  }
+                }
+              }
+              return link;
+            }).toList();
+
+            category['links'] = processedLinks;
+          } catch (e) {
+            _logger.error('Error parsing links JSON', e);
+            category['links'] = [];
+          }
+        } else {
+          category['links'] = [];
+        }
+
+        return category;
       } finally {
         await connection.release();
       }
@@ -531,11 +653,13 @@ class CategoryService {
     }
   }
 
-  /// Updates a category
   Future<bool> updateCategory(int id, String name) async {
     try {
+      // Trim and normalize the name
+      name = name.trim();
+
       // Validate inputs
-      if (name.trim().isEmpty) {
+      if (name.isEmpty) {
         throw ArgumentError('Category name cannot be empty');
       }
 
@@ -553,18 +677,16 @@ class CategoryService {
           return false;
         }
 
-        // Check if another category with this name already exists
+        // Check if another category with this name already exists (case-insensitive)
         final existingCategory = await connection.database.query(
-          'SELECT id FROM categories WHERE name = ? AND id != ?',
+          'SELECT id FROM categories WHERE LOWER(name) = LOWER(?) AND id != ?',
           [name, id],
         );
 
         if (existingCategory.isNotEmpty) {
-          throw ConstraintException(
-              'Another category with this name already exists');
+          return false;
         }
 
-        // Update the category
         await connection.database.update(
           'categories',
           {'name': name},
@@ -578,7 +700,7 @@ class CategoryService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }

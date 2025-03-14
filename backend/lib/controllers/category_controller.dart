@@ -59,7 +59,6 @@ class CategoryController {
   /// Handler for POST /api/categories
   Future<Response> _handleCreateCategory(Request request) async {
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -67,7 +66,6 @@ class CategoryController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name')) {
         return ApiResponse.badRequest('Missing required field: name');
       }
@@ -82,6 +80,10 @@ class CategoryController {
       // Create the category
       final id = await _categoryService.createCategory(name);
 
+      if (id == -1) {
+        return ApiResponse.conflict('A category with this name already exists');
+      }
+
       // Retrieve the created category for the response
       final createdCategory = await _categoryService.getCategoryById(id);
 
@@ -91,7 +93,7 @@ class CategoryController {
       }
 
       _logger.info('Category created', {'id': id, 'name': name});
-      return ApiResponse.ok({'success': true, 'category': createdCategory});
+      return ApiResponse.ok(id);
     } catch (e, stackTrace) {
       _logger.error('Error creating category', e, stackTrace);
       return ApiResponse.serverError('Failed to create category',
@@ -123,7 +125,7 @@ class CategoryController {
       }
 
       _logger.info('Category deleted', {'id': categoryId});
-      return ApiResponse.ok({'success': true, 'deletedCategory': category});
+      return ApiResponse.ok({'success': true, 'categoryId': categoryId});
     } catch (e, stackTrace) {
       _logger.error('Error deleting category', e, stackTrace, {'id': id});
       return ApiResponse.serverError('Failed to delete category',
@@ -175,7 +177,6 @@ class CategoryController {
     }
 
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -183,14 +184,12 @@ class CategoryController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name')) {
         return ApiResponse.badRequest('Missing required field: name');
       }
 
       final name = data['name'];
 
-      // Validate name
       if (name == null || (name is String && name.trim().isEmpty)) {
         return ApiResponse.badRequest('Category name cannot be empty');
       }
@@ -199,15 +198,12 @@ class CategoryController {
       final success = await _categoryService.updateCategory(categoryId, name);
 
       if (!success) {
-        return ApiResponse.notFound('Category not found');
+        return ApiResponse.conflict(
+            'Category not found or name already exists');
       }
 
-      // Retrieve the updated category for the response
-      final updatedCategory =
-          await _categoryService.getCategoryById(categoryId);
-
       _logger.info('Category updated', {'id': categoryId, 'name': name});
-      return ApiResponse.ok({'success': true, 'category': updatedCategory});
+      return ApiResponse.ok({'success': true, 'newCategory': name});
     } catch (e, stackTrace) {
       _logger.error('Error updating category', e, stackTrace, {'id': id});
       return ApiResponse.serverError('Failed to update category',

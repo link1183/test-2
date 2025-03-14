@@ -20,10 +20,9 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const Login());
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(
-              child: Text('No route defined for ${settings.name}'),
-            ),
+          builder: (_) => AuthMiddleware(
+            loginScreen: const Login(),
+            child: const Home(),
           ),
         );
     }

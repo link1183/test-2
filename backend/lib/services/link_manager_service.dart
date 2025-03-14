@@ -87,6 +87,16 @@ class LinkManagerService {
       final connection = await _connectionPool.getConnection();
 
       try {
+        // Check if a link manager with this name and surname already exists
+        final existingManagers = await connection.database.query(
+          'SELECT id FROM link_manager WHERE name = ? AND surname = ?',
+          [name, surname],
+        );
+
+        if (existingManagers.isNotEmpty) {
+          return -1;
+        }
+
         // Insert the link manager
         final id = await connection.database.insert('link_manager', {
           'name': name,
@@ -261,12 +271,16 @@ class LinkManagerService {
     String? link,
   }) async {
     try {
+      // Trim and normalize inputs
+      name = name?.trim();
+      surname = surname?.trim();
+
       // Validate inputs if provided
-      if (name != null && name.trim().isEmpty) {
+      if (name != null && name.isEmpty) {
         throw ArgumentError('Link manager name cannot be empty');
       }
 
-      if (surname != null && surname.trim().isEmpty) {
+      if (surname != null && surname.isEmpty) {
         throw ArgumentError('Link manager surname cannot be empty');
       }
 
@@ -288,6 +302,18 @@ class LinkManagerService {
         if (managerExists.isEmpty) {
           _logger.warning('Link manager not found for update', {'id': id});
           return false;
+        }
+
+        // Check if another link manager with same name and surname exists
+        if (name != null || surname != null) {
+          final existingManager = await connection.database.query(
+            'SELECT id FROM link_manager WHERE name = ? AND surname = ? AND id != ?',
+            [name ?? '', surname ?? '', id],
+          );
+
+          if (existingManager.isNotEmpty) {
+            return false;
+          }
         }
 
         // Prepare update data

@@ -162,12 +162,12 @@ class LinkService {
       try {
         // Check if a link with this title already exists
         final existingLinks = await connection.database.query(
-          'SELECT id FROM link WHERE title = ?',
+          'SELECT id FROM link WHERE LOWER(title) = LOWER(?)',
           [title],
         );
 
         if (existingLinks.isNotEmpty) {
-          throw ConstraintException('A link with this title already exists');
+          return -1;
         }
 
         // Start a transaction for atomicity
@@ -226,7 +226,7 @@ class LinkService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }
@@ -543,13 +543,12 @@ class LinkService {
         // Check if updating to an existing title
         if (title != null) {
           final existingTitle = await connection.database.query(
-            'SELECT id FROM link WHERE title = ? AND id != ?',
+            'SELECT id FROM link WHERE LOWER(title) = LOWER(?) AND id != ?',
             [title, id],
           );
 
           if (existingTitle.isNotEmpty) {
-            throw ConstraintException(
-                'Another link with this title already exists');
+            return false;
           }
         }
 
@@ -578,14 +577,12 @@ class LinkService {
 
           // Update view relationships if specified
           if (viewIds != null) {
-            // Delete existing relationships
             await connection.database.delete(
               'links_views',
               where: 'link_id = ?',
               whereArgs: [id],
             );
 
-            // Insert new relationships
             for (final viewId in viewIds) {
               await connection.database.insert('links_views', {
                 'link_id': id,
@@ -596,14 +593,12 @@ class LinkService {
 
           // Update keyword relationships if specified
           if (keywordIds != null) {
-            // Delete existing relationships
             await connection.database.delete(
               'keywords_links',
               where: 'link_id = ?',
               whereArgs: [id],
             );
 
-            // Insert new relationships
             for (final keywordId in keywordIds) {
               await connection.database.insert('keywords_links', {
                 'link_id': id,
@@ -614,14 +609,12 @@ class LinkService {
 
           // Update manager relationships if specified
           if (managerIds != null) {
-            // Delete existing relationships
             await connection.database.delete(
               'link_managers_links',
               where: 'link_id = ?',
               whereArgs: [id],
             );
 
-            // Insert new relationships
             for (final managerId in managerIds) {
               await connection.database.insert('link_managers_links', {
                 'link_id': id,
@@ -651,7 +644,7 @@ class LinkService {
         await connection.release();
       }
     } catch (e, stackTrace) {
-      if (e is ConstraintException || e is ArgumentError) {
+      if (e is ArgumentError) {
         _logger.warning(e.toString());
         rethrow;
       }

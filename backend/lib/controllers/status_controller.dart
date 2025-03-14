@@ -50,7 +50,6 @@ class StatusController {
 
   Future<Response> _handleCreateStatus(Request request) async {
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -58,22 +57,22 @@ class StatusController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name')) {
         return ApiResponse.badRequest('Missing required field: name');
       }
 
       final name = data['name'];
 
-      // Validate name
       if (name == null || (name is String && name.trim().isEmpty)) {
         return ApiResponse.badRequest('Status name cannot be empty');
       }
 
-      // Create the status
       final id = await _statusService.createStatus(name);
 
-      // Retrieve the created status for the response
+      if (id == -1) {
+        return ApiResponse.conflict('A status with this name already exists');
+      }
+
       final createdStatus = await _statusService.getStatusById(id);
 
       if (createdStatus == null) {
@@ -162,7 +161,6 @@ class StatusController {
     }
 
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -170,30 +168,26 @@ class StatusController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name')) {
         return ApiResponse.badRequest('Missing required field: name');
       }
 
       final name = data['name'];
 
-      // Validate name
       if (name == null || (name is String && name.trim().isEmpty)) {
         return ApiResponse.badRequest('Status name cannot be empty');
       }
 
-      // First check if the status exists
       final status = await _statusService.getStatusById(statusId);
 
       if (status == null) {
         return ApiResponse.notFound('Status not found');
       }
 
-      // Update the status
       final success = await _statusService.updateStatus(statusId, name);
 
       if (!success) {
-        return ApiResponse.serverError('Failed to update status');
+        return ApiResponse.conflict('Status not found or name already exists');
       }
 
       // Retrieve the updated status for the response

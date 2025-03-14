@@ -65,7 +65,6 @@ class LinkController {
 
   Future<Response> _handleCreateLink(Request request) async {
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -118,6 +117,10 @@ class LinkController {
         keywordIds: keywordIds,
         managerIds: managerIds,
       );
+
+      if (id == -1) {
+        return ApiResponse.conflict('A link with this title already exists');
+      }
 
       // Retrieve the created link for the response
       final createdLink = await _linkService.getLinkById(id);
@@ -208,7 +211,6 @@ class LinkController {
     }
 
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -262,7 +264,7 @@ class LinkController {
       );
 
       if (!success) {
-        return ApiResponse.notFound('Link not found');
+        return ApiResponse.conflict('Link not found or title already exists');
       }
 
       // Retrieve the updated link for the response

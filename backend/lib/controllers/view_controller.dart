@@ -55,7 +55,6 @@ class ViewController {
   /// Handler for POST /api/views - Creates a new view
   Future<Response> _handleCreateView(Request request) async {
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -63,22 +62,22 @@ class ViewController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name')) {
         return ApiResponse.badRequest('Missing required field: name');
       }
 
       final name = data['name'];
 
-      // Validate name
       if (name == null || (name is String && name.trim().isEmpty)) {
         return ApiResponse.badRequest('View name cannot be empty');
       }
 
-      // Create the view
       final id = await _viewService.createView(name);
 
-      // Retrieve the created view for the response
+      if (id == -1) {
+        return ApiResponse.conflict('A view with this name already exists');
+      }
+
       final createdView = await _viewService.getViewById(id);
 
       if (createdView == null) {
@@ -195,7 +194,6 @@ class ViewController {
     }
 
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -203,33 +201,22 @@ class ViewController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name')) {
         return ApiResponse.badRequest('Missing required field: name');
       }
 
       final name = data['name'];
 
-      // Validate name
       if (name == null || (name is String && name.trim().isEmpty)) {
         return ApiResponse.badRequest('View name cannot be empty');
       }
 
-      // First check if the view exists
-      final existingView = await _viewService.getViewById(viewId);
-
-      if (existingView == null) {
-        return ApiResponse.notFound('View not found');
-      }
-
-      // Update the view
       final success = await _viewService.updateView(viewId, name);
 
       if (!success) {
-        return ApiResponse.serverError('Failed to update view');
+        return ApiResponse.conflict('View not found or name already exists');
       }
 
-      // Retrieve the updated view for the response
       final updatedView = await _viewService.getViewById(viewId);
 
       _logger.info('View updated', {'id': viewId, 'name': name});

@@ -56,7 +56,6 @@ class ManagerController {
   /// Handler for POST /api/managers - Creates a new link manager
   Future<Response> _handleCreateManager(Request request) async {
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -64,7 +63,6 @@ class ManagerController {
         return ApiResponse.badRequest('Invalid request format');
       }
 
-      // Validate required fields
       if (!data.containsKey('name') || !data.containsKey('surname')) {
         return ApiResponse.badRequest(
             'Missing required fields: name and surname are required');
@@ -74,7 +72,6 @@ class ManagerController {
       final surname = data['surname'];
       final link = data['link'] as String?;
 
-      // Validate name and surname
       if (name == null || (name is String && name.trim().isEmpty)) {
         return ApiResponse.badRequest('Manager name cannot be empty');
       }
@@ -83,17 +80,17 @@ class ManagerController {
         return ApiResponse.badRequest('Manager surname cannot be empty');
       }
 
-      // Validate link if provided
-      if (link != null && link.isNotEmpty) {
-        if (!InputSanitizer.isValidUrl(link)) {
-          return ApiResponse.badRequest('Invalid URL format for link');
-        }
+      if (link != null && link.isNotEmpty && !InputSanitizer.isValidUrl(link)) {
+        return ApiResponse.badRequest('Invalid URL format for link');
       }
 
-      // Create the link manager
       final id = await _managerService.createLinkManager(name, surname, link);
 
-      // Retrieve the created link manager for the response
+      if (id == -1) {
+        return ApiResponse.conflict(
+            'A link manager with this name and surname already exists');
+      }
+
       final createdManager = await _managerService.getLinkManagerById(id);
 
       if (createdManager == null) {
@@ -211,7 +208,6 @@ class ManagerController {
     }
 
     try {
-      // Parse and validate the request body
       final payload = await request.readAsString();
       final data = InputSanitizer.sanitizeRequestBody(payload);
 
@@ -219,12 +215,10 @@ class ManagerController {
         return ApiResponse.badRequest('Invalid request format or empty data');
       }
 
-      // Extract fields that can be updated
       final name = data['name'] as String?;
       final surname = data['surname'] as String?;
       final link = data['link'] as String?;
 
-      // Validate fields if provided
       if (name != null && name.trim().isEmpty) {
         return ApiResponse.badRequest('Manager name cannot be empty');
       }
@@ -233,31 +227,24 @@ class ManagerController {
         return ApiResponse.badRequest('Manager surname cannot be empty');
       }
 
-      // Validate link if provided
-      if (link != null && link.isNotEmpty) {
-        if (!InputSanitizer.isValidUrl(link)) {
-          return ApiResponse.badRequest('Invalid URL format for link');
-        }
+      if (link != null && link.isNotEmpty && !InputSanitizer.isValidUrl(link)) {
+        return ApiResponse.badRequest('Invalid URL format for link');
       }
 
-      // First check if the link manager exists
-      final existingManager =
-          await _managerService.getLinkManagerById(managerId);
-
-      if (existingManager == null) {
-        return ApiResponse.notFound('Link manager not found');
-      }
-
-      // Update the link manager
-      final success = await _managerService.updateLinkManager(managerId,
-          name: name, surname: surname, link: link);
+      final success = await _managerService.updateLinkManager(
+        managerId,
+        name: name,
+        surname: surname,
+        link: link,
+      );
 
       if (!success) {
-        return ApiResponse.serverError('Failed to update link manager');
+        return ApiResponse.conflict(
+            'Link manager not found or name and surname already exist');
       }
 
-      // Retrieve the updated link manager for the response
-      final updatedManager = _managerService.getLinkManagerById(managerId);
+      final updatedManager =
+          await _managerService.getLinkManagerById(managerId);
 
       _logger.info('Link manager updated', {'id': managerId});
       return ApiResponse.ok({'success': true, 'manager': updatedManager});
